@@ -82,7 +82,6 @@ fun LoginRegister(navController: NavController){
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxWidth()
                 .constrainAs(phoneLinearRes) {
                     top.linkTo(phoneTitleRes.bottom, margin = 6.dp)
                     start.linkTo(registerTitleRes.start)
