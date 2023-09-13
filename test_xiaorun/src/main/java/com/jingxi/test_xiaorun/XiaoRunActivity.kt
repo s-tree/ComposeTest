@@ -1,5 +1,6 @@
 package com.jingxi.test_xiaorun
 
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.ui.login.Login
 import com.jingxi.test_xiaorun.ui.login.LoginHome
+import me.jessyan.autosize.AutoSizeCompat
 
 class XiaoRunActivity : ComponentActivity() {
 
@@ -42,4 +44,8 @@ class XiaoRunActivity : ComponentActivity() {
         }
     }
 
+    override fun getResources(): Resources {
+        AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+        return super.getResources()
+    }
 }
