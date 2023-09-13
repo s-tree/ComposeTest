@@ -16,4 +16,7 @@
 
     <color name="circle_indicator_dis">#ffe3e5ef</color>
     <color name="circle_indicator_vis">#F89B36</color>
+    <color name="tv_gray">#818791</color>
+    <color name="color_ff323232">#323232</color>
+    <color name="color_ff999999">#999999</color>
 </resources>

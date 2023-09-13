@@ -36,7 +36,8 @@ import com.jingxi.test_xiaorun.ui.weiget.PagerCircleIndicator
 fun LoginHome(navController: NavController){
     ConstraintLayout(modifier = Modifier
         .fillMaxWidth()
-        .fillMaxHeight()) {
+        .fillMaxHeight()
+        .background(color = Color.White)) {
         val (pageRes,circleIndicatorRes,spaceRes,registerRes,loginRes) = remember {
             createRefs()
         }
