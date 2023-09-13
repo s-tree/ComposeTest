@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white_trans_ba">#BAFFFFFF</color>
+    <color name="white_trans_99">#99FFFFFF</color>
+    <color name="white_trans_80">#80FFFFFF</color>
+    <color name="black_trans_99">#99000000</color>
+    <color name="blue_text_bg">#1976d2</color>
+
+    <color name="bg_blue_light_light_start">#F0FEFD</color>
+    <color name="bg_blue_light_light_end">#F7FDFB</color>
+    <color name="bg_blue_light_start">#FDD2A2</color>
+    <color name="bg_blue_light_end">#FBCE9F</color>
+    <color name="bg_blue_deep_start">#F49E39</color>
+    <color name="bg_blue_deep_end">#FFA94B</color>
+    <color name="tv_blue_in_light">#F79B34</color>
+
+    <color name="circle_indicator_dis">#ffe3e5ef</color>
+    <color name="circle_indicator_vis">#F89B36</color>
+</resources>
