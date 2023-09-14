@@ -19,4 +19,5 @@
     <color name="tv_gray">#818791</color>
     <color name="color_ff323232">#323232</color>
     <color name="color_ff999999">#999999</color>
+    <color name="bg_line_gray">#F1F1F1</color>
 </resources>
