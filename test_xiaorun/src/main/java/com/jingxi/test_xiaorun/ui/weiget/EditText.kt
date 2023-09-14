@@ -1,9 +1,7 @@
 package com.jingxi.test_xiaorun.ui.weiget
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardActions
@@ -23,7 +21,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 
 /**
  * TextField 前部默认有一个padding,所以改用此方案
@@ -33,6 +30,7 @@ import androidx.compose.ui.unit.dp
 fun EditText(value: String,
              onValueChange: (String) -> Unit,
              modifier: Modifier = Modifier,
+             editModifier : Modifier = Modifier,
              enabled: Boolean = true,
              readOnly: Boolean = false,
              textStyle: TextStyle = LocalTextStyle.current,
@@ -90,7 +88,7 @@ fun EditText(value: String,
                 disabledIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent
             ),
-            modifier = Modifier
+            modifier = editModifier
                 .wrapContentWidth(Alignment.Start)
                 .wrapContentHeight(Alignment.CenterVertically)
         )

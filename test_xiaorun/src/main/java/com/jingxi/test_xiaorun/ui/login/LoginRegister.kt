@@ -3,9 +3,11 @@ package com.jingxi.test_xiaorun.ui.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,12 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,15 +34,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import com.jingxi.test_xiaorun.R
+import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.filter.InputFilters
 import com.jingxi.test_xiaorun.ui.weiget.EditText
 import com.jingxi.test_xiaorun.util.countDown
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginRegister(navController: NavController) {
     ConstraintLayout(
@@ -66,9 +69,8 @@ fun LoginRegister(navController: NavController) {
             mutableStateOf(0)
         }
 
-
         val (backRes, registerTitleRes, phoneTitleRes, phoneLinearRes, checkPhoneRes,phoneLineRes,
-            codeTitleRes, codeInputRes,codeCheckRes,codeLineRes,toLoginRes) = remember {
+            codeTitleRes, codeInputRes,codeCheckRes,codeLineRes,toRegisterRes,toLoginRes) = remember {
             createRefs()
         }
 
@@ -166,12 +168,13 @@ fun LoginRegister(navController: NavController) {
         Spacer(
             Modifier
                 .fillMaxWidth()
+                .padding(start = 44.dp, end = 60.dp)
                 .height(1.dp)
                 .background(color = colorResource(id = R.color.bg_line_gray))
                 .constrainAs(phoneLineRes) {
                     top.linkTo(phoneLinearRes.bottom)
-                    start.linkTo(parent.start, margin = 44.dp)
-                    end.linkTo(parent.end, margin = 60.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 })
 
         Text(text = "验证码",
@@ -185,12 +188,13 @@ fun LoginRegister(navController: NavController) {
         EditText(
             value = codeInput.value,
             modifier = Modifier
-                .padding(top = 34.dp,start = 0.dp, bottom = 34.dp)
+                .padding(top = 34.dp, start = 0.dp, bottom = 34.dp)
                 .background(color = Color.White)
                 .constrainAs(codeInputRes) {
                     top.linkTo(codeTitleRes.bottom, margin = 6.dp)
                     start.linkTo(registerTitleRes.start)
                 },
+            editModifier = Modifier.focusable(phoneInput.value.length == 11),
             onValueChange = {
                 var str = InputFilters.lengthFilter(it, 4)
                 str = InputFilters.numberFilter(str)
@@ -234,13 +238,70 @@ fun LoginRegister(navController: NavController) {
         Spacer(
             Modifier
                 .fillMaxWidth()
+                .padding(start = 44.dp, end = 60.dp)
                 .height(1.dp)
                 .background(color = colorResource(id = R.color.bg_line_gray))
                 .constrainAs(codeLineRes) {
                     top.linkTo(codeInputRes.bottom)
-                    start.linkTo(parent.start, margin = 44.dp)
-                    end.linkTo(parent.end, margin = 60.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 })
 
+        Button(onClick = {
+            CoroutineScope(Dispatchers.Default).launch {
+                var job = async { request() }
+                println("async 结果 ${job.await()}")
+            }
+        },
+            enabled = phoneInput.value.length == 11 && codeInput.value.length == 4,
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = colorResource(R.color.bg_blue_deep_start),
+                disabledContainerColor = colorResource(id = R.color.bg_blue_light_start)
+            ),
+            shape = RoundedCornerShape(6.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(88.dp)
+                .padding(end = 60.dp)
+                .constrainAs(toRegisterRes) {
+                    top.linkTo(codeInputRes.bottom, margin = 90.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }){
+            Text(text = "下一步",
+                fontSize = 36.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center)
+        }
+
+//        Text(
+//            text = "已有账号，去登录",
+//            color = colorResource(id = R.color.tv_gray),
+//            fontSize = 24.sp,
+//            modifier = Modifier
+//                .clickable(onClick = {
+//                    navController.navigate(LoginPage.LOGIN,
+//                        NavOptions
+//                            .Builder()
+//                            .setLaunchSingleTop(true)
+//                            .build()
+//                    )
+//                })
+//                .constrainAs(toLoginRes) {
+//                    top.linkTo(toRegisterRes.bottom, margin = 40.dp)
+//                    end.linkTo(parent.end, margin = 61.dp)
+//                })
+
+        CircularProgressIndicator(
+            color = colorResource(R.color.bg_blue_deep_start),
+            strokeWidth = 8.dp,
+            modifier = Modifier
+                .height(80.dp)
+                .aspectRatio(1f)
+                .constrainAs(toLoginRes) {
+                    top.linkTo(toRegisterRes.bottom, margin = 40.dp)
+                    end.linkTo(parent.end, margin = 61.dp)
+                }
+        )
     }
 }
