@@ -1,41 +1,95 @@
 package com.jingxi.test_xiaorun.ui.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.jingxi.test_xiaorun.R
 
 class Login {
 
     @Composable
     fun Main(activityController: NavController){
-        ConstraintLayout(Modifier.fillMaxWidth().fillMaxHeight().background(color = Color.White)) {
-            LoginNavHost(activityController)
-        }
+        LoginNavHost(activityController)
     }
 
     @Composable
     fun LoginNavHost(activityController: NavController){
         val loginController = rememberNavController()
-        NavHost(navController = loginController, startDestination = LoginPage.HOME){
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(color = Color.White),
+            contentAlignment = Alignment.BottomCenter) {
 
-            composable(LoginPage.HOME){
-                LoginHome(navController = loginController)
+            val checkNote = remember {
+                mutableStateOf(false)
             }
 
-            composable(LoginPage.REGISTER){
-                LoginRegister(loginController)
+            val currentPage = remember {
+                mutableStateOf(LoginPage.HOME)
             }
 
-            composable(LoginPage.LOGIN){
-                LoginLogin(loginController,activityController)
+            NavHost(navController = loginController, startDestination = LoginPage.HOME){
+
+                composable(LoginPage.HOME){
+                    currentPage.value = LoginPage.HOME
+                    LoginHome(navController = loginController)
+                }
+
+                composable(LoginPage.REGISTER){
+                    currentPage.value = LoginPage.REGISTER
+                    LoginRegister(loginController)
+                }
+
+                composable(LoginPage.LOGIN){
+                    currentPage.value = LoginPage.LOGIN
+                    LoginLogin(loginController,activityController)
+                }
+            }
+
+            if(currentPage.value == LoginPage.REGISTER
+                || currentPage.value == LoginPage.LOGIN) {
+                Row(Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
+
+                    Image(painter = painterResource(
+                        id = if (checkNote.value) { R.mipmap.icon_circle_slected } else {R.drawable.baseline_brightness_1_24}
+                    ), contentDescription = "",
+                        Modifier
+                            .width(40.dp)
+                            .height(40.dp)
+                            .clickable(onClick = {checkNote.value = !checkNote.value}))
+                    
+                    Text(text = "登录注册代表你已同意《用户协议》和《隐私协议》",
+                        fontSize = 22.sp,
+                        color = colorResource(id = R.color.tv_gray),
+                        modifier = Modifier.padding(start = 18.dp))
+                }
             }
         }
     }
