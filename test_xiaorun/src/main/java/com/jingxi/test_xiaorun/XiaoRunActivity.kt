@@ -13,12 +13,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.ui.login.Login
-import com.jingxi.test_xiaorun.ui.login.LoginHome
 import me.jessyan.autosize.AutoSizeCompat
 
 class XiaoRunActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = android.graphics.Color.WHITE
         setContent {
             MaterialTheme {
                 Surface(color = Color(red = 0xff, green = 0xff,blue = 0xff)) {
