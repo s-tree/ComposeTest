@@ -110,7 +110,7 @@ fun LoginHome(navController: NavController){
         }
 
         Button(onClick = {
-            navController.navigate(LoginPage.REGISTER)
+            navController.navigate(LoginPage.LOGIN)
         },
             colors = ButtonDefaults.textButtonColors(containerColor = colorResource(R.color.bg_blue_deep_start)),
             shape = RoundedCornerShape(6.dp),

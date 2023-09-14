@@ -17,7 +17,6 @@ import com.jingxi.test_xiaorun.ui.login.LoginHome
 import me.jessyan.autosize.AutoSizeCompat
 
 class XiaoRunActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
