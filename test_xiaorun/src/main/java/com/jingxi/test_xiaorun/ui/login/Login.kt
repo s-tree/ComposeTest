@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -85,9 +86,27 @@ class Login {
                             .height(40.dp)
                             .clickable(onClick = {checkNote.value = !checkNote.value}))
                     
-                    Text(text = "登录注册代表你已同意《用户协议》和《隐私协议》",
+                    Text(text = "登录注册代表你已同意",
                         fontSize = 22.sp,
                         color = colorResource(id = R.color.tv_gray),
+                        modifier = Modifier.padding(start = 18.dp))
+
+                    Text(text = "《用户协议》",
+                        fontSize = 22.sp,
+                        color = colorResource(id = R.color.tv_gray),
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.padding(start = 18.dp))
+
+                    Text(text = "和",
+                        fontSize = 22.sp,
+                        color = colorResource(id = R.color.tv_gray),
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.padding(start = 18.dp))
+
+                    Text(text = "《隐私协议》",
+                        fontSize = 22.sp,
+                        color = colorResource(id = R.color.tv_gray),
+                        textDecoration = TextDecoration.Underline,
                         modifier = Modifier.padding(start = 18.dp))
                 }
             }
