@@ -1,13 +1,12 @@
 package com.jingxi.test_xiaorun.ui.login
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +37,7 @@ import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.filter.InputFilters
 import com.jingxi.test_xiaorun.ui.weiget.EditText
+import com.jingxi.test_xiaorun.ui.weiget.ProgressButton
 import com.jingxi.test_xiaorun.util.countDown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +47,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LoginRegister(navController: NavController) {
     ConstraintLayout(
@@ -210,18 +210,33 @@ fun LoginRegister(navController: NavController) {
             placeholderColor = colorResource(id = R.color.color_ff999999)
         )
 
-        Button(onClick = {
-            countDown(60)
-                .onEach { codeCheck.value = it }
-                .launchIn(MainScope())
-        },
+        val codeCheckLoadingState = remember{
+            mutableStateOf(false)
+        }
+
+        ProgressButton(
+            state = codeCheckLoadingState,
+            progressColor = colorResource(R.color.bg_blue_deep_start),
+            onClick = {
+                CoroutineScope(Dispatchers.Default).launch {
+                    codeCheckLoadingState.value = true
+                    val job = async { request() }
+                    val result = job.await();
+                    if(result == "Success"){
+                        countDown(60)
+                            .onEach { codeCheck.value = it }
+                            .launchIn(MainScope())
+                    }
+                    codeCheckLoadingState.value = false
+                }
+            },
             enabled = codeCheck.value == 0,
             colors = ButtonDefaults.textButtonColors(
                 containerColor = colorResource(R.color.bg_blue_deep_start),
                 disabledContainerColor = colorResource(id = R.color.bg_blue_light_start)
             ),
             shape = RoundedCornerShape(6.dp),
-            modifier = Modifier
+            layoutModifier = Modifier
                 .width(200.dp)
                 .height(68.dp)
                 .constrainAs(codeCheckRes) {
@@ -247,61 +262,60 @@ fun LoginRegister(navController: NavController) {
                     end.linkTo(parent.end)
                 })
 
-        Button(onClick = {
-            CoroutineScope(Dispatchers.Default).launch {
-                var job = async { request() }
-                println("async 结果 ${job.await()}")
-            }
-        },
+        val registerLoadingState = remember{
+            mutableStateOf(false)
+        }
+
+        ProgressButton(
+            state = registerLoadingState,
+            progressColor = colorResource(R.color.bg_blue_deep_start),
+            onClick = {
+                CoroutineScope(Dispatchers.Default).launch {
+                    registerLoadingState.value = true
+                    val job = async { request() }
+                    val result = job.await();
+                    println("async 结果 $result")
+                    registerLoadingState.value = false
+                }
+            },
             enabled = phoneInput.value.length == 11 && codeInput.value.length == 4,
             colors = ButtonDefaults.textButtonColors(
                 containerColor = colorResource(R.color.bg_blue_deep_start),
                 disabledContainerColor = colorResource(id = R.color.bg_blue_light_start)
             ),
             shape = RoundedCornerShape(6.dp),
-            modifier = Modifier
+            layoutModifier = Modifier
                 .fillMaxWidth()
                 .height(88.dp)
-                .padding(end = 60.dp)
+                .padding(start = 44.dp, end = 60.dp)
                 .constrainAs(toRegisterRes) {
                     top.linkTo(codeInputRes.bottom, margin = 90.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                }){
-            Text(text = "下一步",
+                },
+            content = @Composable{Text(text = "下一步",
                 fontSize = 36.sp,
                 color = Color.White,
-                textAlign = TextAlign.Center)
-        }
+                textAlign = TextAlign.Center)}
+        )
 
-//        Text(
-//            text = "已有账号，去登录",
-//            color = colorResource(id = R.color.tv_gray),
-//            fontSize = 24.sp,
-//            modifier = Modifier
-//                .clickable(onClick = {
-//                    navController.navigate(LoginPage.LOGIN,
-//                        NavOptions
-//                            .Builder()
-//                            .setLaunchSingleTop(true)
-//                            .build()
-//                    )
-//                })
-//                .constrainAs(toLoginRes) {
-//                    top.linkTo(toRegisterRes.bottom, margin = 40.dp)
-//                    end.linkTo(parent.end, margin = 61.dp)
-//                })
-
-        CircularProgressIndicator(
-            color = colorResource(R.color.bg_blue_deep_start),
-            strokeWidth = 8.dp,
+        Text(
+            text = "已有账号，去登录",
+            color = colorResource(id = R.color.tv_gray),
+            fontSize = 24.sp,
             modifier = Modifier
-                .height(80.dp)
-                .aspectRatio(1f)
+                .clickable(onClick = {
+                    navController.navigate(
+                        LoginPage.LOGIN,
+                        NavOptions
+                            .Builder()
+                            .setLaunchSingleTop(true)
+                            .build()
+                    )
+                })
                 .constrainAs(toLoginRes) {
                     top.linkTo(toRegisterRes.bottom, margin = 40.dp)
                     end.linkTo(parent.end, margin = 61.dp)
-                }
-        )
+                })
     }
 }
