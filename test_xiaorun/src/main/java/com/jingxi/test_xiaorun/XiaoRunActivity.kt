@@ -30,7 +30,15 @@ class XiaoRunActivity : ComponentActivity() {
 
     @Composable
     fun NavHostMain(){
-        val navControl = rememberNavController();
+        val navControl = rememberNavController()
+//        navControl.enableOnBackPressed(true)
+//        onBackPressedDispatcher.addCallback{
+//            if(!navControl.popBackStack()){
+//                finish()
+//            }
+//        }
+//        navControl.setLifecycleOwner(this)
+//        navControl.setOnBackPressedDispatcher(onBackPressedDispatcher)
         NavHost(navController = navControl, startDestination = Page.LOGIN){
 
             composable(Page.LOGIN){

@@ -286,7 +286,8 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                         LoginPage.REGISTER,
                         NavOptions
                             .Builder()
-                            .setLaunchSingleTop(true)
+                            .setPopUpTo(LoginPage.LOGIN,inclusive = true)
+                            .setLaunchSingleTop(false)
                             .build()
                     )
                 })
@@ -310,7 +311,7 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                     )
                 })
                 .constrainAs(toForgetRes) {
-                    top.linkTo(toRegisterRes.bottom, margin = 40.dp)
+                    top.linkTo(loginButtonRes.bottom, margin = 40.dp)
                     end.linkTo(parent.end, margin = 61.dp)
                 })
     }

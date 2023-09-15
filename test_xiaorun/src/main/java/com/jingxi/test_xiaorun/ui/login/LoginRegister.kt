@@ -326,7 +326,8 @@ fun LoginRegister(navController: NavController) {
                         LoginPage.LOGIN,
                         NavOptions
                             .Builder()
-                            .setLaunchSingleTop(true)
+                            .setPopUpTo(LoginPage.REGISTER,inclusive = true)
+                            .setLaunchSingleTop(false)
                             .build()
                     )
                 })
