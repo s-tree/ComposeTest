@@ -39,6 +39,7 @@ import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.filter.InputFilters
 import com.jingxi.test_xiaorun.ui.weiget.EditText
 import com.jingxi.test_xiaorun.ui.weiget.ProgressButton
+import com.jingxi.test_xiaorun.util.ToastUtil
 import com.jingxi.test_xiaorun.util.countDown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,10 @@ fun LoginRegister(navController: NavController) {
 
         val codeCheck = remember {
             mutableStateOf(0)
+        }
+
+        var hasCheckedCode = remember {
+            mutableStateOf(false)
         }
 
         val (backRes, registerTitleRes, phoneTitleRes, phoneLinearRes, checkPhoneRes,phoneLineRes,
@@ -219,6 +224,7 @@ fun LoginRegister(navController: NavController) {
             state = codeCheckLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
+                hasCheckedCode.value = true
                 CoroutineScope(Dispatchers.Default).launch {
                     codeCheckLoadingState.value = true
                     val job = async { request() }
@@ -271,6 +277,10 @@ fun LoginRegister(navController: NavController) {
             state = registerLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
+                if(!hasCheckedCode.value){
+                    ToastUtil.show("请先获取验证码")
+                    return@ProgressButton
+                }
                 CoroutineScope(Dispatchers.Default).launch {
                     registerLoadingState.value = true
                     val job = async { request() }
