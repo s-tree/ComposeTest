@@ -13,6 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.ui.login.Login
+import com.jingxi.test_xiaorun.ui.web.WebViewMain
+import com.jingxi.test_xiaorun.ui.web.WebViewParams
 import me.jessyan.autosize.AutoSizeCompat
 
 class XiaoRunActivity : ComponentActivity() {
@@ -47,6 +49,12 @@ class XiaoRunActivity : ComponentActivity() {
 
             composable(Page.HOME){
 
+            }
+
+            composable("${Page.WEB_VIEW}/{${WebViewParams.URL}}"){
+                val argument = requireNotNull(it.arguments)
+                val url = checkNotNull(argument.getString(WebViewParams.URL)){""}
+                WebViewMain(navController = navControl, url = url)
             }
         }
     }
