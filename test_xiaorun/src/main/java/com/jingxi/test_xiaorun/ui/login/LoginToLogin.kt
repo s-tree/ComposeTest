@@ -192,8 +192,11 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                     start.linkTo(loginTitleRes.start)
                 },
             onValueChange = {
+                /**
+                 * 由于将value格式化为 **** 后，会回调onValueChange，所以需要将it 中的*全部除去后拼接到 passWordInput中
+                 */
                 val data = passwordInput.value + it.replace("*","")
-                if(data.isEmpty() || data.equals(passwordInput.value)){
+                if(data.isEmpty() || data == passwordInput.value){
                     return@BasicTextField
                 }
                 var str = InputFilters.lengthFilter(data, 16)
