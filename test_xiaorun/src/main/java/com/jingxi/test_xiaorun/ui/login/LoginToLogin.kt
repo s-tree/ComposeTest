@@ -36,7 +36,6 @@ import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.filter.InputFilters
-import com.jingxi.test_xiaorun.filter.InputFilters.Companion.toPassword
 import com.jingxi.test_xiaorun.ui.weiget.ProgressButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -184,7 +183,7 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             })
 
         BasicTextField(
-            value = toPassword(passwordInput.value),
+            value = InputFilters.toPassword(passwordInput.value),
             modifier = Modifier
                 .padding(top = 34.dp, start = 0.dp, bottom = 34.dp)
                 .background(color = Color.White)
@@ -193,7 +192,11 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                     start.linkTo(loginTitleRes.start)
                 },
             onValueChange = {
-                var str = InputFilters.lengthFilter(it, 16)
+                val data = passwordInput.value + it.replace("*","")
+                if(data.isEmpty() || data.equals(passwordInput.value)){
+                    return@BasicTextField
+                }
+                var str = InputFilters.lengthFilter(data, 16)
                 str = InputFilters.passwordFilter(str)
                 passwordInput.value = str
             },
