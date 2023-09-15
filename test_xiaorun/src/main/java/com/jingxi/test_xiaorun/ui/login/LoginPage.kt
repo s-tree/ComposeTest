@@ -8,5 +8,5 @@ object LoginPage{
 
     const val REGISTER = "register"
 
-    const val SET_DETAIL = "setDetail"
+    const val FORGET = "forget"
 }

@@ -70,6 +70,10 @@ class Login {
                     currentPage.value = LoginPage.LOGIN
                     LoginLogin(loginController,activityController)
                 }
+
+                composable(LoginPage.FORGET){
+
+                }
             }
 
             if(currentPage.value == LoginPage.REGISTER

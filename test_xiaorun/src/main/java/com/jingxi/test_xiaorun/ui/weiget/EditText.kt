@@ -19,11 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 
 /**
- * TextField 前部默认有一个padding,所以改用此方案
+ * TextField 前部默认有一个padding,布局上不好处理，所以改用此方案
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,11 @@ fun EditText(value: String,
              placeholderColor:Color = Color.White){
     Box(modifier = modifier,
         contentAlignment = Alignment.CenterStart){
-        Text(text = value.ifEmpty { placeholder },
+        var text = value
+        if (keyboardOptions.keyboardType == KeyboardType.Password){
+            text = value.replace(Regex("\\w"),"*")
+        }
+        Text(text = text.ifEmpty { placeholder },
             modifier = Modifier
                 .wrapContentWidth(Alignment.Start)
                 .wrapContentHeight(Alignment.CenterVertically),
