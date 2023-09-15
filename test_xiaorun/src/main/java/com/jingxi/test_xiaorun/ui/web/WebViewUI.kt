@@ -1,5 +1,6 @@
 package com.jingxi.test_xiaorun.ui.web
 
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -102,9 +104,17 @@ fun WebViewMain(navController: NavController,url:String){
                 webView.settings.loadsImagesAutomatically = true
                 webView.settings.mediaPlaybackRequiresUserGesture = false
                 webView.webViewClient = WebViewClient()
+                webView.webChromeClient = JXChromeClient(title)
                 webView.loadUrl(url)
                 webView
             })
+    }
+}
+
+open class JXChromeClient (val titleState : State<String>): WebChromeClient() {
+
+    override fun onReceivedTitle(view: WebView?, title: String?) {
+        titleState.value = checkNotNull(title){""}
     }
 
 }
