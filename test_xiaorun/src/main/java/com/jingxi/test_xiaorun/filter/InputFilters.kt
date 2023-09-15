@@ -35,5 +35,9 @@ class InputFilters {
         fun chineseFilter(string: String):String{
             return string.replace(Regex("[^\u4E00-\u9FA5]"),"")
         }
+
+        fun toPassword(string:String):String{
+            return string.replace(Regex("\\w"),"*")
+        }
     }
 }

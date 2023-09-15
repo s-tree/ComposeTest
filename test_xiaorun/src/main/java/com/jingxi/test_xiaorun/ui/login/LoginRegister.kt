@@ -1,10 +1,8 @@
 package com.jingxi.test_xiaorun.ui.login
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,8 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,7 +35,6 @@ import androidx.navigation.NavOptions
 import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.filter.InputFilters
-import com.jingxi.test_xiaorun.ui.weiget.EditText
 import com.jingxi.test_xiaorun.ui.weiget.ProgressButton
 import com.jingxi.test_xiaorun.util.ToastUtil
 import com.jingxi.test_xiaorun.util.countDown
@@ -138,7 +135,7 @@ fun LoginRegister(navController: NavController) {
 
             Spacer(modifier = Modifier.width(24.dp))
 
-            EditText(
+            BasicTextField(
                 value = phoneInput.value,
                 modifier = Modifier
                     .background(color = Color.White),
@@ -147,14 +144,19 @@ fun LoginRegister(navController: NavController) {
                     str = InputFilters.numberFilter(str)
                     phoneInput.value = str
                 },
-                shape = RectangleShape,
-                textStyle = TextStyle(fontSize = 34.sp, textAlign = TextAlign.Start),
+                textStyle = TextStyle(fontSize = 34.sp, textAlign = TextAlign.Start,color = colorResource(id = R.color.color_ff323232)),
                 singleLine = true, maxLines = 1,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                placeholder = "请输入您的手机号码",
-                color = colorResource(id = R.color.color_ff323232),
-                cursorColor = colorResource(id = R.color.color_ff999999),
-                placeholderColor = colorResource(id = R.color.color_ff999999)
+                cursorBrush = SolidColor(colorResource(id = R.color.color_ff999999)),
+                decorationBox = {
+                    if(phoneInput.value.isEmpty()){
+                        Text(text = "请输入您的手机号码",
+                            textAlign = TextAlign.Start,
+                            fontSize = 34.sp,
+                            color = colorResource(id = R.color.color_ff999999))
+                    }
+                    it()
+                }
             )
         }
 
@@ -191,7 +193,7 @@ fun LoginRegister(navController: NavController) {
                 start.linkTo(registerTitleRes.start)
             })
 
-        EditText(
+        BasicTextField(
             value = codeInput.value,
             modifier = Modifier
                 .padding(top = 34.dp, start = 0.dp, bottom = 34.dp)
@@ -200,20 +202,24 @@ fun LoginRegister(navController: NavController) {
                     top.linkTo(codeTitleRes.bottom, margin = 6.dp)
                     start.linkTo(registerTitleRes.start)
                 },
-            editModifier = Modifier.focusable(phoneInput.value.length == 11),
             onValueChange = {
                 var str = InputFilters.lengthFilter(it, 4)
                 str = InputFilters.numberFilter(str)
                 codeInput.value = str
             },
-            shape = RectangleShape,
-            textStyle = TextStyle(fontSize = 34.sp, textAlign = TextAlign.Start),
+            textStyle = TextStyle(fontSize = 34.sp, textAlign = TextAlign.Start,color = colorResource(id = R.color.color_ff323232)),
             singleLine = true, maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            placeholder = "请输入验证码",
-            color = colorResource(id = R.color.color_ff323232),
-            cursorColor = colorResource(id = R.color.color_ff999999),
-            placeholderColor = colorResource(id = R.color.color_ff999999)
+            cursorBrush = SolidColor(colorResource(id = R.color.color_ff999999)),
+            decorationBox = {
+                if(codeInput.value.isEmpty()){
+                    Text(text = "请输入验证码",
+                        textAlign = TextAlign.Start,
+                        fontSize = 34.sp,
+                        color = colorResource(id = R.color.color_ff999999))
+                }
+                it()
+            }
         )
 
         val codeCheckLoadingState = remember{
