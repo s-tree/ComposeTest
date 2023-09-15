@@ -67,23 +67,17 @@ fun LoginHome(navController: NavController){
         PagerCircleIndicator(state = state, count = loginPics.size,
             modifier = Modifier
                 .constrainAs(circleIndicatorRes) {
-                    bottom.linkTo(pageRes.bottom)
+                    bottom.linkTo(pageRes.bottom, margin = 40.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
                 .fillMaxWidth()
         )
 
-        Spacer(
-            Modifier
-                .height(22.dp)
-                .constrainAs(spaceRes) {
-                    top.linkTo(pageRes.bottom)
-                })
-
         Button(onClick = {
             navController.navigate(LoginPage.REGISTER)
         },
+            shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.textButtonColors(containerColor = Color.Transparent),
             modifier = Modifier
                 .height(88.dp)
@@ -98,7 +92,7 @@ fun LoginHome(navController: NavController){
                     shape = RoundedCornerShape(6.dp)
                 )
                 .constrainAs(registerRes) {
-                    top.linkTo(spaceRes.bottom)
+                    top.linkTo(pageRes.bottom, margin = 22.dp)
                     start.linkTo(parent.start)
                     end.linkTo(loginRes.start)
                 }){
@@ -118,7 +112,7 @@ fun LoginHome(navController: NavController){
                 .height(88.dp)
                 .width(300.dp)
                 .constrainAs(loginRes) {
-                    top.linkTo(spaceRes.bottom)
+                    top.linkTo(pageRes.bottom, margin = 22.dp)
                     start.linkTo(registerRes.end)
                     end.linkTo(parent.end)
                 }){
