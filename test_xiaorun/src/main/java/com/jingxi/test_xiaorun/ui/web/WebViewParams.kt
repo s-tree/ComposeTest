@@ -7,6 +7,6 @@ object WebViewParams {
     const val URL : String = "url"
 
     fun buildUrl(url : String = "") : String{
-        return "${Page.WEB_VIEW}/{${url}}"
+        return "${Page.WEB_VIEW}?$URL=$url"
     }
 }

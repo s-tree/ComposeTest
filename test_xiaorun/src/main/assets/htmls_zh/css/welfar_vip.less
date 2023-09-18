@@ -1,0 +1,135 @@
+@charset "utf-8";
+@import "public";
+
+.container_box {
+    width           : 100%;
+    height          : 100%;
+    overflow        : auto;
+    padding         : 1.36rem .3rem .3rem .3rem;
+    background-color: #FFFFFF;
+
+    &_vip {
+        width        : 100%;
+        margin-bottom: .4rem;
+
+        &_main {
+            width   : 100%;
+            overflow: auto;
+
+            .vip_item {
+                width        : 100%;
+                padding      : .2rem;
+                border-radius: .14rem;
+                overflow     : hidden;
+                margin-bottom: .2rem;
+                position     : relative;
+
+                &_map {
+                    position: absolute;
+                    right   : .16rem;
+                    top     : .16rem;
+                    width   : .44rem;
+                    height  : .44rem;
+
+                    img {
+                        width : 100%;
+                        height: 100%;
+                    }
+                }
+
+                &_tip1 {
+                    font-size  : .28rem;
+                    font-weight: bold;
+                    color      : #FFFFFF;
+                }
+
+                &_tip2 {
+                    display      : inline-block;
+                    height       : .4rem;
+                    line-height  : .4rem;
+                    font-size    : .2rem;
+                    color        : #FFFFFF;
+                    border-radius: .06rem;
+                    border       : .02rem solid rgba(255, 255, 255, .5);
+                    padding      : 0 .1rem;
+                    margin       : .14rem 0 .3rem 0;
+                }
+
+                &_btn {
+                    width        : 1.4rem;
+                    height       : .48rem;
+                    line-height  : .48rem;
+                    border       : .02rem solid rgba(255, 255, 255, .5);
+                    border-radius: .24rem;
+                    font-size    : .22rem;
+                    color        : #FFFFFF;
+                    text-align   : center;
+
+                    &.takeVip {
+                        background: #FFFFFF;
+                        color     : #63C8BB;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+// 顶部导航样式
+.page_header {
+    z-index         : 2;
+    width           : 100%;
+    height          : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position        : fixed;
+    top             : 0;
+    left            : 0;
+    padding-left    : .23rem;
+    padding-right   : .23rem;
+    padding-top     : .48rem; //客户端传入 状态栏高度
+    background-color: #ffffff;
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

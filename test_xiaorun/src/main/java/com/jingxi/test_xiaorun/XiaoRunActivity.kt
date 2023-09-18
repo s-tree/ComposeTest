@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,6 +16,12 @@ import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.ui.login.Login
 import com.jingxi.test_xiaorun.ui.web.WebViewMain
 import com.jingxi.test_xiaorun.ui.web.WebViewParams
+import com.jingxi.test_xiaorun.util.HtmlFileUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 
 class XiaoRunActivity : ComponentActivity() {
@@ -28,6 +35,9 @@ class XiaoRunActivity : ComponentActivity() {
                 }
             }
         }
+
+        CoroutineScope(Dispatchers.IO)
+            .launch { HtmlFileUtils.start() }
     }
 
     @Composable
@@ -51,7 +61,7 @@ class XiaoRunActivity : ComponentActivity() {
 
             }
 
-            composable("${Page.WEB_VIEW}/{${WebViewParams.URL}}"){
+            composable("${Page.WEB_VIEW}?${WebViewParams.URL}={${WebViewParams.URL}}"){
                 val argument = requireNotNull(it.arguments)
                 val url = checkNotNull(argument.getString(WebViewParams.URL)){""}
                 WebViewMain(navController = navControl, url = url)

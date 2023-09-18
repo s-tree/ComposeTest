@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>团购详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/group_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title">团购详情</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="group_header">
+            <div class="group_header_image"></div>
+            <div class="group_header_info">
+                <div class="group_header_info_left">
+                    <div class="group_header_info_left_price">￥<span>-</span></div>
+                    <div class="group_header_info_left_score">可获得<span>-</span>积分</div>
+                </div>
+                <div class="group_header_info_right">
+                    <div class="group_header_info_right_tip">距团购结束仅剩</div>
+                    <div class="group_header_info_right_time">-</div>
+                </div>
+            </div>
+            <div class="group_header_other">
+                <div class="group_header_other_name">-</div>
+                <div class="group_header_other_count">
+                    <div class="group_header_other_count_left"><span>-</span>人已参团</div>
+                    <div class="group_header_other_count_right">本团必须在<span>-</span>前满<i>-</i>可成团</div>
+                </div>
+            </div>
+            <div style="width: 100%;height: .12rem;background: #F5F5F7;"></div>
+        </div>
+        <div class="group_detail">
+            <div class="group_detail_tip">商品详情</div>
+            <div class="group_detail_content"></div>
+        </div>
+        <div class="group_footer">
+            <div class="group_footer_price">
+                <div class="aboutPrice">团购价：￥<span>-</span></div>
+                <div class="tip"><span>-</span>人已参团</div>
+            </div>
+            <div class="group_footer_btn">立即参团</div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/jquery.countdown.js"></script>
+    <script src="../js/housekeeper_time.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script>
+        $(function () {
+            var groupId = getQueryString("groupId") !== null ? getQueryString("groupId") : getCookie("groupId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+
+            // 获取团购信息
+            $.slAjax({
+                url: root + 'bus/rest/groupon/' + groupId,
+                type: 'get',
+                data: {},
+                success: function (res) {
+                    if (res.code == 0) {
+                        // 顶部背景图
+                        if(res.data.photo){
+                            $(".group_header_image").html('<img src="' + res.data.photo.split(',')[0] + '" onerror="this.parentNode.removeChild(this)">');
+                        }
+
+                        // 团购价
+                        $('.group_header_info_left_price span').text(res.data.price);
+                        $('.aboutPrice span').text(res.data.price);
+
+                        // 可获得积分数
+                        $('.group_header_info_left_score span').text(res.data.points ? res.data.points : '0');
+
+                        // 结束时间、倒计时
+                        $('.group_header_other_count_right span').text(res.data.deadline);
+                        if (res.data.status == "ON_SALE") {
+                            $('.group_header_info_right_time').countdown({ format: "DD HH:MM:SS", until: getExactDate(res.data.deadline) });
+                            // 此时方可参团
+                            $('.group_footer_btn').addClass('active');
+                        } else {
+                            $('.group_header_info_right_time').countdown({ format: "DD HH:MM:SS", until: new Date() });
+                        }
+
+                        // 标题
+                        $('.group_header_other_name').text(res.data.title);
+
+                        // 已参团人数
+                        $('.group_header_other_count_left span').text(res.data.people);
+                        $('.group_footer .tip span').text(res.data.people);
+
+                        // 开团人数
+                        $('.group_header_other_count_right i').text(res.data.support);
+
+                        // 商品详情图集(新版本改为富文本)
+                        if(res.data.content){
+                            $('.group_detail_content').html(res.data.content)
+                        }
+                        
+
+                        // 可以多次参团
+                        // if(res.data.signUp){
+                        //     $('.group_footer_btn').removeClass('active');
+                        //     $('.group_footer_btn').unbind('click');
+                        //     $('.group_footer_btn').html("已参团");
+                        //     return;
+                        // }
+
+                        // 立即参团
+                        $('.group_footer_btn').unbind('click').bind('click', function () {
+                            if ($(this).hasClass('active')) {
+                                window.location.href = './group_order_check.html?groupId=' + groupId + '&accId=' + accId + '&communityId=' + communityId + '&accessToken=' + accessToken;
+                            } else {
+                                layer.msg('当前不可参团')
+                            }
+                        })
+
+                    }
+                }
+            });
+
+
+            // 监听页面滚动条距离顶部高度
+            // $('.container_box').scroll(function () {
+            //     var scroH = $(this).scrollTop();  //滚动高度
+            //     if (scroH > 0) {
+            //         $(".page_header").css('background-color', '#ffffff');
+            //         $('.page_header_main_back img').attr('src', '../images/hback_b.png');
+            //         $('.page_header_main_title').css('color', '#323232');
+            //     } else {
+            //         $(".page_header").css('background-color', 'transparent');
+            //         $('.page_header_main_back img').attr('src', '../images/hback_w.png')
+            //         $('.page_header_main_title').css('color', '#ffffff');
+            //     }
+            // });
+        })
+    </script>
+
+</body>
+
+</html>

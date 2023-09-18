@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>信息公开</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/owner_public.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">信息公开</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_main_notice">
+                <div class="container_box_main_notice_title">
+                    <div class="container_box_main_notice_title_left">
+                        <div></div>
+                        <div class="tip">业委会公告</div>
+                    </div>
+                    <div class="container_box_main_notice_title_right">
+                        <div class="tip">更多</div>
+                        <div>
+                            <img src="../images/icons_more.png">
+                        </div>
+                    </div>
+                </div>
+                <div class="container_box_main_notice_content">
+                    <div class="notice_item">
+                        <div class="notice_item_top">
+                            <div class="notice_item_top_title">公告标题公告标题公告标题公告标题公告标题</div>
+                            <div class="notice_item_top_time">12:30</div>
+                        </div>
+                        <div class="notice_item_main">公告内容是什么什么公告内容是什么什么公告内容是什么什么</div>
+                    </div>
+                    <div class="notice_item">
+                        <div class="notice_item_top">
+                            <div class="notice_item_top_title">举报赛龙舟活动</div>
+                            <div class="notice_item_top_time">12:30</div>
+                        </div>
+                        <div class="notice_item_main">6月14日下午开始,...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_box_main_activity">
+                <div class="container_box_main_activity_title">
+                    <div class="container_box_main_activity_title_left">
+                        <div></div>
+                        <div class="tip">投票选举/议事问卷</div>
+                    </div>
+                </div>
+                <div class="container_box_main_activity_content">
+                    <div class="activity_item">
+                        <div class="activity_item_photo">
+                            <img src="../images/questionnaire_bg.png">
+                        </div>
+                        <div class="activity_item_info">
+                            <div class="activity_item_info_title">投票选举：关于本社区第6届业主委员会投第6届业主委员会投票选举</div>
+                            <div class="activity_item_info_time">截止日期：2021-01-13</div>
+                        </div>
+                    </div>
+                    <div class="activity_item">
+                        <div class="activity_item_photo">
+                            <img src="../images/business_index.png">
+                        </div>
+                        <div class="activity_item_info">
+                            <div class="activity_item_info_title">投票选举：关于本社区第6届业主委员会投第6届业主委员会投票选举</div>
+                            <div class="activity_item_info_time">截止日期：2021-01-13</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script>
+        $(function () {
+            $('.container_box_main_notice_title_right').unbind('click').bind('click', function () {
+                window.location.href = './owner_notice.html'
+            })
+        })
+    </script>
+</body>
+
+</html>

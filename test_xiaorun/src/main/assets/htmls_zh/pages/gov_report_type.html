@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>选择类型</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_report_type.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">选择类型</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <ul>
+            <li data-code="consult" data-name="咨询">
+                <div class="type_info">咨询</div>
+                <div class="choose_tip"></div>
+            </li>
+            <li data-code="help" data-name="求助">
+                <div class="type_info">求助</div>
+                <div class="choose_tip"></div>
+            </li>
+            <li data-code="suggest" data-name="建议">
+                <div class="type_info">建议</div>
+                <div class="choose_tip"></div>
+            </li>
+            <li data-code="complain" data-name="投诉">
+                <div class="type_info">投诉</div>
+                <div class="choose_tip"></div>
+            </li>
+            <li data-code="others" data-name="其他">
+                <div class="type_info">其他</div>
+                <div class="choose_tip"></div>
+            </li>
+        </ul>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script>
+        $(function () {
+            var reportTypeName = window.localStorage.getItem('reportTypeName');
+            var reportTypeCode = window.localStorage.getItem('reportTypeCode');
+
+            if (reportTypeName) {
+                $('.container_box li').each((index, item) => {
+                    if ($(item).data('name') == reportTypeName) {
+                        $(item).find('.choose_tip').addClass('choosed');
+                        $(item).find('.choose_tip').html('<img src="../images/choose_y.png">');
+                    }
+                });
+            }
+
+            // 切换选择
+            $('.container_box ul li').unbind('click').bind('click', function () {
+                var this_ = $(this);
+                if (!this_.find('.choose_tip').hasClass('choosed')) {
+                    this_.parents('.container_box').find('.choose_tip').removeClass('choosed');
+                    this_.parents('.container_box').find('.choose_tip img').remove();
+                    this_.find('.choose_tip').addClass('choosed');
+                    this_.find('.choose_tip').html('<img src="../images/choose_y.png">');
+                    window.localStorage.setItem('reportTypeName', this_.data('name'));
+                    window.localStorage.setItem('reportTypeCode', this_.data('code'));
+                    window.history.back();
+                }
+            })
+
+        });
+    </script>
+
+</body>
+
+</html>

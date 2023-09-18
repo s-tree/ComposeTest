@@ -1,0 +1,83 @@
+@import "flex";
+
+body,
+html {
+    width : 100%;
+    height: 100%;
+}
+
+.star {
+    height : 0.29rem;
+    padding: 0.02rem;
+
+    .star_box {
+        .flex(row, flex-start, center);
+        width               : 1.33rem;
+        height              : 0.28rem;
+        // vertical-align: top;
+        position            : relative;
+        // margin-top    : -0.02rem;
+        // background       : #BBBBBB;
+        background          : #d0dcee;
+
+        .gradient-box {
+            position           : absolute;
+            top                : 0;
+            left               : 0;
+            width              : 0;
+            height             : 100%;
+            // background-image: -webkit-linear-gradient(-30deg, #FFB000, #FFD600);
+            // background-image: linear-gradient(-30deg, #FFB000, #FFD600);
+            background-color   : #fda131;
+        }
+
+        img {
+            width  : 100%;
+            height : 0.28rem;
+            z-index: 2;
+        }
+    }
+}
+
+// 缺省图
+.default-none {
+    width: 100%;
+
+    .no_img {
+        width : 100%;
+        margin: 0 auto;
+
+        img {
+            width: 100%;
+        }
+    }
+
+    .no_tip {
+        width     : 100%;
+        font-size : .24rem;
+        text-align: center;
+        margin-top: .2rem;
+        color     : #323232;
+    }
+
+}
+
+// 全部加载完毕
+.load-over,
+.loadMore {
+    width     : 100%;
+    text-align: center;
+    color     : #999999;
+    font-size : .24rem;
+    margin    : .08rem 0;
+}
+
+// 加载动画
+.loading_w {
+    width : .6rem;
+    margin: 0 auto;
+
+    img {
+        width: 100%;
+    }
+}

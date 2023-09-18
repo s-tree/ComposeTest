@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>社区商城</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/swiper.min.css">
+    <link rel="stylesheet" href="../css/business_index.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .swiper-slide {
+            text-align: center;
+            font-size: .18rem;
+            background: #f2f2f2;
+            border-radius: 0.2rem;
+            overflow: hidden;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            vertical-align: top;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title">社区商城</div>
+            <div class="page_header_main_btns">
+                <div class="search_btn">
+                    <img src="../images/hbtn_search.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="ad_banner">
+                <div class="swiper-container main_banner">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide swiper-links" data-link="">
+                            <img src="../images/business_index.png">
+                        </div>
+                    </div>
+                    <div class="swiper-pagination swiper-pagination-yellow"></div>
+                </div>
+            </div>
+            <div class="classify"></div>
+            <div class="recommend">
+                <p class="recommend_title">销量</p>
+                <ul class="recommend_list" id="recommendShopList"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="shopCart">
+        <img src="../images/shopCart.png">
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/swiper.jquery.min.js"></script>
+    <!-- 轮播广告模板 -->
+    <script type="text/html" id="templateSwiper">
+        {{each records as value}}
+        <div class="swiper-slide swiper-links" data-link="{{value.link}}">
+            <img src="{{value.photo}}">
+        </div>
+        {{/each}}
+    </script>
+    <!-- 商务分类模板 -->
+    <script type="text/html" id="templateClassify">
+        {{each data as value}}
+        <div class="classify_item" data-shopcategoryid="{{value.id}}" data-shopcategoryname="{{value.title}}">
+            <img src="{{value.appImage}}">
+            <p>{{value.title}}</p>
+        </div>
+        {{/each}}
+    </script>
+    <!-- 销量模板 -->
+    <script type="text/html" id="templateRecommend">
+        {{each data as value}}
+        <li class="recommend_list_item" data-shopmanageid="{{value.storeId}}">
+            <div class="recommend_list_item_image">
+                <img src="{{value.image}}">
+            </div>
+            <div class="recommend_list_item_info">
+                <p class="recommend_list_item_info_name">{{value.name}}</p>
+                <p class="recommend_list_item_info_other">月售<span>{{value.sales}}</span> 好评率<span>{{value.score}}</span>%</p>
+                <p class="recommend_list_item_info_price">￥<span>{{value.price}}</span></p>
+            </div>
+            <div class="recommend_list_item_shop">
+                <div class="recommend_list_item_shop_name">{{value.busStore.name}}</div>
+                <div class="recommend_list_item_shop_star"><span>{{value.busStore.score}}</span>分</div>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var pageIndex = 1;
+            var isLoading = true;
+
+            // 轮播图配置
+            var mainSwiper = new Swiper('.main_banner', {
+                pagination: '.swiper-pagination',
+                loop: true,
+                autoplay: 4000,
+                autoplayDisableOnInteraction: false
+            });
+
+            var subSwiper = new Swiper('.sub_banner', {});
+
+            // 获取轮播广告
+            $.slAjax({
+                url: root + 'operating/rest/ad/info/PHONE/BUSINESS_TOP?current=1&size=10',
+                type: "get",
+                data: {},
+                success: function (res) {
+                    if (res.code == 0) {
+                        if (res.data && res.data.records && res.data.records.length > 0) {
+                            $('.main_banner .swiper-wrapper')[0].innerHTML = template('templateSwiper', res.data);
+                            mainSwiper.init();
+
+                            if (res.data.records.length === 1) {
+                                mainSwiper.stopAutoplay();
+                                mainSwiper.lockSwipes();
+                                $('.swiper-pagination').hide();
+                            }
+
+                            $('.swiper-links').unbind('click').bind('click', function () {
+                                var linkUrl = $(this).data('link');
+                                callHandlerBridge('adLink', { 'link': linkUrl });
+                            });
+                        } else {
+                            $('.main_banner .swiper-wrapper').html('<div class="swiper-slide swiper-links" data-link=""><img src="../images/business_index.png"></div>');
+                            mainSwiper.init();
+                            mainSwiper.stopAutoplay();
+                            mainSwiper.lockSwipes();
+                        }
+                    } else {
+                        console.log('轮播广告接口：' + res.msg)
+                    }
+                }
+            });
+
+            // 获取商务分类
+            $.slAjax({
+                url: root + 'bus/rest/category?typeEnum=SHOP',
+                type: "get",
+                data: {},
+                success: function (res) {
+                    if (res.data.length == 0) {
+                        $('.classify').remove();
+                    } else {
+                        $('.classify').html(template('templateClassify', res));
+                    }
+                    $('.classify_item').unbind('click').bind('click', function () {
+                        var shopCategoryId = $(this).data('shopcategoryid');
+                        var name = $(this).data('shopcategoryname');
+                        window.location.href = './business_shop_list.html?shopCategoryId=' + shopCategoryId + '&communityId=' + communityId + '&name=' + name + '&familyInfoId=' + familyInfoId + '&accId=' + accId + '&accessToken=' + accessToken;
+                    });
+                }
+            });
+
+            // 获取销量列表
+            $.slAjax({
+                url: root + 'bus/rest/goods/products/salesList/15',
+                type: "get",
+                data: {},
+                success: function (res) {
+                    if (res.code == 0) {
+                        if (res.data.length > 0) {
+
+                            $('#recommendShopList')[0].innerHTML = template("templateRecommend", res);
+                            $('#recommendShopList li').unbind('click').bind('click', function () {
+                                var shopManageId = $(this).data('shopmanageid');
+                                window.location.href = './business_shop_detail.html?shopManageId=' + shopManageId + '&communityId=' + communityId + '&familyInfoId=' + familyInfoId + '&accId=' + accId + '&accessToken=' + accessToken;
+                            });
+                        } else {
+                            $(".recommend").append("<div class='default-none'><div class='no_img'><img src='../images/hot_goods_null.png'></div><div class='no_tip'>暂无有销量商品</div></div>");
+                        }
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+            // 去购物车
+            $('.shopCart').unbind('click').bind('click', function () {
+                callHandlerBridge('toShopCart', {});
+            })
+
+            // 进入搜索页面
+            $('.search_btn').unbind('click').bind('click', function () {
+                window.location.href = './business_search.html?communityId=' + communityId + '&familyInfoId=' + familyInfoId + '&accId=' + accId + '&accessToken=' + accessToken;
+            })
+
+        })
+    </script>
+
+</body>
+
+</html>

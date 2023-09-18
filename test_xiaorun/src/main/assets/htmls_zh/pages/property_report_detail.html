@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>投诉记录详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_report_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">投诉记录详情</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightDetail"></div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script type="text/html" id="templateOrderInfo">
+        <div class="container_box_tip">
+            {{if data.status == 'UNTREATED'}}
+            <div>
+                <p class="order_status">未答复</p>
+                <p class="order_tip">物业投诉已提交，我们会尽快为您处理。</p>
+            </div>
+            {{else if data.status == 'PROCESSED'}}
+            <div>
+                <p class="order_status">已答复</p>
+            </div>
+            <div class="evaluate">去评价</div>
+            {{else if data.status == '1'}}
+            <div>
+                <p class="order_status">正在处理中...</p>
+                <p class="order_tip">我们已安排相关人员为您处理。</p>
+            </div>
+            {{else if data.status == '2'}}
+            <div>
+                <p class="order_status">不予处理</p>
+                {{if data.handlingInfo}}
+                    <p class="order_tip">{{data.handlingInfo}}</p>
+                {{else}}
+                    <p class="order_tip">已联系确认撤销，不予处理。</p>
+                {{/if}}
+            </div>
+            {{else if data.status == 'COMMENTED'}}
+            <div>
+                <p class="order_status">服务已评价</p>
+            </div>
+            {{/if}}
+        </div>
+        <div class="container_box_content">
+            <div class="container_box_content_tip">问题描述</div>
+            <div class="container_box_content_main">
+                <p class="container_box_content_main_txt">{{data.content}}</p>
+                {{if data.photo}}
+                <div class="container_box_content_main_image">
+                    {{each data.photo.split(',') as k}}
+                    <div class="repairImageBox">
+                        <img class="repairImage" src="{{k}}">
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+            </div>
+        </div>
+        {{if data.status == 'PROCESSED' || data.status == 'COMMENTED'}}
+            <div class="container_box_content">
+                <div class="container_box_content_tip">问题答复</div>
+                <div class="container_box_content_main">
+                    <p class="container_box_content_main_txt">{{data.handlingInfo || '请您对我们的服务做出评价。'}}</p>
+                </div>
+            </div>
+        {{/if}}
+        {{if data.status == 'COMMENTED'}}
+        <div class="container_box_comment">
+            <div class="container_box_comment_tip">
+                <div class="container_box_comment_tip_left">服务评价</div>
+                <div class="container_box_comment_tip_right">
+                    <div class="star">
+                        <div class="star_box">
+                            <span class="gradient-box" style="width: {{ data.satisfaction * 20}}%;"></span>
+                            <img src="../images/star_five.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_box_comment_main">
+                <p class="container_box_comment_main_txt">{{data.evaluate}}</p>
+                {{if data.evaluatePhoto}}
+                <div class="container_box_comment_main_image">
+                    {{each data.evaluatePhoto.split(',') as k}}
+                    <div class="commentImageBox">
+                        <img class="commentImage" src="{{k}}">
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+            </div>
+        </div>
+        {{/if}}
+    </script>
+    <script>
+        $(function () {
+            var reportId = getQueryString("reportId") !== null ? getQueryString("reportId") : getCookie("reportId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+
+            $.slAjax({
+                url: root + 'property/rest/complain/' + reportId,
+                type: 'get',
+                data: {
+                    id: reportId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        $('.container_box_main').html(template('templateOrderInfo', res));
+
+                        // 去评价
+                        $('.evaluate').unbind('click').bind('click', function () {
+                            window.location.href = './property_report_evaluate.html?reportId=' + reportId + '&accId=' + accId + '&communityId=' + communityId + '&accessToken=' + accessToken;
+                        })
+
+                        // 查看大图 - 报修图
+                        $('.repairImageBox').unbind('click').bind('click', function () {
+                            var _i = $(this).index();
+                            var _urlArr = [];
+                            $('.repairImage').each(function () {
+                                var _url = $(this).attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+
+                        // 查看大图 - 评价图
+                        $('.commentImageBox').unbind('click').bind('click', function () {
+                            var _i = $(this).index();
+                            var _urlArr = [];
+                            $('.commentImage').each(function () {
+                                var _url = $(this).attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

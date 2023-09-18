@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>订单详情</title>
+    <link rel="stylesheet" href="../plugins/switch/switch.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/books_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">订单详情</div>
+        </div>
+    </div>
+    <div class="mescroll adjustHeightDetail" id="mescrollOrderDetails">
+        <div class="container"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script id="templateOrderDetails" type="text/html">
+        <div class="container_tip">
+            <p class="order_status">捐赠{{data.statusStr}}！</p>
+            <p class="order_tip">{{data.statusTip}}</p>
+        </div>
+        <div class="container_book">
+            {{each data.bookInfoList as value i}}
+            <div class="container_book_item">
+                <div class="photo">
+                    <img src="{{value.avatar}}">
+                </div>
+                <div class="info">
+                    <div class="info_name">{{value.title}}</div>
+                    <div class="info_basic">{{value.author}}</div>
+                    <div class="info_basic">{{value.bookCompany}}</div>
+                    <div class="info_basic">{{value.publishDate}}</div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        <div class="container_address">
+            <div>联系信息</div>
+            <div>
+                <div>
+                    <div class="tip">捐赠人信息</div>
+                    <div class="content">{{data.memberAddress}}</div>
+                </div>
+                <div>
+                    <div class="tip"></div>
+                    <div class="content">{{data.memberName}} {{data.memberMobile}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="container_order">
+            <div>捐赠单信息</div>
+            <div>
+                <div>
+                    <div class="tip">捐赠编号</div>
+                    <div class="content">{{data.sn}}</div>
+                </div>
+                <div>
+                    <div class="tip">提交时间</div>
+                    <div class="content">{{data.createTime}}</div>
+                </div>
+                <div>
+                    <div class="tip">确认时间</div>
+                    <div class="content">{{data.updateTime ? data.updateTime : '-'}}</div>
+                </div>
+                <div>
+                    <div class="tip">获得积分</div>
+                    <div class="content">{{data.point}}积分</div>
+                </div>
+            </div>
+        </div>
+        {{if data.status == 'INIT'}}
+        <div class="container_footer">
+            <div class="order_operation_group">
+                <div class="order_btn btn_red">取消捐赠</div>
+            </div>
+        </div>
+        {{/if}}
+    </script>
+    <script>
+        $(function () {
+            var id = getQueryString("id") !== null ? getQueryString("id") : getCookie("id");
+
+            // 配置layer弹框
+            layer.config({
+                skin: 'layui-layer-awesome',
+                width: '80%',
+                title: false,
+                closeBtn: 0,
+                scrollbar: false
+            });
+
+            var mescroll = new MeScroll('mescrollOrderDetails', {
+                down: {
+                    auto: true,
+                    callback: downCallback
+                }
+            });
+            
+            // 下拉回调
+            function downCallback() {
+                getListDataFromNet(function (pageData) {
+                    var status = pageData.data.status;
+                    if(status == 'INIT'){
+                        pageData.data.statusStr = "待确认";
+                        pageData.data.statusTip = "工作人员可能会联系您确认相关事宜";
+                    }else if(status == "ACCEPT"){
+                        pageData.data.statusStr = "已完成";
+                        pageData.data.statusTip = "捐赠已完成,感谢您的支持";
+                    }else if(status == "REJECT"){
+                        pageData.data.statusStr = "已取消";
+                        pageData.data.statusTip = "平台取消";
+                    }else if(status == "CANCEL"){
+                        pageData.data.statusStr = "已取消";
+                        pageData.data.statusTip = "主动取消捐赠";
+                    }else{
+                        pageData.data.statusStr = "";
+                        pageData.data.statusTip = "";
+                    }
+                    mescroll.endSuccess();
+                    setListData(pageData);
+                    orderCancel();
+                }, function () {
+                    mescroll.endErr();
+                });
+            }
+
+            // 请求接口
+            function getListDataFromNet(successCallback, errorCallback) {
+                $.slAjax({
+                    url: root + 'crc/rest/book/' + id,
+                    type: 'get',
+                    data: {},
+                    success: function (res) {
+                        if(res.code == 0){
+                            successCallback(res);
+                        }
+                        else{
+                            errorCallback();
+                        }
+                    }
+                });
+            }
+
+            // 塞数据
+            function setListData(pageData) {
+                var liDom = template('templateOrderDetails', pageData);
+                $('.container').empty().append(liDom);
+            }
+
+            // 取消捐赠
+            function orderCancel() {
+                $('.order_btn').unbind('click').on('click', function () {
+                    layer.confirm('您确定取消捐赠吗?', {
+                        btn: ['取消', '确定']
+                    }, function (i) {
+                        layer.close(i);
+                    }, function () {
+                        var data = {
+                            id: id,
+                            state: "已取消"
+                        }
+                        $.slAjax({
+                            url: root + 'crc/rest/book/' + id,
+                            type: "put",
+                            data: {},
+                            beforeSend: function () {
+                                layer.load(2);
+                            },
+                            success: function (res) {
+                                layer.closeAll();
+                                if (res.code == 0) {
+                                    layer.msg("已取消捐书", {
+                                        time: 2500
+                                    });
+                                    mescroll.triggerDownScroll();
+                                } else {
+                                    layer.msg(res.msg, {
+                                        time: 2500
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+
+
+        })
+    </script>
+</body>
+
+</html>

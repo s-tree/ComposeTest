@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>租借搜索</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/loan_search.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_search">
+                <div class="page_header_main_search_txt">
+                    <input type="text" placeholder="请输入租借商品名" class="searchTxt">
+                </div>
+                <div class="page_header_main_search_btn">搜索</div>
+            </div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <ul class="shop_category_list" id="shopCategoryList"> </ul>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateShopList">
+        {{each records as value}}
+        <li class="shop_category_list_item" data-id="{{value.id}}">
+            <div class="shop_category_list_item_image">
+                <img src="{{value.photo}}" onerror="this.parentNode.removeChild(this)">
+            </div>
+            <div class="shop_category_list_item_info">
+                <p class="shop_category_list_item_info_name">{{value.title}}</p>
+                <p class="shop_category_list_item_info_other">
+                    {{if value.freeTime}}
+                    <span>{{value.freeTime}}小时内免租金</span>
+                    {{/if}}
+                    {{if value.point}}
+                    <span>可用积分</span>
+                    {{else}}
+                    <span>不可用积分</span>
+                    {{/if}}
+                </p>
+                <p class="shop_category_list_item_info_price">￥<span>{{value.amount}}</span>/小时</p>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var pageIndex = 1;
+            var productName = ''
+
+            $('.page_header_main_search_btn').unbind('click').bind('click', function () {
+                productName = $('.searchTxt').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (!productName) {
+                    layer.msg('请输入租借商品名称')
+                } else {
+                    pageIndex = 1;
+                    $('.container_box_main').html(' <ul class="shop_category_list" id="shopCategoryList"></ul>')
+                    loanSearch();
+                }
+            })
+
+            // 搜索服务
+            function loanSearch() {
+                $.slAjax({
+                    url: root + 'crc/rest/lease/search',
+                    type: 'get',
+                    data: {
+                        compoundId: communityId,
+                        searchWord: productName,
+                        current: pageIndex,
+                        size: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.code === 0 && res.data) {
+                            if (res.data.records.length > 0) {
+                                $('#shopCategoryList').append(template("templateShopList", res.data));
+
+                                $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                    var productId = $(this).data('id')
+                                    window.location.href = './loan_detail.html?productId=' + productId + '&communityId=' + communityId + '&accId=' + accId
+                                });
+
+                                if (res.data.records.length == res.data.total && pageIndex == 1) {
+                                    $(".container_box_main").append('<div class="load-over">没有更多...</div>');
+                                } else {
+                                    $(".container_box_main").append('<div class="loadMore">点击加载更多</div>');
+
+                                    $('.loadMore').unbind('click').bind('click', function () {
+                                        $(".container_box_main .loadMore").remove();
+                                        pageIndex++;
+                                        loanSearch();
+                                    })
+                                }
+                            } else {
+                                if (pageIndex == 1) {
+                                    $(".container_box_main").append("<div class='default-none'><div class='no_tip'>搜索无结果</div></div>");
+                                } else {
+                                    $(".container_box_main").append('<div class="load-over">没有更多...</div>');
+                                }
+                            }
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                });
+            }
+
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>

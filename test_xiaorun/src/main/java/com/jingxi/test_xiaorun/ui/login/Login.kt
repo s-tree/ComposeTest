@@ -24,10 +24,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jingxi.test_xiaorun.R
+import com.jingxi.test_xiaorun.extras.WebViewExtra
+import com.jingxi.test_xiaorun.ui.web.WebViewParams
+import com.jingxi.test_xiaorun.util.HtmlFileFactory
 
 class Login {
 
@@ -99,7 +103,10 @@ class Login {
                         fontSize = 22.sp,
                         color = colorResource(id = R.color.tv_gray),
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.padding(start = 18.dp))
+                        modifier = Modifier.padding(start = 18.dp)
+                            .clickable ( onClick = {
+                                activityController.navigate(WebViewParams.buildUrl(HtmlFileFactory.buildUrl(HtmlFileFactory.AGREEMENT_USER)))
+                            } ))
 
                     Text(text = "和",
                         fontSize = 22.sp,
@@ -111,7 +118,10 @@ class Login {
                         fontSize = 22.sp,
                         color = colorResource(id = R.color.tv_gray),
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.padding(start = 18.dp))
+                        modifier = Modifier.padding(start = 18.dp)
+                            .clickable {
+                                activityController.navigate(WebViewParams.buildUrl(HtmlFileFactory.buildUrl(HtmlFileFactory.AGREEMENT_PRIVACY)))
+                            })
                 }
             }
         }

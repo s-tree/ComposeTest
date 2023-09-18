@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>便民租借</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/loan_list.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">便民租借</div>
+            <div class="page_header_main_btns">
+                <div class="search_btn" id="toSearch">
+                    <img src="../images/hbtn_search_b.png">
+                </div>
+                <div class="search_btn" id="toRecord" style="width: 0.4rem;height: 0.4rem;margin-left: .4rem;">
+                    <img src="../images/record.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="order_status" id="statusTopBar">
+        <div class="order_status_item active" data-type="0">全部</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"> </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/public.js"></script>
+    <script id="templateCategory" type="text/html">
+        {{each data as value i}}
+        <div class="order_status_item" data-type="{{value.id}}">{{value.title}}</div>
+        {{/each}}
+    </script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value i}}
+        <div class="order_item" data-id="{{value.id}}">
+            <div class="order_item_image">
+                <img src="{{getImage(value.photo)}}" onerror="this.parentNode.removeChild(this)">
+            </div>
+            <div class="order_item_info">
+                <p class="order_item_info_name">{{value.title}}</p>
+                <p class="order_item_info_other">
+                    {{if value.freeTime}}
+                    <span>{{value.freeTime}}小时内免租金</span>
+                    {{/if}}
+                    {{if value.point}}
+                    <span>可用积分</span>
+                    {{else}}
+                    <span>不可用积分</span>
+                    {{/if}}
+                </p>
+                <p class="order_item_info_price">￥<span>{{value.amount}}</span>/小时</p>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var typeId = '0'; // 租借分类
+
+            // 搜索
+            $('#toSearch').unbind('click').bind('click', function () {
+                window.location.href = './loan_search.html?communityId=' + communityId
+            });
+
+            // 记录
+            $('#toRecord').unbind('click').bind('click', function () {
+                window.location.href = './loan_record.html?communityId=' + communityId
+            });
+
+            // 查询分类
+            $.slAjax({
+                url: root + 'crc/rest/lease/category',
+                type: 'get',
+                data: {
+                    compoundId: communityId
+                },
+                success: function (res) {
+                    var liDom = template('templateCategory', res);
+                    $('#statusTopBar').append(liDom);
+
+                    // 切换分类标签
+                    $('.order_status_item').unbind('click').bind('click', function () {
+                        var typeId_ = $(this).data('type');
+                        if (typeId !== typeId_) {
+                            typeId = typeId_;
+                            $(this).addClass('active').siblings().removeClass('active');
+                            mescroll.resetUpScroll();
+                        }
+                    });
+                }
+            });
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    page: {
+                        size: 20 // 默认10
+                    },
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无相关商品"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 上拉回调
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(pageData);
+
+                    // 去商品详情
+                    $('.order_item').unbind('click').bind('click', function () {
+                        var scrollTop = $('#mescrollOrderRecent').scrollTop();
+                        var productId = $(this).data('id')
+                        window.location.href = './loan_detail.html?productId=' + productId + '&communityId=' + communityId
+                    });
+
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            // 塞数据
+            function setListData(pageData) {
+                var pageDataObj = {
+                    content: pageData
+                };
+                var liDom = template('templateOrderList', pageDataObj);
+                $('#orderList').append(liDom);
+            }
+
+            // 请求接口
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    $.slAjax({
+                        url: root + 'crc/rest/lease/goodsList',
+                        type: 'get',
+                        data: {
+                            categoryId: typeId,
+                            compoundId: communityId,
+                            current: pageIndex,
+                            size: pageSize
+                        },
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.data.records, res.data.total)
+                            }else{
+                                errorCallback();
+                            }
+                        }
+                    });
+                }, 300)
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

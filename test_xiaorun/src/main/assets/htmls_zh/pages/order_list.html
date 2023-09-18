@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>我的订单</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/order_list.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">我的订单</div>
+            <div class="page_header_main_btns">
+                <div class="search_btn">
+                    <img src="../images/hbtn_search_b.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="order_status" id="statusTopBar">
+        <div class="order_status_item" data-orderstatus="">全部</div>
+        <div class="order_status_item" data-orderstatus="WAIT_BUYER_PAY">待付款</div>
+        <div class="order_status_item" data-orderstatus="TRADE_SUCCESS">待接单</div>
+        <div class="order_status_item" data-orderstatus="WAIT_DELIVER">待发货</div>
+        <div class="order_status_item" data-orderstatus="SHIPPED">待确认</div>
+        <div class="order_status_item" data-orderstatus="RECEIVE">待评价</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"></div>
+    </div>
+    <div class="alertbox" style="display: none;">
+        <p style="font-size: 0.24rem; color: #f73b39;margin-bottom: 0.2rem;">请跟商家确认服务总额</p>
+        <p>
+            <span style="color: #999999;font-size: 0.3rem;margin-right: 0.2rem;">服务总额</span>
+            <input type="text" maxlength="10" class="changepricenum" onkeyup="clearNoNum(this)"
+                oninput="clearNoNum(this)">
+            <span style="color: #999999;font-size: 0.3rem;margin-left: 0.2rem;">元</span>
+        </p>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/order.js"></script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var orderStatus = getQueryString("orderStatus") !== null ? getQueryString("orderStatus") : getCookie("orderStatus");
+            if (!orderStatus) {
+                orderStatus = ''
+            }
+
+            $('.order_status_item').each(function (i, item) {
+                if ($(this).data('orderstatus') == orderStatus) {
+                    $(item).addClass('active')
+                }
+            })
+
+            // 进入订单搜索页面
+            $('.search_btn').unbind('click').bind('click', function () {
+                window.location.href = './order_search.html?accId=' + accId + '&accessToken=' + accessToken;
+            })
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无相关订单"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 切换订单状态标签
+            $('.order_status_item').unbind('click').bind('click', function () {
+                var i = $(this).data('orderstatus');
+                if (orderStatus !== i) {
+                    orderStatus = i;
+                    $(this).addClass('active').siblings().removeClass('active');
+                    mescroll.resetUpScroll();
+                }
+            });
+
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(pageData);
+
+                    $('.order_item .goods_info').unbind('click').bind('click', function () {
+                        var orderSn = $(this).parents('.order_item').data('ordersn');
+                        var orderId = $(this).parents('.order_item').data('orderid');
+                        var orderType = $(this).parents('.order_item').data('ordertype');
+                        var scrollTop = $('#mescrollOrderRecent').scrollTop();
+                        window.location.href = './order_detail.html?orderId=' + orderId + '&accId=' + accId + '&orderType=' + orderType + '&accessToken=' + accessToken;
+                    });
+
+                    $(".order_item .toBusinessShop").unbind('click').bind('click', function () {
+                        var shopManageId = $(this).parents('.order_item').data('shopmanageid');
+                        var communityId = $(this).parents('.order_item').data('communityid');
+                        var familyInfoId = $(this).parents('.order_item').data('familyinfoid');
+                        window.location.href = './business_shop_detail.html?shopManageId=' + shopManageId + '&communityId=' + communityId + '&accId=' + accId + '&familyInfoId=' + familyInfoId + '&accessToken=' + accessToken;
+                    });
+
+                    orderOperation(mescroll);
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            function setListData(pageData) {
+                var length = pageData.length;
+                //订单状态为待收货时，物流状态不为取消退货，则使用物流状态
+                for(var i = 0 ; i < length ; i++){
+                    if(pageData[i].status == "SHIPPED" 
+                        && pageData[i].goodsState
+                        && pageData[i].goodsState != "CANCEL_RETURN"){
+                            pageData[i].status = pageData[i].goodsState;
+                    }
+                }
+
+                var pageDataObj = {
+                    content: pageData
+                };
+
+                var liDom = template('templateOrderList', pageDataObj);
+                $('#orderList').append(liDom);
+            }
+
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    $.slAjax({
+                        url: root + 'bus/rest/order/getBusOrderPage',
+                        type: 'get',
+                        data: {
+                            memberId: accId,
+                            statusEnum: orderStatus,
+                            current: pageIndex,
+                            size: pageSize
+                        },
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.data.records, res.data.total)
+                            }
+                            else{
+                                errorCallback();
+                            }
+                        },
+                    });
+                }, 300)
+            }
+        });
+        function clearNoNum(obj) {
+            obj.value = obj.value.replace(/[^\d.]/g, ""); //清除“数字”和“.”以外的字符
+            obj.value = obj.value.replace(/\.{2,}/g, "."); //只保留第一个. 清除多余的
+            obj.value = obj.value.replace(".", "$#$").replace(/\./g, "").replace("$#$", ".");
+            obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3'); //只能输入两个小数
+            if (obj.value.indexOf(".") < 0 && obj.value != "") { //以上已经过滤，此处控制的是如果没有小数点，首位不能为类似于 01、02的金额
+                obj.value = parseFloat(obj.value);
+            }
+            if (obj.value.indexOf(".") == 0) {
+                obj.value = 0 + obj.value;
+            }
+        }
+    </script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value}}
+        {{if value.type == "GOODS"}}
+            <div class="order_item"
+                data-familyinfoid="{{value.familyId}}"
+                data-orderid="{{value.id}}"
+                data-ordersn="{{value.orderSn}}"
+                data-complainid="{{value.complainId}}"
+                data-ordertype="{{value.type}}"
+                data-accid="{{value.memberId}}"
+                data-price="{{value.amount}}"
+                data-shopmanageid="{{value.storeId}}"
+                data-communityid="{{value.compoundId}}">
+                <div class="shop_info">
+                    <div class="shop_info_title">
+                        <div class="shop_info_title_name toBusinessShop">{{value.busStore.name}}</div>
+                        {{if value.status =="WAIT_BUYER_PAY"}}
+                        <div class="shop_info_title_status" style="color: #FE4601;">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{else if value.status =="TRADE_SUCCESS"}}
+                        <div class="shop_info_title_status" style="color: #34C0BD;">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{else}}
+                        <div class="shop_info_title_status">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{/if}}
+                    </div>
+                    <div class="shop_info_star">
+                        <div class="star">
+                            <div class="star_box">
+                                <span class="gradient-box" style="width: {{value.busStore.score * 20}}%;"></span>
+                                <img src="../images/star_five.png">
+                            </div>
+                        </div>
+                        <div class="shop_info_star_count"><span>{{value.busStore.score}}</span>分</div>
+                    </div>
+                </div>
+                <div class="goods_info">
+                    {{if value.detailList.length == 1}}
+                    <div class="goods_info_item">
+                        <div class="goods_info_item_image">
+                            <img src="{{value.detailList[0].image}}">
+                        </div>
+                        <div class="goods_info_item_detail">
+                            <div class="name">{{value.detailList[0].name}}</div>
+                            <div class="orders">月售{{value.detailList[0].sales}} 好评率{{value.detailList[0].score}}%</div>
+                        </div>
+                        <div class="goods_info_item_count">
+                            <div class="price">￥<span>{{value.amount}}</span></div>
+                            <div class="count">共<span>1</span>件</div>
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{if value.detailList.length > 1}}
+                    <div class="goods_info_item1">
+                        <div class="goods_info_item1_image">
+                            {{each value.detailList as item i}}
+                            <div class="goods_info_item1_image_list">
+                                <img src="{{item.image}}">
+                            </div>
+                            {{/each}}
+                        </div>
+                        <div class="goods_info_item1_count">
+                            <div class="price">￥<span>{{value.amount}}</span></div>
+                            <div class="count">共<span>{{value.detailList.length}}</span>件</div>
+                        </div>
+                    </div>
+                    {{/if}}
+                </div>
+                {{include 'templateBusinessOrderBtn' value}}
+            </div>
+        {{else if value.type == 'SERVICE'}}
+            <div class="order_item"
+                data-familyinfoid="{{value.familyId}}"
+                data-orderid="{{value.id}}"
+                data-ordersn="{{value.orderSn}}"
+                data-ordertype="{{value.type}}"
+                data-accid="{{value.memberId}}"
+                data-complainid="{{value.complainId}}">
+                <div class="shop_info">
+                    <div class="shop_info_title">
+                        <div class="shop_info_title_name">{{value.busStore.name}}</div>
+                        {{if value.status =="WAIT_BUYER_PAY"}}
+                        <div class="shop_info_title_status" style="color: #FE4601;">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{else if value.status =="TRADE_SUCCESS"}}
+                        <div class="shop_info_title_status" style="color: #34C0BD;">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{else}}
+                        <div class="shop_info_title_status">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{/if}}
+                    </div>
+                    <div class="shop_info_star">
+                        <div class="star">
+                            <div class="star_box">
+                                <span class="gradient-box" style="width: {{value.busStore.score * 20}}%;"></span>
+                                <img src="../images/star_five.png">
+                            </div>
+                        </div>
+                        <div class="shop_info_star_count"><span>{{value.busStore.score}}</span>分</div>
+                    </div>
+                </div>
+                <div class="goods_info">
+                    <div class="goods_info_item">
+                        <div class="goods_info_item_image">
+                            <img src="{{value.detailList[0].image}}">
+                        </div>
+                        <div class="goods_info_item_detail">
+                            <div class="name">{{value.detailList[0].name}}</div>
+                            <div class="orders">月售{{value.detailList[0].sales}} 好评率{{value.detailList[0].score}}%</div>
+                        </div>
+                        <div class="goods_info_item_count">
+                            <div class="price">￥<span>{{value.amount}}</span></div>
+                            <div class="count">共<span>{{value.detailList.length}}</span>件</div>
+                        </div>
+                    </div>
+                </div>
+                {{include 'templateHomeServiceOnlineOrderBtn' value}}
+            </div>
+        {{else if value.type == 'GROUPON'}}
+            <div class="order_item"
+                data-familyinfoid="{{value.familyId}}"
+                data-ordersn="{{value.orderSn}}"
+                data-ordertype="{{value.type}}"
+                data-accid="{{value.memberId}}"
+                data-orderid="{{value.id}}"
+                data-price="{{value.amount}}"
+                data-communityid="{{value.compoundId}}"
+                data-complainid="{{value.complainId}}">
+                <div class="shop_info">
+                    <div class="shop_info_title">
+                        <div class="shop_info_title_name">社区团购</div>
+                        {{if value.status =="WAIT_BUYER_PAY"}}
+                        <div class="shop_info_title_status" style="color: #FE4601;">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{else if value.status =="TRADE_SUCCESS"}}
+                        <div class="shop_info_title_status" style="color: #34C0BD;">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{else}}
+                        <div class="shop_info_title_status">{{businessOrderStatus(value.status,value.complainStatus)}}</div>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="goods_info">
+                    <div class="goods_info_item">
+                        <div class="goods_info_item_image">
+                            <img src="{{value.detailList[0].image.split(',')[0]}}">
+                        </div>
+                        <div class="goods_info_item_detail">
+                            <div class="name">{{value.detailList[0].name}}</div>
+                            <div class="orders" style="visibility: hidden;">团购占位</div>
+                        </div>
+                        <div class="goods_info_item_count">
+                            <div class="price">￥<span>{{value.amount}}</span></div>
+                            <div class="count">共<span>{{value.detailList.length}}</span>件</div>
+                        </div>
+                    </div>
+                </div>
+                {{include 'templateGrouponOrderBtn' value}}
+            </div>
+        {{/if}}
+        {{/each}}
+    </script>
+    <!-- 商务订单操作按钮 -->
+    <script id="templateBusinessOrderBtn" type="text/html">
+        {{if complainStatus == "WAIT" || complainStatus == "ALREADY"}}
+        <div class="order_btn_group">
+            <div class="order_btn order_uncomplain">撤销投诉</div>
+        </div>
+        {{else if status == 'WAIT_BUYER_PAY'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_cancel">取消订单</div>
+            <div class="order_btn business_pay ml">立即付款</div>
+        </div>
+        {{else if status == 'PAY_ERROR'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_cancel">取消订单</div>
+            <div class="order_btn business_pay ml">立即付款</div>
+        </div>
+        {{else if status == 'TRADE_SUCCESS'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_cancel">取消订单</div>
+        </div>
+        {{else if status == 'WAIT_DELIVER'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_cancel">取消订单</div>
+        </div>
+        {{else if status == 'SHIPPED'}}
+        <div class="order_btn_group">
+            <div class="order_btn business_return">申请退货</div> 
+            <div class="order_btn order_receipt ml">确认收货</div>
+        </div>
+        {{else if status == 'RECEIVE'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_evaluate ml">立即评价</div>
+        </div>
+        {{else if status == 'REFUND'}}
+        <div class="order_btn_group">
+            <div class="order_btn business_uncancel_pay">撤销申请</div>
+        </div>
+        {{else if status == 'REFUSAL_REFUND'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_complain">投诉</div>
+            <div class="order_btn business_uncancel_pay ml">撤销申请</div>
+        </div>
+        {{else if status == 'APPLY_RETURN'}}
+        <div class="order_btn_group">
+            <div class="order_btn business_unreturn">撤销申请</div>
+            <div class="order_btn order_receipt ml">确认收货</div>
+        </div>
+        {{else if status == 'REFUSAL_RETURN'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_complain">投诉</div>
+            <div class="order_btn business_unreturn ml">撤销申请</div>
+        </div>
+        {{/if}}
+    </script>
+    <!-- 服务订单操作按钮 -->
+    <script id="templateHomeServiceOnlineOrderBtn" type="text/html">
+        {{if complainStatus == "WAIT"}}
+        <div class="order_btn_group">
+            <div class="order_btn order_uncomplain">撤销投诉</div>
+        </div>
+        {{else if status == 'TRADE_SUCCESS'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_cancel">取消预约</div>
+        </div>
+        {{else if status == 'WAIT_BUYER_PAY'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_complain">投诉</div>
+            <div class="order_btn home_changeprice ml">修改价格</div>
+            <div class="order_btn home_pay ml" data-fromorderlist=true data-lastprice="{{amount}}">立即付款</div>
+        </div>
+        {{else if status == 'RECEIVE'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_evaluate">评价</div>
+        </div>
+        {{/if}}
+    </script>
+    <!-- 团购订单操作按钮 -->
+    <script id="templateGrouponOrderBtn" type="text/html">
+        {{if status == 'WAIT_BUYER_PAY'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_cancel">取消订单</div>
+            <div class="order_btn groupon_pay ml">立即付款</div>
+        </div>
+        {{else if status == 'SHIPPED'}}
+        <div class="order_btn_group">
+            <div class="order_btn order_receipt">确认收货</div>
+        </div>
+        {{/if}}
+    </script>
+</body>
+
+</html>

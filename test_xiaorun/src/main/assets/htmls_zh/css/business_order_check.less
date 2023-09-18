@@ -1,0 +1,390 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    width          : 100%;
+    height         : 100%;
+    background     : url('../images/bg2.png') #F5F5F7 no-repeat;
+    background-size: 100% 100%;
+}
+
+.container_box {
+    width : 100%;
+    height: 100%;
+
+    &_main {
+        position: fixed;
+        top     : 1.5rem;
+        left    : 0;
+        bottom  : 0;
+        width   : 100%;
+        height  : auto;
+        overflow: auto;
+        padding : 0 .35rem 1.5rem .35rem;
+    }
+
+    &_address {
+        width        : 100%;
+        background   : #FFFFFF;
+        border-radius: .2rem;
+        padding      : .4rem .3rem;
+        .flex(row, space-between, center);
+
+        &_left {
+            flex : 1;
+            width: 0;
+
+            .receive_address {
+                width        : 100%;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+                font-size    : .34rem;
+                font-weight  : bold;
+                color        : #323232;
+            }
+
+            .receive_name {
+                margin-top: .1rem;
+                font-size : .26rem;
+                color     : #818791;
+            }
+        }
+
+        &_right {
+            flex-shrink: 0;
+            width      : .4rem;
+            height     : .4rem;
+            margin-left: .2rem;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+    }
+
+    &_shop {
+        margin-top: .2rem;
+
+        &_item {
+            background-color: #FFFFFF;
+            padding         : .4rem .3rem;
+            box-shadow      : 0 .04rem .14rem .04rem rgba(193, 193, 193, 0.15);
+            border-radius   : .2rem;
+            margin-bottom   : .2rem;
+
+            .shop_info {
+                &_name {
+                    width        : 100%;
+                    overflow     : hidden;
+                    text-overflow: ellipsis;
+                    white-space  : nowrap;
+                }
+
+                &_star {
+                    .flex(row, flex-start, center);
+                    margin-top: .1rem;
+
+                    &_count {
+                        color      : #FE4601;
+                        font-size  : .18rem;
+                        margin-left: .16rem;
+
+                        span {
+                            font-size: .24rem;
+                        }
+                    }
+                }
+            }
+
+            .goods_info {
+                margin-top: .4rem;
+
+                &_item {
+                    .flex(row, space-between, center);
+                    margin-bottom: .4rem;
+
+                    &_image {
+                        width        : 1.2rem;
+                        height       : 1.2rem;
+                        border-radius: .1rem;
+                        overflow     : hidden;
+                        flex-shrink  : 0;
+
+                        img {
+                            width : 100%;
+                            height: 100%;
+                        }
+                    }
+
+                    &_detail {
+                        flex  : 1;
+                        width : 0;
+                        margin: 0 .2rem;
+
+                        .name {
+                            width        : 100%;
+                            overflow     : hidden;
+                            text-overflow: ellipsis;
+                            white-space  : nowrap;
+                            font-size    : .28rem;
+                            color        : #323232;
+                            font-weight  : bold;
+                        }
+
+                        .orders {
+                            margin-top: .16rem;
+                            color     : #848484;
+                            font-size : .24rem;
+                        }
+                    }
+
+                    &_count {
+                        flex-shrink: 0;
+                        text-align : right;
+
+                        .price {
+                            color    : #323232;
+                            font-size: .24rem;
+
+                            span {
+                                font-size: .3rem;
+                            }
+                        }
+
+                        .count {
+                            color     : #848484;
+                            font-size : .24rem;
+                            margin-top: .16rem;
+                        }
+                    }
+                }
+            }
+
+            .vip_info {
+                &>div {
+                    .flex(row, space-between, center);
+                    margin-bottom: .4rem;
+
+                    .tip {
+                        font-size  : .28rem;
+                        color      : #323232;
+                        font-weight: bold;
+                    }
+
+                    .discount {
+                        font-size: .28rem;
+                        color    : #FE4601;
+                    }
+
+                    .coupons {
+                        .flex(row, space-between, center);
+
+                        &_count {
+                            font-size: .28rem;
+                            color    : #FE4601;
+                        }
+
+                        &_choose {
+                            width : .3rem;
+                            height: .3rem;
+
+                            img {
+                                width : 100%;
+                                height: 100%;
+                            }
+                        }
+                    }
+
+                    .remark {
+                        flex: 1;
+
+                        input {
+                            width     : 100%;
+                            text-align: right;
+                            font-size : .28rem;
+                            color     : #848484;
+                        }
+
+
+                    }
+                }
+            }
+
+            .total_info {
+                width     : 100%;
+                margin-top: .6rem;
+                .flex(row, flex-end, center);
+
+                &_discount {
+                    font-size: .28rem;
+                    color    : #323232;
+
+                    span {
+                        color      : #FF502E;
+                        margin-left: .1rem;
+                    }
+                }
+
+                &_price {
+                    font-size  : .28rem;
+                    color      : #323232;
+                    margin-left: .4rem;
+
+                    span {
+                        font-size  : .36rem;
+                        font-weight: bold;
+                        margin-left: .1rem;
+                    }
+                }
+            }
+
+        }
+    }
+
+    &_score {
+        width        : 100%;
+        background   : #FFFFFF;
+        box-shadow   : 0 .04rem .14rem .04rem rgba(193, 193, 193, 0.15);
+        border-radius: .2rem;
+        padding      : .4rem .3rem;
+        .flex(row, space-between, center);
+
+        &_info {
+            .tip {
+                height     : .27rem;
+                font-size  : .28rem;
+                font-weight: bold;
+                color      : #323232;
+
+                span {
+                    font-size  : .24rem;
+                    font-weight: normal;
+                    color      : #848484;
+                }
+            }
+
+            .content {
+                font-size  : .24rem;
+                font-weight: 500;
+                color      : #848484;
+                margin-top : .2rem;
+            }
+        }
+
+        &_do {
+            .ischoose {
+                text-align   : right;
+                margin-bottom: .1rem;
+            }
+
+            .detail {
+                font-size: .24rem;
+                color    : #848484;
+
+                span {
+                    color: #FF502E;
+                }
+            }
+        }
+    }
+
+    &_footer {
+        position        : fixed;
+        left            : 0;
+        bottom          : 0;
+        width           : 100%;
+        height          : 1.1rem;
+        background-color: #FFFFFF;
+        padding         : 0 .35rem;
+        .flex(row, space-between, center);
+
+        .totalPrice {
+            color    : #523318;
+            font-size: .3rem;
+
+            span {
+                font-size: .4rem;
+            }
+        }
+
+        .totalDiscount {
+            font-size: .24rem;
+            color    : #848484;
+
+            span {
+                color: #FF502E;
+            }
+        }
+
+        .payBtn {
+            width        : 2.2rem;
+            height       : .78rem;
+            line-height  : .78rem;
+            background   : linear-gradient(-90deg, #FDA84B 0%, #F79B35 100%);
+            border-radius: .39rem;
+            text-align   : center;
+            color        : #FFFFFF;
+            font-size    : .3rem;
+        }
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+
+}

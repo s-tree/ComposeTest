@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>订单详情</title>
+    <link rel="stylesheet" href="../plugins/switch/switch.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/loan_record_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">订单详情</div>
+        </div>
+    </div>
+    <div class="mescroll adjustHeightDetail" id="mescrollOrderDetails">
+        <div class="container"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script id="templateOrderDetails" type="text/html">
+        <div class="container_tip">
+            <div class="order_tip1">
+                <div class="status">
+                    {{if data.status === 'INIT'}}
+                    已下单
+                    {{else if data.status === 'LEASE'}}
+                    租借中
+                    {{else if data.status === 'EXPIRE'}}
+                    已到期
+                    {{else if data.status === 'COMPLETE'}}
+                    已归还
+                    {{else if data.status === 'CANCEL'}}
+                    已取消
+                    {{/if}}
+                </div>
+                {{if data.status =='INIT'}}
+                <div class="code">租借码：{{data.orderSn}}</div>
+                {{/if}}
+                {{if data.status =='LEASE'}}
+                <div class="code">到期时间：{{data.endTime}}</div>
+                {{/if}}
+                {{if data.status =='EXPIRE'}}
+                <div class="code">超时时长：{{data.timeout}}</div>
+                {{/if}}
+            </div>
+            {{if data.status =='INIT'}}
+            <div class="order_tip2">请在物业中心取件并付款后，再将此码提供给工作人员，下单后1小时内取件，否则租借自动取消！</div>
+            {{/if}}
+        </div>
+        <div class="container_loan">
+            <div class="container_loan_info">
+                <div class="photo">
+                    <img src="{{data.photo}}" onerror="this.parentNode.removeChild(this)">
+                </div>
+                <div class="info">
+                    <div class="info_name">{{data.title}}</div>
+                    <div class="info_basic">
+                        {{if data.rentFree}}
+                        <span>{{data.rentFreeTime}}小时内免租金</span>
+                        {{/if}}
+                        {{if data.point}}
+                        <span>可用积分</span>
+                        {{else}}
+                        <span>不可用积分</span>
+                        {{/if}}
+                    </div>
+                    <div class="info_other">
+                        <span class="tip1">￥<i>{{data.amount}}</i>/小时</span>
+                        <span class="tip2">共{{data.leaseTime}}小时</span>
+                    </div>
+                </div>
+            </div>
+            {{if data.status =='INIT'}}
+            <div class="container_loan_btn">
+                <div>取消租借</div>
+            </div>
+            {{/if}}
+        </div>
+        <div class="container_address">
+            <div>租借人信息</div>
+            <div>
+                <div>
+                    <div class="tip">租借人信息</div>
+                    <div class="content">{{data.memberAddress}}</div>
+                </div>
+                <div>
+                    <div class="tip"></div>
+                    <div class="content">{{data.memberName}} {{data.memberMobile}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="container_order">
+            <div>租借详情</div>
+            <div>
+                <div>
+                    <div class="tip">下单时间</div>
+                    <div class="content">{{data.createTime}}</div>
+                </div>
+                <div>
+                    <div class="tip">租借开始时间</div>
+                    <div class="content">{{data.startTime?data.startTime:'-'}}</div>
+                </div>
+                <div>
+                    <div class="tip">租期到期时间</div>
+                    <div class="content">{{data.endTime?data.endTime:'-'}}</div>
+                </div>
+                <div>
+                    <div class="tip">租金金额</div>
+                    <div class="content">￥{{data.goodsAmount?data.goodsAmount:'0.00'}}</div>
+                </div>
+                <div>
+                    <div class="tip">免租金额</div>
+                    <div class="content">-￥{{data.freeAmount?data.freeAmount:'0.00'}}</div>
+                </div>
+                <div>
+                    <div class="tip">积分抵扣</div>
+                    <div class="content">￥{{data.integralMoney?data.integralMoney:'0.00'}}</div>
+                </div>
+                <div>
+                    <div class="tip">合计租金</div>
+                    <div class="content total">￥{{data.amount?data.amount:'0.00'}}</div>
+                </div>
+                <div>
+                    <div class="tip">另付押金</div>
+                    <div class="content extra">￥{{data.deposit?data.deposit:'0.00'}}</div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        $(function () {
+            var orderId = getQueryString("orderId") !== null ? getQueryString("orderId") : getCookie("orderId");
+            var orderSn = getQueryString("orderSn") !== null ? getQueryString("orderSn") : getCookie("orderSn");
+
+            // 配置layer弹框
+            layer.config({
+                skin: 'layui-layer-awesome',
+                width: '80%',
+                title: false,
+                closeBtn: 0,
+                scrollbar: false
+            });
+
+            var mescroll = new MeScroll('mescrollOrderDetails', {
+                down: {
+                    auto: true,
+                    callback: downCallback
+                }
+            });
+
+            // 下拉回调
+            function downCallback() {
+                getListDataFromNet(function (pageData) {
+                    mescroll.endSuccess();
+                    setListData(pageData);
+                    orderCancel();
+                }, function () {
+                    mescroll.endErr();
+                });
+            }
+
+            // 请求接口
+            function getListDataFromNet(successCallback, errorCallback) {
+                $.slAjax({
+                    url: root + 'crc/rest/lease/order/' + orderSn,
+                    type: 'get',
+                    data: {},
+                    success: function (res) {
+                        if(res.code == 0){
+                            successCallback(res.data);
+                        }
+                        else{
+                            errorCallback();
+                        }
+                    }
+                });
+            }
+
+            // 塞数据
+            function setListData(pageData) {
+                var templateInfo = template('templateOrderDetails', { data: pageData });
+                $('.container')[0].innerHTML = templateInfo;
+            }
+
+            // 取消租借
+            function orderCancel() {
+                $('.container_loan_btn').unbind('click').on('click', function () {
+                    layer.confirm('您确定取消租借吗?', {
+                        btn: ['取消', '确定']
+                    }, function (i) {
+                        layer.close(i);
+                    }, function () {
+                        var data = {
+                            status: "CANCEL"
+                        }
+                        $.slAjax({
+                            url: root + 'crc/rest/lease/order/' + orderId,
+                            type: "put",
+                            contentType: "application/json",
+                            data: JSON.stringify(data),
+                            beforeSend: function () {
+                                layer.load(2);
+                            },
+                            success: function (res) {
+                                layer.closeAll();
+                                if (res.code == 0) {
+                                    layer.msg("取消成功", {
+                                        time: 2500
+                                    });
+                                    mescroll.triggerDownScroll();
+                                } else {
+                                    layer.msg(res.msg, {
+                                        time: 2500
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+
+
+        })
+    </script>
+</body>
+
+</html>

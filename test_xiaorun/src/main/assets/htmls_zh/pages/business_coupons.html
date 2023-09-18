@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>选择优惠券</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/business_coupons.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">选择优惠券</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <ul></ul>
+        <div class="submitBtn">确定</div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/date.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateCouponList">
+        {{each content as value i}}
+        <li data-couponid={{value.id}}>
+            {{if value.type == "SUBTRACTION"}}
+            <div class="price_info">￥<span>{{value.amountReduction}}</span></div>
+            <div class="basic_info">
+                <div class="tip">优惠券</div>
+                <div class="info">满{{value.initAmount}}元使用，{{value.endDate.length > 10 ? value.endDate.substr(0,10) : value.endDate}}到期</div>
+            </div>
+            {{else if value.type == "DISCOUNT"}}
+            <div class="price_info"><span>{{value.discount / 10}}折</span></div>
+            <div class="basic_info">
+                <div class="tip">优惠券</div>
+                <div class="info">{{value.endDate.length > 10 ? value.endDate.substr(0,10) : value.endDate}}到期</div>
+            </div>
+            {{/if}}
+            <div class="choose_tip {{if value.isSelected }}choosed{{/if}}">
+                {{if value.isSelected }}
+                <img src="../images/choose_y.png">
+                {{/if}}
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var paymentScene = getQueryString("paymentScene") !== null ? getQueryString("paymentScene") : getCookie("paymentScene");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var shopManageId = getQueryString("shopManageId") !== null ? getQueryString("shopManageId") : getCookie("shopManageId");
+            var familyMemberAccId = getQueryString("familyMemberAccId") !== null ? getQueryString("familyMemberAccId") : getCookie("familyMemberAccId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var price = getQueryString("price") !== null ? getQueryString("price") : getCookie("price");
+            price = price === '' ? 0 : price;
+
+            var couponChooseOfflineBasic = {};
+            var couponListDataOfflineBasic = {};
+
+            var couponChooseBasic = {};
+            var couponListDataBasic = {};
+
+            if (paymentScene === 'offline') {
+                // 通过accid查询当前用户对当前店铺可使用的优惠券,第一条为最优惠
+                $.slAjax({
+                    url: root + 'bus/rest/member/coupons/page',
+                    type: "get",
+                    data: {
+                        familyId: familyInfoId,
+                        storeId: shopManageId,
+                        current: 1,
+                        size: 20
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.records.length > 0) {
+                                var filter = [];
+                                var length = res.data.records.length;
+                                for(var i = 0; i < length; i++){
+                                    var item = res.data.records[i];
+                                    var isAdd = false;
+                                    if(isExpire(item.endDate) || item.status != 'UNUSED'){
+                                        continue;
+                                    }
+                                    if(item.type == "SUBTRACTION" && price >= item.initAmount){
+                                        filter.push(item);
+                                        isAdd = true;
+                                    }
+                                    if(item.type == "DISCOUNT"){
+                                        filter.push(item);
+                                        isAdd = true;
+                                    }
+                                    if(isAdd && filter.length == 1){
+                                        item.isSelected = true;
+                                    }else{
+                                        item.isSelected = false;
+                                    }
+                                }
+
+                                couponListDataOfflineBasic.content = filter;
+
+                                couponChooseOfflineBasic[shopManageId] = couponListDataOfflineBasic.content[0];
+                                $('.container_box ul').html(template('templateCouponList', couponListDataOfflineBasic));
+                                couponChooseOption(paymentScene, couponListDataOfflineBasic, couponChooseOfflineBasic);
+                            } else {
+                                $('.container_box ul').html('<p style="font-size:.24rem;text-align: center;margin-top: .4rem;">暂无可用优惠券</p>');
+                            }
+                        }
+                    }
+                });
+            } else {
+                // 查询社区家庭对店铺的优惠券
+                $.slAjax({
+                    url: root + 'bus/rest/member/coupons/page',
+                    type: "get",
+                    data: {
+                        familyId: familyInfoId,
+                        storeId: shopManageId,
+                        current: 1,
+                        size: 20
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.records.length > 0) {
+                                var filter = [];
+                                var length = res.data.records.length;
+                                for(var i = 0; i < length; i++){
+                                    var item = res.data.records[i];
+                                    var isAdd;
+                                    if(isExpire(item.endDate) || item.status != 'UNUSED' || item.scope == 'OFFLINE'){
+                                        continue;
+                                    }
+                                    if(item.type == "SUBTRACTION" && price >= item.initAmount){
+                                        filter.push(item);
+                                        isAdd = true;
+                                    }
+                                    if(item.type == "DISCOUNT"){
+                                        filter.push(item);
+                                        isAdd = true;
+                                    }
+                                    if(isAdd && filter.length == 1){
+                                        item.isSelected = true;
+                                    }else{
+                                        item.isSelected = false;
+                                    }
+                                }
+
+                                couponListDataBasic.content = filter;
+                                couponChooseBasic[shopManageId] = couponListDataBasic.content[0];
+
+                                window.localStorage.setItem('couponListData' + shopManageId, JSON.stringify(couponListDataBasic));
+                                $('.container_box ul').html(template('templateCouponList', couponListDataBasic));
+                                couponChooseOption(paymentScene, couponListDataBasic, couponChooseBasic);
+                            } else {
+                                $('.container_box ul').html('<p style="font-size:.24rem;text-align: center;margin-top: .4rem;">暂无可用优惠券</p>');
+                            }
+                        }
+                    }
+                });
+            }
+            // 确定提交数据
+            $('.submitBtn').unbind('click').bind('click', function () {
+                // 更新优惠券缓存
+                if (paymentScene === 'offline') {
+                    callHandlerBridge('couponChooseOffline', { 'couponChooseData': JSON.stringify(couponChooseOfflineBasic) });
+                } else {
+                    callHandlerBridge('couponChoose', { 'couponChooseData': JSON.stringify(couponChooseBasic) }, function (response) {
+                        callHandlerBridge('autoGoback', { 'refresh': false });
+                    });
+                }
+            })
+
+            // 选择优惠券切换
+            function couponChooseOption(type, couponListData, couponChoose) {
+                $('.container_box ul li').unbind('click').bind('click', function () {
+                    var this_ = $(this);
+                    var couponId = this_.data('couponid');
+                    if (this_.find('.choose_tip').hasClass('choosed')) {
+                        // 取消勾选
+                        this_.find('.choose_tip').removeClass('choosed');
+                        this_.find('.choose_tip img').remove();
+
+                        couponChoose[shopManageId] = {};
+
+                        for (var i = 0, len = couponListData.content.length; i < len; i++) {
+                            couponListData.content[i].isSelected = false;
+                        }
+
+                    } else {
+                        // 勾选了当前
+                        this_.parents('.container_box').find('.choose_tip').removeClass('choosed');
+                        this_.parents('.container_box').find('.choose_tip img').remove();
+                        this_.find('.choose_tip').addClass('choosed');
+                        this_.find('.choose_tip').html('<img src="../images/choose_y.png">');
+
+                        for (var i = 0, len = couponListData.content.length; i < len; i++) {
+                            couponListData.content[i].isSelected = false;
+
+                            if (couponListData.content[i].id == couponId) {
+                                couponChoose[shopManageId] = couponListData.content[i];
+                                couponListData.content[i].isSelected = true;
+                            }
+                        }
+                    }
+
+                    if (type === 'offline') {
+                        couponListDataOfflineBasic = couponListData;
+                        couponChooseOfflineBasic = couponChoose;
+                    } else {
+                        couponListDataBasic = couponListData;
+                        couponChooseBasic = couponChoose;
+                    }
+                })
+            }
+        });
+    </script>
+
+</body>
+
+</html>

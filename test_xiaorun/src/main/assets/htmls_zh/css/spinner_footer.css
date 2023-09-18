@@ -1,0 +1,154 @@
+@charset "utf-8";
+/**
+ * flex布局
+ * @param  {string} @flex-direction:column  主轴的方向
+ * row：主轴为水平方向，起点在左端。
+ * row-reverse：主轴为水平方向，起点在右端。
+ * column：主轴为垂直方向，起点在上沿。
+ * column-reverse：主轴为垂直方向，起点在下沿。
+ * @param  {string} @justify-content:center 在主轴上的对齐方式
+ * flex-start：左对齐
+ * flex-end：右对齐
+ * center： 居中
+ * space-between：两端对齐，项目之间的间隔都相等
+ * @param  {string} @align-items:center     在交叉轴上如何对齐。
+ * flex-start：交叉轴的起点对齐。
+ * flex-end：交叉轴的终点对齐。
+ * center：交叉轴的中点对齐。
+ * baseline: 项目的第一行文字的基线对齐。
+ * stretch：如果项目未设置高度或设为auto，将占满整个容器的高度。
+ *
+ */
+/**
+ * flex子元素
+ * @param  {boolen} @display 是否允许伸缩
+ */
+ body,
+.container_box_footer .vip_footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 12;
+    width: 100%;
+    background: #ffffff;
+  }
+  .container_box_footer .vip_footer .vip_list {
+    border-top-left-radius: 0.4rem;
+    border-top-right-radius: 0.4rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: inherit;
+    padding: 0.45rem 0.25rem 0.25rem 0.25rem;
+    z-index: -1;
+    max-height: 6.2rem;
+    overflow-y: auto;
+    background-color: #F5F5F5;
+    -webkit-transition: -webkit-transform 0.3s ease;
+    transition: -webkit-transform 0.3s ease;
+    -webkit-transition: transform 0.3s ease;
+    transition: transform 0.3s ease;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+  .container_box_footer .vip_footer .vip_list.vip_list_open {
+    transform: translateZ(0);
+  }
+  .container_box_footer .vip_footer .vip_list_title {
+    width: 100%;
+    font-size: 0.34rem;
+    color: #323232;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item {
+    display: -webkit-box;
+    /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+    display: -moz-box;
+    /* 老版本语法 : Firefox (buggy) */
+    display: -ms-flexbox;
+    /* 混合版本语法: IE 10 */
+    display: -webkit-flex;
+    /* 新版本语法 : Chrome 21+ */
+    display: flex;
+    /* 新版本语法 : Opera 12.1, Firefox 22+ */
+    -webkit-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-pack: justify;
+    -moz-justify-content: space-between;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -moz-align-items: center;
+    -webkit-align-items: center;
+    align-items: center;
+    background: linear-gradient(270deg, #F4D18F 0%, #FFE5B4 100%);
+    border-radius: 0.2rem;
+    padding: 0.35rem 0.3rem;
+    margin-top: 0.16rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_price {
+    color: #523318;
+    font-size: 0.3rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_price span {
+    font-size: 0.58rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_content {
+    flex: 1;
+    margin-left: 0.2rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_content .tip {
+    color: #523318;
+    font-size: 0.32rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_content .content {
+    color: #523318;
+    margin-top: 0.1rem;
+    font-size: 0.24rem;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_btn {
+    width: 1.2rem;
+    height: 0.58rem;
+    line-height: 0.58rem;
+    background: linear-gradient(-90deg, #BB762B 0%, #E3A761 100%);
+    border-radius: 0.29rem;
+    text-align: center;
+    font-size: 0.26rem;
+    color: #ffffff;
+  }
+  .container_box_footer .vip_footer .vip_list_main .vip_list_item_btn.active {
+    background: linear-gradient(-90deg, #E1B06B 0%, #F2C685 100%);
+  }
+  .container_box .mask_view {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    background-color: #000;
+    opacity: 0;
+    -webkit-transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease;
+  }
+  .container_box .mask_view.mask_view_show {
+    z-index: 9;
+    opacity: 0.4;
+  }
+  .container_box .mask_view1 {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    background-color: #000;
+    opacity: 0;
+    -webkit-transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease;
+  }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>业主委员会</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/owner_index.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">业主委员会</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_main_activity">
+                <div class="container_box_main_activity_title">
+                    <div class="container_box_main_activity_title_left">
+                        <div></div>
+                        <div class="tip">信息公开</div>
+                    </div>
+                    <div class="container_box_main_activity_title_right">
+                        <div class="tip">更多</div>
+                        <div>
+                            <img src="../images/icons_more.png">
+                        </div>
+                    </div>
+                </div>
+                <div class="container_box_main_activity_content">
+                    <div class="activity_item">
+                        <div class="activity_item_tip">议事公开</div>
+                        <div class="activity_item_title">关于电梯广告的使用(渲染模板控制13字)</div>
+                        <div class="activity_item_btn">查看详情</div>
+                    </div>
+                    <div class="activity_item">
+                        <div class="activity_item_tip">投票选举</div>
+                        <div class="activity_item_title">关于业委会换届的入围者投票选举...</div>
+                        <div class="activity_item_btn">参与投票</div>
+                    </div>
+                    <div class="activity_item">
+                        <div class="activity_item_tip">调查问卷</div>
+                        <div class="activity_item_title">关于业主生活质量的调查问卷</div>
+                        <div class="activity_item_btn">参与问卷</div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_box_main_group">
+                <div class="container_box_main_group_title">
+                    <div class="container_box_main_group_title_left">
+                        <div></div>
+                        <div class="tip">业主委员会成员</div>
+                    </div>
+                </div>
+                <div class="container_box_main_group_content">
+                    <div class="member_item">
+                        <div class="member_item_top">
+                            <div class="member_item_top_info">
+                                <div class="member_item_top_info_head">
+                                    <img src="../images/questionnaire_bg.png">
+                                </div>
+                                <div class="member_item_top_info_main">
+                                    <div class="member_item_top_info_main_basic">
+                                        <div class="member_item_top_info_main_basic_name">李涛</div>
+                                        <div class="member_item_top_info_main_basic_job">主任</div>
+                                    </div>
+                                    <div class="member_item_top_info_main_phone">电话：15236895265</div>
+                                </div>
+                            </div>
+                            <div class="member_item_top_call">
+                                <a href="javascript:void(0)" style="display: block;width: 100%;height: 100%;">
+                                    <img src="../images/contact.png">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="member_item_duty">工作职责：协调解决协调解决协调解决协调解决协调解决</div>
+                        <div class="member_item_time">任期至：2021-12-30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script>
+        $(function () {
+            $('.container_box_main_activity_title_right').unbind('click').bind('click', function () {
+                window.location.href = './owner_public.html'
+            })
+        })
+    </script>
+</body>
+
+</html>

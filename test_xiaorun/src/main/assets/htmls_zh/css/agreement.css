@@ -1,0 +1,168 @@
+@charset "utf-8";
+/**
+ * flex布局
+ * @param  {string} @flex-direction:column  主轴的方向
+ * row：主轴为水平方向，起点在左端。
+ * row-reverse：主轴为水平方向，起点在右端。
+ * column：主轴为垂直方向，起点在上沿。
+ * column-reverse：主轴为垂直方向，起点在下沿。
+ * @param  {string} @justify-content:center 在主轴上的对齐方式
+ * flex-start：左对齐
+ * flex-end：右对齐
+ * center： 居中
+ * space-between：两端对齐，项目之间的间隔都相等
+ * @param  {string} @align-items:center     在交叉轴上如何对齐。
+ * flex-start：交叉轴的起点对齐。
+ * flex-end：交叉轴的终点对齐。
+ * center：交叉轴的中点对齐。
+ * baseline: 项目的第一行文字的基线对齐。
+ * stretch：如果项目未设置高度或设为auto，将占满整个容器的高度。
+ *
+ */
+/**
+ * flex子元素
+ * @param  {boolen} @display 是否允许伸缩
+ */
+body,
+html {
+  width: 100%;
+  height: 100%;
+}
+.star {
+  height: 0.29rem;
+  padding: 0.02rem;
+}
+.star .star_box {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  width: 1.33rem;
+  height: 0.28rem;
+  position: relative;
+  background: #d0dcee;
+}
+.star .star_box .gradient-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: #fda131;
+}
+.star .star_box img {
+  width: 100%;
+  height: 0.28rem;
+  z-index: 2;
+}
+.default-none {
+  width: 100%;
+}
+.default-none .no_img {
+  width: 100%;
+  margin: 0 auto;
+}
+.default-none .no_img img {
+  width: 100%;
+}
+.default-none .no_tip {
+  width: 100%;
+  font-size: 0.24rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  color: #323232;
+}
+.load-over,
+.loadMore {
+  width: 100%;
+  text-align: center;
+  color: #999999;
+  font-size: 0.24rem;
+  margin: 0.08rem 0;
+}
+.loading_w {
+  width: 0.6rem;
+  margin: 0 auto;
+}
+.loading_w img {
+  width: 100%;
+}
+.container_box {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 0.4rem 0.2rem;
+}
+.container_box p {
+  width: 100%;
+}
+.container_box .wtable {
+  width: 100%;
+  margin-bottom: 0.2rem;
+  overflow-x: scroll;
+}
+.container_box .wtable table {
+  font-size: 0.26rem;
+}
+.container_box .wtable table th,
+.container_box .wtable table td {
+  white-space: nowrap;
+}
+.container_box .wtable table th {
+  font-weight: 800;
+}
+.container_box .title_top {
+  font-size: 0.4rem;
+  text-align: center;
+  margin-bottom: 0.2rem;
+  font-weight: 800;
+}
+.container_box .title_leve1,
+.container_box .title_leve2,
+.container_box .title_leve3,
+.container_box .title_leve4 {
+  font-weight: 800;
+  margin-bottom: 0.16rem;
+}
+.container_box .title_leve1 {
+  font-size: 0.32rem;
+}
+.container_box .title_leve2 {
+  font-size: 0.3rem;
+}
+.container_box .title_leve3 {
+  font-size: 0.28rem;
+}
+.container_box .title_leve4 {
+  font-size: 0.26rem;
+}
+.container_box .content_txt {
+  font-size: 0.26rem;
+  line-height: 0.36rem;
+  margin-bottom: 0.2rem;
+}
+.container_box .content_txt.txt_indent {
+  text-indent: 2em;
+}
+.container_box .content_txt.txt_indent_s {
+  text-indent: 1em;
+}

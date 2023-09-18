@@ -1,0 +1,1218 @@
+@charset "utf-8";
+/**
+ * flex布局
+ * @param  {string} @flex-direction:column  主轴的方向
+ * row：主轴为水平方向，起点在左端。
+ * row-reverse：主轴为水平方向，起点在右端。
+ * column：主轴为垂直方向，起点在上沿。
+ * column-reverse：主轴为垂直方向，起点在下沿。
+ * @param  {string} @justify-content:center 在主轴上的对齐方式
+ * flex-start：左对齐
+ * flex-end：右对齐
+ * center： 居中
+ * space-between：两端对齐，项目之间的间隔都相等
+ * @param  {string} @align-items:center     在交叉轴上如何对齐。
+ * flex-start：交叉轴的起点对齐。
+ * flex-end：交叉轴的终点对齐。
+ * center：交叉轴的中点对齐。
+ * baseline: 项目的第一行文字的基线对齐。
+ * stretch：如果项目未设置高度或设为auto，将占满整个容器的高度。
+ *
+ */
+/**
+ * flex子元素
+ * @param  {boolen} @display 是否允许伸缩
+ */
+body,
+html {
+  width: 100%;
+  height: 100%;
+}
+.star {
+  height: 0.29rem;
+  padding: 0.02rem;
+}
+.star .star_box {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  width: 1.33rem;
+  height: 0.28rem;
+  position: relative;
+  background: #d0dcee;
+}
+.star .star_box .gradient-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: #fda131;
+}
+.star .star_box img {
+  width: 100%;
+  height: 0.28rem;
+  z-index: 2;
+}
+.default-none {
+  width: 100%;
+}
+.default-none .no_img {
+  width: 100%;
+  margin: 0 auto;
+}
+.default-none .no_img img {
+  width: 100%;
+}
+.default-none .no_tip {
+  width: 100%;
+  font-size: 0.24rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  color: #323232;
+}
+.load-over,
+.loadMore {
+  width: 100%;
+  text-align: center;
+  color: #999999;
+  font-size: 0.24rem;
+  margin: 0.08rem 0;
+}
+.loading_w {
+  width: 0.6rem;
+  margin: 0 auto;
+}
+.loading_w img {
+  width: 100%;
+}
+body {
+  background-color: #ffffff;
+  width: 100%;
+  height: 100%;
+}
+.container_box {
+  width: 100%;
+  height: 100%;
+}
+.container_box_header {
+  width: 100%;
+  background: url('../images/bg3.png') no-repeat #ffffff;
+  background-size: 100% auto;
+  padding: 1.36rem 0.35rem 0 0.35rem;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
+}
+.container_box_header .shop_info {
+  width: 100%;
+  border-radius: 0.2rem;
+  background-color: #ffffff;
+  padding: 0.36rem;
+  box-shadow: 0 0.04rem 0.14rem 0.04rem rgba(193, 193, 193, 0.15);
+}
+.container_box_header .shop_info_basic {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_header .shop_info_basic_left {
+  flex: 1;
+  width: 0;
+}
+.container_box_header .shop_info_basic_left_name {
+  width: 100%;
+  font-size: 0.34rem;
+  color: #323232;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.container_box_header .shop_info_basic_left_star {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_header .shop_info_basic_left_star .score_index {
+  color: #FE4601;
+  font-size: 0.24rem;
+  margin: 0 0.3rem 0 0.2rem;
+}
+.container_box_header .shop_info_basic_left_star .score_index i {
+  font-size: 0.36rem;
+}
+.container_box_header .shop_info_basic_left_star .count {
+  font-size: 0.24rem;
+  color: #848484;
+}
+.container_box_header .shop_info_basic_image {
+  width: 1.06rem;
+  height: 1.06rem;
+  border-radius: 0.16rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-left: 0.1rem;
+}
+.container_box_header .shop_info_basic_image img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_header .shop_info_other {
+  font-size: 0.24rem;
+  color: #848484;
+  margin-top: 0.1rem;
+}
+.container_box_header .shop_info_other p {
+  margin-bottom: 0.1rem;
+}
+.container_box_header .shop_info_coupons {
+  margin-top: 0.2rem;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_header .shop_info_coupons_qy {
+  flex: 1;
+  width: 0;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  overflow-x: auto;
+}
+.container_box_header .shop_info_coupons_qy_vip {
+  height: 0.5rem;
+  padding: 0 0.16rem;
+  background: linear-gradient(270deg, #FCF2E2 0%, #FFFAEE 100%);
+  border-radius: 0.1rem;
+  font-size: 0.22rem;
+  color: #523318;
+  margin-right: 0.14rem;
+  flex-shrink: 0;
+}
+.container_box_header .shop_info_coupons_qy_vip span {
+  font-size: 0.32rem;
+}
+.container_box_header .shop_info_coupons_qy_list {
+  flex-shrink: 0;
+}
+.container_box_header .shop_info_coupons_qy_list ul {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_header .shop_info_coupons_qy_list ul li {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  margin-right: 0.14rem;
+}
+.container_box_header .shop_info_coupons_qy_list ul li .coupons_info {
+  padding: 0 0.16rem;
+  height: 0.5rem;
+  text-align: center;
+  background: linear-gradient(270deg, #F4D18F 0%, #FFE5B4 100%);
+  border-radius: 0.1rem;
+  font-size: 0.22rem;
+}
+.container_box_header .shop_info_coupons_qy_list ul li .coupons_info i {
+  font-size: 0.32rem;
+  margin-right: 0.16rem;
+}
+.container_box_header .shop_info_coupons_qy_list ul li .coupons_take {
+  width: 0.5rem;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  background: #F3D08C;
+  text-align: center;
+  border-radius: 0.1rem;
+  font-size: 0.24rem;
+  font-weight: bold;
+  color: #523318;
+  border-left: 0.02rem dotted #D8B778;
+}
+.container_box_header .shop_info_coupons_show {
+  flex-shrink: 0;
+  width: 0.3rem;
+  height: 0.3rem;
+}
+.container_box_header .shop_info_coupons_show img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_header .vip_info {
+  width: 100%;
+  padding: 0.2rem 0.3rem;
+  margin-top: 0.35rem;
+  background: linear-gradient(90deg, #FFFAEE 1%, #FCF3E1 95%);
+  border-radius: 0.2rem;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_header .vip_info_basic_tip {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  font-size: 0.28rem;
+  font-weight: bold;
+  color: #523318;
+}
+.container_box_header .vip_info_basic_tip_logo {
+  margin-right: 0.12rem;
+  width: 0.3rem;
+  height: 0.25rem;
+}
+.container_box_header .vip_info_basic_tip_logo img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_header .vip_info_basic_main {
+  margin-top: 0.1rem;
+  font-size: 0.22rem;
+  font-weight: 500;
+  color: #848484;
+}
+.container_box_header .vip_info_take {
+  width: 1.6rem;
+  height: 0.58rem;
+  line-height: 0.58rem;
+  text-align: center;
+  font-size: 0.26rem;
+  color: #ffffff;
+  background: linear-gradient(-61deg, #FF4C35 0%, #FF754D 100%);
+  border-radius: 0.29rem;
+}
+.container_box_header .vip_info_taked {
+  width: 1.6rem;
+  height: 0.58rem;
+  line-height: 0.58rem;
+  text-align: center;
+  font-size: 0.26rem;
+  color: #818181;
+  background: #FFFAF0;
+  border-radius: 0.29rem;
+}
+.container_box_header .tab_bar {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  margin-top: 0.6rem;
+  font-size: 0.3rem;
+}
+.container_box_header .tab_bar li {
+  margin-right: 0.3rem;
+  padding-bottom: 0.13rem;
+  color: #848484;
+  border-bottom: 0.04rem solid #ffffff;
+}
+.container_box_header .tab_bar li .score {
+  font-size: 0.24rem;
+}
+.container_box_header .tab_bar li.active {
+  color: #323232;
+  border-bottom: 0.04rem solid #F79B34;
+}
+.container_box_main {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 1rem;
+}
+.container_box_main .product_box,
+.container_box_main .comment_box {
+  width: 100%;
+  height: 100%;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+  overflow: auto;
+}
+.container_box_main .product_item {
+  width: 100%;
+  padding: 0.2rem 0;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_main .product_item_image {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0.2rem;
+  overflow: hidden;
+  margin-right: 0.3rem;
+}
+.container_box_main .product_item_image img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_main .product_item_info {
+  flex: 1;
+  width: 0;
+}
+.container_box_main .product_item_info_name {
+  width: 100%;
+  font-size: 0.32rem;
+  font-weight: 800;
+  color: #323232;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.container_box_main .product_item_info_other {
+  margin: 0.16rem 0;
+  font-size: 0.24rem;
+  font-weight: 500;
+  color: #848484;
+}
+.container_box_main .product_item_info_other span {
+  margin-left: 0.2rem;
+}
+.container_box_main .product_item_info_price {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_main .product_item_info_price .price {
+  color: #FE4601;
+  font-size: 0.24rem;
+}
+.container_box_main .product_item_info_price .price span {
+  font-size: 0.34rem;
+}
+.container_box_main .product_item_info_price .add {
+  width: 0.48rem;
+  height: 0.48rem;
+}
+.container_box_main .product_item_info_price .add img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_main .comment_item {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  margin-top: 0.2rem;
+}
+.container_box_main .comment_item .user_image {
+  width: 0.68rem;
+  height: 0.68rem;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 0.2rem;
+  flex-shrink: 0;
+}
+.container_box_main .comment_item .user_image img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_main .comment_item .comment_container {
+  flex: 1;
+}
+.container_box_main .comment_item .comment_container .user_name {
+  font-size: 0.26rem;
+  color: #5C5C5C;
+}
+.container_box_main .comment_item .comment_container .star {
+  margin: 0.1rem 0;
+}
+.container_box_main .comment_item .comment_container .comment_content {
+  font-size: 0.28rem;
+  color: #242424;
+}
+.container_box_main .comment_item .comment_container .comment_time {
+  font-size: 0.22rem;
+  color: #8A8B8F;
+}
+.container_box_main .comment_item .comment_container .comment_images {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.container_box_main .comment_item .comment_container .comment_images .image_item {
+  width: 30%;
+  height: 1.6rem;
+  border-radius: 0.1rem;
+  overflow: hidden;
+  margin: 0 1% 0.1rem 0;
+}
+.container_box_main .comment_item .comment_container .comment_images .image_item img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_footer .cart_footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 11;
+  width: 100%;
+  height: 1rem;
+  background: #ffffff;
+}
+.container_box_footer .cart_footer .footer_list {
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+  position: absolute;
+  bottom: 1rem;
+  left: 0;
+  right: 0;
+  background: inherit;
+  padding: 0 0.25rem;
+  z-index: -1;
+  max-height: 5.2rem;
+  overflow-y: auto;
+  -webkit-transition: -webkit-transform 0.3s ease;
+  transition: -webkit-transform 0.3s ease;
+  -webkit-transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
+  -webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0);
+}
+.container_box_footer .cart_footer .footer_list.footer_list_open {
+  transform: translateZ(0);
+}
+.container_box_footer .cart_footer .footer_list.footer_list_open .open_btn:after {
+  top: 0.07rem;
+  border-left: none;
+  border-top: none;
+  border-right: 0.04rem solid #999999;
+  border-bottom: 0.04rem solid #999999;
+}
+.container_box_footer .cart_footer .footer_list .cart_footer_title {
+  padding: 0.4rem 0;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_footer .cart_footer .footer_list .cart_footer_title .tip {
+  font-size: 0.32rem;
+  color: #323232;
+  font-weight: bold;
+}
+.container_box_footer .cart_footer .footer_list .cart_footer_title #clearAll {
+  color: #848484;
+  font-size: 0.3rem;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item {
+  width: 100%;
+  padding: 0.2rem 0;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_image {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 0.2rem;
+  overflow: hidden;
+  margin-right: 0.3rem;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_image img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info {
+  flex: 1;
+  width: 0;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_name {
+  width: 100%;
+  font-size: 0.32rem;
+  font-weight: 800;
+  color: #323232;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_other {
+  margin: 0.1rem 0;
+  font-size: 0.24rem;
+  font-weight: 500;
+  color: #848484;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_other span {
+  margin-left: 0.2rem;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .price {
+  color: #FE4601;
+  font-size: 0.24rem;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .price span {
+  font-size: 0.34rem;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .operation {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: end;
+  -moz-justify-content: flex-end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .operation .del_btn,
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .operation .add_btn {
+  width: 0.48rem;
+  height: 0.48rem;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .operation .del_btn img,
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .operation .add_btn img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_footer .cart_footer .footer_list .footer_list_item_info_price .operation .count {
+  font-size: 0.3rem;
+  color: #848484;
+  margin: 0 0.2rem;
+}
+.container_box_footer .cart_footer .footer_nav {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  padding: 0 0.4rem;
+}
+.container_box_footer .cart_footer .footer_nav .cart_icon {
+  width: 0.52rem;
+  height: 0.47rem;
+  position: relative;
+}
+.container_box_footer .cart_footer .footer_nav .cart_icon span {
+  position: absolute;
+  top: -0.1rem;
+  right: -0.2rem;
+  width: 0.32rem;
+  height: 0.32rem;
+  line-height: 0.32rem;
+  text-align: center;
+  font-size: 0.24rem;
+  background: #FF502E;
+  border-radius: 50%;
+  color: #ffffff;
+}
+.container_box_footer .cart_footer .footer_nav .cart_icon img {
+  width: 100%;
+}
+.container_box_footer .cart_footer .footer_nav .total_price {
+  flex: 1;
+  font-size: 0.3rem;
+  color: #523318;
+  padding-left: 0.4rem;
+  height: 0.73rem;
+  line-height: 0.73rem;
+}
+.container_box_footer .cart_footer .footer_nav .total_price span {
+  font-size: 0.4rem;
+}
+.container_box_footer .cart_footer .footer_nav .submit_btn {
+  width: 2.2rem;
+  height: 0.78rem;
+  line-height: 0.78rem;
+  background: linear-gradient(-90deg, #FDA84B 0%, #F79B35 100%);
+  border-radius: 0.39rem;
+  text-align: center;
+  font-size: 0.3rem;
+  color: #ffffff;
+}
+.container_box_footer .vip_footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 12;
+  width: 100%;
+  background: #ffffff;
+}
+.container_box_footer .vip_footer .vip_list {
+  border-top-left-radius: 0.4rem;
+  border-top-right-radius: 0.4rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: inherit;
+  padding: 0.45rem 0.25rem 0.25rem 0.25rem;
+  z-index: -1;
+  max-height: 6.2rem;
+  overflow-y: auto;
+  background-color: #F5F5F5;
+  -webkit-transition: -webkit-transform 0.3s ease;
+  transition: -webkit-transform 0.3s ease;
+  -webkit-transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
+  -webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0);
+}
+.container_box_footer .vip_footer .vip_list.vip_list_open {
+  transform: translateZ(0);
+}
+.container_box_footer .vip_footer .vip_list_title {
+  width: 100%;
+  font-size: 0.34rem;
+  color: #323232;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  background: linear-gradient(270deg, #F4D18F 0%, #FFE5B4 100%);
+  border-radius: 0.2rem;
+  padding: 0.35rem 0.3rem;
+  margin-top: 0.16rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_price {
+  color: #523318;
+  font-size: 0.3rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_price span {
+  font-size: 0.58rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_content {
+  flex: 1;
+  margin-left: 0.2rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_content .tip {
+  color: #523318;
+  font-size: 0.32rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_content .content {
+  color: #523318;
+  margin-top: 0.1rem;
+  font-size: 0.24rem;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_btn {
+  width: 1.2rem;
+  height: 0.58rem;
+  line-height: 0.58rem;
+  background: linear-gradient(-90deg, #BB762B 0%, #E3A761 100%);
+  border-radius: 0.29rem;
+  text-align: center;
+  font-size: 0.26rem;
+  color: #ffffff;
+}
+.container_box_footer .vip_footer .vip_list_main .vip_list_item_btn.active {
+  background: linear-gradient(-90deg, #E1B06B 0%, #F2C685 100%);
+}
+.container_box .mask_view {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  background-color: #000;
+  opacity: 0;
+  -webkit-transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease;
+}
+.container_box .mask_view.mask_view_show {
+  z-index: 9;
+  opacity: 0.4;
+}
+.container_box .mask_view1 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  background-color: #000;
+  opacity: 0;
+  -webkit-transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease;
+}
+.container_box .mask_view1.mask_view_show {
+  z-index: 9;
+  opacity: 0.4;
+}
+.page_header {
+  z-index: 4;
+  width: 100%;
+  height: 1.36rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding-left: 0.23rem;
+  padding-right: 0.23rem;
+  padding-top: 0.48rem;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.page_header_main {
+  width: 100%;
+  position: relative;
+}
+.page_header_main_back {
+  width: 0.48rem;
+  height: 0.48rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.page_header_main_back img {
+  width: 100%;
+  height: 100%;
+}
+.page_header_main_title {
+  width: 100%;
+  font-size: 0.34rem;
+  color: #ffffff;
+  text-align: center;
+}
+.page_header_main_btns {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.page_header_main_btns > div {
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-left: 0.36rem;
+}
+.page_header_main_btns > div img {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>租借记录</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/loan_record.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important;
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">租借记录</div>
+        </div>
+    </div>
+    <div class="order_status" id="statusTopBar">
+        <div class="order_status_item active" data-status="">全部</div>
+        <div class="order_status_item" data-status="init">已下单</div>
+        <div class="order_status_item" data-status="lease">租借中</div>
+        <div class="order_status_item" data-status="expire">已到期</div>
+        <div class="order_status_item" data-status="complete">已归还</div>
+        <div class="order_status_item" data-status="cancel">已取消</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/public.js"></script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value i}}
+        <div class="order_item" data-id="{{value.id}}" data-sn="{{value.orderSn}}">
+            <div class="order_item_top">
+                <div class="time">{{value.createTime}}</div>
+                <div class="tip">
+                    {{if value.status === 'INIT'}}
+                    已下单
+                    {{else if value.status === 'LEASE'}}
+                    租借中
+                    {{else if value.status === 'EXPIRE'}}
+                    已到期
+                    {{else if value.status === 'COMPLETE'}}
+                    已归还
+                    {{else if value.status === 'CANCEL'}}
+                    已取消
+                    {{/if}}
+                </div>
+            </div>
+            <div class="order_item_info">
+                <div class="order_item_info_basic">
+                    <div class="photo">
+                        <img src="{{value.photo}}" onerror="this.parentNode.removeChild(this)">
+                    </div>
+                    <div class="info">
+                        <div class="info_name">{{value.title}}</div>
+                        <div class="info_score">
+                            {{if value.freeTime}}
+                            <span>{{value.freeTime}}小时内免租金</span>
+                            {{/if}}
+                            {{if value.point}}
+                            <span>可用积分</span>
+                            {{else}}
+                            <span>不可用积分</span>
+                            {{/if}}
+                        </div>
+                        <div class="info_other">
+                            <span class="info_other_tip1">￥<i>{{value.goodsAmount}}</i>/小时</span>
+                            <span class="info_other_tip2">共{{value.leaseTime}}小时</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="order_item_info_count">
+                    <div class="tip1"><i>￥</i>{{value.amount}}</div>
+                    <div class="tip2">合计租金</div>
+                </div>
+            </div>
+            <div class="order_item_do">
+                {{if value.status == 'INIT'}}
+                <div class="order_code">租借码：{{value.orderSn}}</div>
+                <div class="order_btn" data-id="{{value.id}}">取消租借</div>
+                {{/if}}
+                {{if value.status == 'LEASE'}}
+                <div class="order_code">到期时间：{{value.endTime}}</div>
+                {{/if}}
+                {{if value.status == 'EXPIRE'}}
+                <div class="order_code">超时时长：{{value.timeout}}</div>
+                {{/if}}
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId")
+            var loanStatus = ''; // 租借记录状态
+
+            // 配置layer弹框
+            layer.config({
+                skin: 'layui-layer-awesome',
+                width: '80%',
+                title: false,
+                closeBtn: 0,
+                scrollbar: false
+            });
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    page: {
+                        size: 20 // 默认10
+                    },
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无相关记录"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 切换状态标签
+            $('.order_status_item').unbind('click').bind('click', function () {
+                var i = $(this).data('status');
+                if (loanStatus !== i) {
+                    loanStatus = i;
+                    $(this).addClass('active').siblings().removeClass('active');
+                    mescroll.resetUpScroll();
+                }
+            });
+
+            // 上拉回调
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(page.num,pageData);
+
+                    // 去订单详情
+                    $('.order_item').unbind('click').bind('click', function () {
+                        var orderId = $(this).data('id')
+                        var orderSn = $(this).data('sn')
+                        var scrollTop = $('#mescrollOrderRecent').scrollTop();
+                        window.location.href = './loan_record_detail.html?orderId=' + orderId + '&orderSn=' + orderSn + '&communityId=' + communityId
+                    });
+
+                    // 取消租借
+                    orderCancel();
+
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            // 塞数据
+            function setListData(pageNum,pageData) {
+                var pageDataObj = {
+                    content: pageData.records
+                };
+                var liDom = template('templateOrderList', pageDataObj);
+                if(pageNum == 1){
+                    $('#orderList')[0].innerHTML = liDom;
+                }
+                else{
+                    $('#orderList').append(liDom);
+                }
+            }
+
+            // 请求接口
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    $.slAjax({
+                        url: root + 'crc/rest/lease/order/page/' + communityId,
+                        type: 'get',
+                        data: {
+                            compoundId: communityId,
+                            status: loanStatus,
+                            current: pageIndex,
+                            size: pageSize
+                        },
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.data, res.total)
+                            }
+                            else{
+                                errorCallback();
+                            }
+                        }
+                    });
+                }, 300)
+            }
+
+            // 取消租借
+            function orderCancel() {
+                $('.order_btn').unbind('click').on('click', function (e) {
+                    var id = $(this).data('id')
+                    var orderBtn = $(this);
+                    e.stopPropagation()
+                    layer.confirm('您确定取消租借吗?', {
+                        btn: ['取消', '确定']
+                    }, function (i) {
+                        layer.close(i);
+                    }, function () {
+                        var data = {
+                            status: "CANCEL"
+                        }
+                        $.slAjax({
+                            url: root + 'crc/rest/lease/order/' + id,
+                            type: 'put',
+                            contentType: "application/json",
+                            data: JSON.stringify(data),
+                            beforeSend: function () {
+                                layer.load(2);
+                            },
+                            success: function (res) {
+                                layer.closeAll();
+                                if (res.code == 0) {
+                                    layer.msg("取消成功", {
+                                        time: 2500
+                                    });
+                                    mescroll.triggerDownScroll();
+                                } else {
+                                    layer.msg(res.msg, {
+                                        time: 2500
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

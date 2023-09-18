@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>评价</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/evaluate.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">评价</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_btn">
+            <div>确认提交</div>
+        </div>
+    </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/jquery.base64.js"></script>
+    <script type="text/html" id="templateBusiness">
+        <div class="businessBox">
+            {{each data.orderDetailList as value}}
+            <div class="businessBox_item"
+                data-productid="{{value.productId}}">
+                <div class="businessBox_item_info">
+                    <div class="businessBox_item_info_left"><img src="{{value.image}}"></div>
+                    <div class="businessBox_item_info_right">
+                        <div class="businessBox_item_info_right_name">{{value.name}}</div>
+                        <div class="businessBox_item_info_right_star starScore" data-score=''>
+                            <div class="star_click">
+                                <img src="../images/star_d.png">
+                            </div>
+                            <div class="star_click">
+                                <img src="../images/star_d.png">
+                            </div>
+                            <div class="star_click">
+                                <img src="../images/star_d.png">
+                            </div>
+                            <div class="star_click">
+                                <img src="../images/star_d.png">
+                            </div>
+                            <div class="star_click">
+                                <img src="../images/star_d.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="businessBox_item_content">
+                    <div class="businessBox_item_content_main">
+                        <textarea class="comment_content" placeholder="请输入评论内容..."></textarea>
+                    </div>
+                </div>
+                <div class="businessBox_item_image">
+                    <div class="image_list">
+                        <div class="upload_image" data-productid="{{value.productId}}">
+                            <img src="../images/upload.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </script>
+    <script type="text/html" id="templateService">
+        <div class="serviceBox"
+            data-productid="{{data.orderDetailList[0].productId}}">
+            <div class="container_box_star">
+                <div class="container_box_star_choose starScore" data-score=''>
+                    <div class="star_click">
+                        <img src="../images/star_d.png">
+                    </div>
+                    <div class="star_click">
+                        <img src="../images/star_d.png">
+                    </div>
+                    <div class="star_click">
+                        <img src="../images/star_d.png">
+                    </div>
+                    <div class="star_click">
+                        <img src="../images/star_d.png">
+                    </div>
+                    <div class="star_click">
+                        <img src="../images/star_d.png">
+                    </div>
+                </div>
+            </div>
+            <div class="container_box_content">
+                <div class="container_box_content_main">
+                    <textarea class="comment_content" placeholder="请输入评论内容..."></textarea>
+                </div>
+            </div>
+            <div class="container_box_image">
+                <div class="image_list">
+                    <div class="upload_image" data-productid="{{data.orderDetailList[0].productId}}">
+                        <img src="../images/upload.png">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        $(function () {
+            var orderSn = getQueryString("orderSn") !== null ? getQueryString("orderSn") : getCookie("orderSn");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var orderId = getQueryString("orderId") != null ? getQueryString("orderId") : getCookie("orderId");
+            var shopList;
+            var shopCount;
+            var orderType = '';
+            var pattern = new RegExp("[~'!@#$%^&*()-+_=:]");
+
+            // 获取订单信息
+            $.slAjax({
+                url: root + 'bus/rest/order/queryOrderInfo/' + orderId,
+                type: "get",
+                data: {},
+                success: function (res) {
+                    if (res.code == 0) {
+                        orderType = res.data.busOrder.type;
+                        shopList = [];
+                        shopList.push(res.data.busStore);
+                        shopCount = res.data.orderDetailList.length;
+                        if (res.data.busOrder.type == 'GOODS') { // 商务订单评论
+                            $('.container_box').prepend(template('templateBusiness', res));
+                        } else if (res.data.busOrder.type == 'SERVICE') { // 服务订单评论
+                            $('.container_box').prepend(template('templateService', res));
+                        }
+                        imageOperation();
+                        setStar();
+                        // 解决iOS唤起键盘底部留白问题
+                        $('input[type=text], textarea').on('blur', function () {
+                            window.scrollBy(0, 1)
+                        });
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+            // 提交数据
+            $('.container_box_btn div').unbind('click').bind('click', function () {
+                var request = {};
+                request["orderId"] = orderId;
+                var svaluations = [];
+                var isGo = true;
+
+                if (orderType == 'GOODS') { // 商务订单评论验证
+                    $('.businessBox_item').each(function () {
+                        var productId = $(this).data("productid");
+                        // 遍历评分
+                        var star_ = $(this).find('.starScore').data('score');
+                        if (!star_) {
+                            layer.msg('还有商品未评分哦');
+                            isGo = false;
+                            return false;
+                        }
+
+                        // 遍历内容
+                        var content_ = $(this).find('.comment_content').val().replace(/(^\s*)|(\s*$)/g, "") ? $(this).find('.comment_content').val().replace(/(^\s*)|(\s*$)/g, "") : '默认评论';
+                        if (pattern.test(content_)) {
+                            layer.msg('评论内容带有非法字符');
+                            isGo = false;
+                            return false;
+                        } 
+
+                        // 遍历图片
+                        var image_Arr = [];
+                        $(this).find('.image_list').find('.image_list_litem').each(function () {
+                            var _url = $(this).find('.main_img>img').attr('src');
+                            image_Arr.push(_url);
+                        });
+
+                        var requestItem = {};
+                        requestItem["content"] = content_;
+                        requestItem["image"] = image_Arr.join(',');
+                        requestItem["star"] = star_;
+                        requestItem["productId"] = productId;
+                        svaluations.push(requestItem);
+                    });
+
+                } else { // 服务订单评论验证
+                    var productId = $(".serviceBox").data("productid");
+                    // 评分
+                    var star_ = $('.starScore').data('score');
+                    if (!star_) {
+                        layer.msg('服务未评分哦');
+                        isGo = false;
+                        return false;
+                    } 
+
+                    // 内容
+                    var content_ = $('.comment_content').val().replace(/(^\s*)|(\s*$)/g, "") ? $('.comment_content').val().replace(/(^\s*)|(\s*$)/g, "") : '默认评论';
+                    if (pattern.test(content_)) {
+                        layer.msg('评论内容带有非法字符');
+                        isGo = false;
+                        return false;
+                    } 
+
+                    // 图片
+                    var image_Arr = [];
+                    $('.image_list').find('.image_list_litem').each(function () {
+                        var _url = $(this).find('.main_img>img').attr('src');
+                        image_Arr.push(_url);
+                    });
+
+                    var requestItem = {};
+                    requestItem["content"] = content_;
+                    requestItem["image"] = image_Arr.join(',');
+                    requestItem["star"] = star_;
+                    requestItem["productId"] = productId;
+                    svaluations.push(requestItem);
+
+                }
+                request["svaluations"] = svaluations;
+
+                if (isGo) {
+                    $.slAjax({
+                        url: root + "bus/rest/evaluation/evaluation",
+                        type: "put",
+                        contentType:"application/json",
+                        dataType: "json",
+                        data: JSON.stringify(request),
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg('评价成功');
+                                callHandlerBridge('autoGoback', { 'refresh': true });
+                            } else {
+                                layer.msg(res.msg)
+                            }
+                        }
+                    });
+                }
+            })
+
+            // 上传图片、删除图片、查看大图
+            function imageOperation() {
+                // 上传图片
+                $('.upload_image').unbind('click').bind('click', function () {
+                    var productId = $(this).data('productid');
+                    var _count = $(this).siblings('.image_list_litem').length;
+                    var this_ = $(this);
+                    if (_count < 9) {
+                        callHandlerBridge('uploadPicMultiple', { maxCount: 9 - _count, uploadType: 'comment', productId: productId }, function (imageData) {
+                            const picArr = JSON.parse(imageData);
+                            for (var value of picArr) {
+                                var imageItem = '<div class="image_list_litem"><div class="delete_img"><img src="../images/icon_close.png"></div><div class="main_img"><img src="' + value + '"></div></div>';
+                                this_.parent('.image_list').prepend(imageItem);
+                            }
+                            // 删除操作
+                            $('.delete_img').unbind('click').bind('click', function () {
+                                $(this).parents('.image_list_litem').fadeOut(300, function () {
+                                    $(this).remove();
+                                });
+                            });
+                            // 查看大图
+                            $('.main_img').unbind('click').bind('click', function () {
+                                var _i = $(this).parent().index();
+                                var _urlArr = [];
+                                $(this).parents('.image_list').find('.image_list_litem').each(function () {
+                                    var _url = $(this).find('.main_img>img').attr('src');
+                                    _urlArr.push(_url);
+                                });
+                                callHandlerBridge('photoView', {
+                                    index: _i,
+                                    url: _urlArr.join(',')
+                                });
+                            });
+                        });
+                    } else {
+                        layer.msg('不能超过九张图片');
+                        return false;
+                    }
+                });
+            }
+
+            // 星星评分
+            function setStar() {
+                $('.star_click').unbind('click').bind('click', function () {
+                    $(this).parents('.starScore').find('.star_click img').attr('src', '../images/star_d.png')
+                    var index_ = $(this).index();
+                    $(this).parents('.starScore').data('score', index_ + 1);
+                    $(this).parents('.starScore').find('.star_click').each(function (i, item) {
+                        if (i <= index_) {
+                            $(item).find('img').attr('src', '../images/star_s.png')
+                        }
+                    })
+                })
+            }
+
+        })
+    </script>
+</body>
+
+</html>

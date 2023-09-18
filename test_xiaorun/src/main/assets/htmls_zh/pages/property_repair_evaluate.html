@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>服务评价</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_repair_evaluate.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">服务评价</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_star">
+            <div class="container_box_star_choose starScore">
+                <div class="star_click">
+                    <img src="../images/star_s.png">
+                </div>
+                <div class="star_click">
+                    <img src="../images/star_s.png">
+                </div>
+                <div class="star_click">
+                    <img src="../images/star_s.png">
+                </div>
+                <div class="star_click">
+                    <img src="../images/star_s.png">
+                </div>
+                <div class="star_click">
+                    <img src="../images/star_s.png">
+                </div>
+            </div>
+            <div class="container_box_star_score"><span>5</span>分</div>
+        </div>
+        <div class="container_box_content">
+            <div class="tip">评论内容</div>
+            <div class="container_box_content_main">
+                <textarea placeholder="请输入评论内容..." id="comment_content"></textarea>
+            </div>
+        </div>
+        <div class="container_box_image">
+            <div class="image_list">
+                <div id="upload_image">
+                    <img src="../images/upload.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_btn">
+            <div>确认提交</div>
+        </div>
+    </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var reportId = getQueryString("reportId") !== null ? getQueryString("reportId") : getCookie("reportId");
+            var score = '5';
+            var pattern = new RegExp("[~'!@#$%^&*()-+_=:]");
+
+            // 获取服务订单号
+            $.slAjax({
+                url: root + 'property/rest/report/' + reportId,
+                type: 'get',
+                data: {
+                    id: reportId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        // 确认提交
+                        $('.container_box_btn>div').unbind('click').bind('click', function () {
+                            var data = {};
+                            data.id = reportId;
+
+                            // 评分
+                            data.evaluateScore = score;
+
+                            // 内容
+                            var content_ = $('#comment_content').val().replace(/(^\s*)|(\s*$)/g, "") ? $('#comment_content').val().replace(/(^\s*)|(\s*$)/g, "") : '默认评论';
+                            if (pattern.test(content_)) {
+                                layer.msg('评论内容带有非法字符');
+                                return false;
+                            } else {
+                                data.evaluate = content_
+                            }
+
+                            // 图片
+                            var image_Arr = [];
+                            $('.image_list').find('.image_list_litem').each(function () {
+                                var _url = $(this).find('.main_img>img').attr('src');
+                                image_Arr.push(_url);
+                            });
+                            data.evaluatePhoto = image_Arr.join(',');
+
+                            // 提交
+                            $.slAjax({
+                                type: 'put',
+                                url: root + "property/rest/report",
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(data),
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        layer.msg('评价成功');
+                                        callHandlerBridge('autoGoback', { 'refresh': true });
+                                    } else {
+                                        layer.msg(res.msg)
+                                    }
+                                }
+                            });
+                        })
+
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+
+            // 切换评分
+            $('.star_click').unbind('click').bind('click', function () {
+                $(this).parents('.starScore').find('.star_click img').attr('src', '../images/star_d.png')
+                var index_ = $(this).index();
+                score = index_ + 1;
+                $('.container_box_star_score span').text(index_ + 1);
+                $(this).parents('.starScore').find('.star_click').each(function (i, item) {
+                    if (i <= index_) {
+                        $(item).find('img').attr('src', '../images/star_s.png')
+                    }
+                })
+            })
+
+            // 上传图片、删除图片、查看大图
+            $('#upload_image').unbind('click').bind('click', function () {
+                var _count = $(this).siblings('.image_list_litem').length;
+                var this_ = $(this);
+                if (_count < 9) {
+                    callHandlerBridge('uploadPicMultiple', { maxCount: 9 - _count, uploadType: 'repair' }, function (imageData) {
+                        const picArr = JSON.parse(imageData);
+                        for (var value of picArr) {
+                            var imageItem = '<div class="image_list_litem"><div class="delete_img"><img src="../images/icon_close.png"></div><div class="main_img"><img src="' + value + '"></div></div>';
+                            this_.before(imageItem);
+                        }
+                        // 删除操作
+                        $('.delete_img').unbind('click').bind('click', function () {
+                            $(this).parents('.image_list_litem').fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                        });
+                        // 查看大图
+                        $('.main_img').unbind('click').bind('click', function () {
+                            var _i = $(this).parent().index();
+                            var _urlArr = [];
+                            $(this).parents('.image_list').find('.image_list_litem').each(function () {
+                                var _url = $(this).find('.main_img>img').attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+                    });
+
+                } else {
+                    layer.msg('不能超过九张图片');
+                    return false;
+                }
+            });
+
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        })
+    </script>
+
+</body>
+
+</html>

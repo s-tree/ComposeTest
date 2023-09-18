@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>扫码内容</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/scanFeedback.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="container_box">
+        <div class="container_box_main">
+            <p class="title">已扫描到以下内容</p>
+            <div class="content">
+                <p></p>
+            </div>
+            <p class="tip">扫描内容并非慧管家提供，请谨慎使用<br>如需使用，可通过复制操作获取内容</p>
+        </div>
+
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script>
+        $(function () {
+            callHandlerBridge('scanContent', {}, function (res) {
+                $('.content p').text(res);
+            })
+        });
+    </script>
+</body>
+
+</html>

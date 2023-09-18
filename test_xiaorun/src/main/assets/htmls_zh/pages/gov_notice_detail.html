@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>公告通知详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/notice.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .content img {
+            width: 100%;
+            margin-top: .2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">公告通知详情</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="title"></div>
+        <div class="createtime"></div>
+        <div class="content"></div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/base64.js"></script>
+    <script src="../js/public.js"></script>
+    <script>
+        $(function () {
+            var messageId = getQueryString("messageId") !== null ? getQueryString("messageId") : getCookie("messageId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+
+            $.slAjax({
+                url: root + 'govServer/messageRest/getMessageInfo',
+                type: 'get',
+                data: {
+                    messageId: messageId,
+                    accId: accId
+                },
+                success: function (res) {
+                    console.log(res);
+                    if (res.result) {
+                        $('.title')[0].innerHTML = res.data.title;
+                        $('.createtime')[0].innerHTML = getExactTime(res.data.releaseDate);
+                        $('.content').append('<p>' + res.data.content + '</p>');
+                        if (res.data.images) {
+                            res.data.images.split(',').forEach(k => {
+                                $('.content').append(' <img src="' + k + '">');
+                            });
+                        }
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+            // 时间格式化
+            function getExactTime(time) {
+                if (time) {
+                    var date = new Date(time);
+                    // var date = new Date(time* 1000);
+                    var year = date.getFullYear() + '-';
+                    var month = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                    var dates = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+                    return year + month + dates;
+                } else {
+                    return ''
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

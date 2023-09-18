@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>团购列表</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/group_list.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">社区团购</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <ul id="groupList"></ul>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <!-- 团购模板 -->
+    <script type="text/html" id="templateGroup">
+        {{each records as value i}}
+        <div class="group_item" data-groupid="{{value.id}}">
+            <div class="group_item_image">
+                {{if value.photo}}
+                    <img src="{{value.photo.split(',')[0]}}">
+                {{/if}}
+                {{if value.status == 'ON_SALE'}}
+                <div class="group_status active">拼团中</div>
+                {{else}}
+                <div class="group_status">已结束</div>
+                {{/if}}
+            </div>
+            <div class="group_item_info">
+                <div class="group_item_info_name">{{value.title}}</div>
+                <div class="group_item_info_price"><span>￥</span>{{value.price}}<span>/{{value.unit}}</span></div>
+                <div class="group_item_info_other">
+                    <div class="group_item_info_other_head">
+                        {{each value.memberList as value j}}
+                        {{if j < 3}}
+                        <div>
+                            <img src="{{value.avatar}}">
+                        </div>
+                        {{/if}}
+                        {{/each}}
+                    </div>
+                    {{if value.people && value.people > 0}}
+                        {{if value.people == 1}}
+                        <div class="group_item_info_other_count" style="padding-left:.56rem">
+                        {{else if  value.people == 2}}
+                        <div class="group_item_info_other_count" style="padding-left:.8rem">
+                        {{else if value.people >= 3}}
+                        <div class="group_item_info_other_count" style="padding-left:1rem">
+                        {{/if}}
+                            等<span>{{value.people}}</span>人已参团
+                        </div>
+                    {{else}}
+                    <div class="group_item_info_other_count">0人已参团</div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+
+            $.slAjax({
+                url: root + 'bus/rest/groupon',
+                type: 'get',
+                data: {
+                    current: 1,
+                    size: 500
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        if (res.data && res.data.records && res.data.records.length > 0) {
+                            $('#groupList').html(template("templateGroup", res.data));
+                            $(".group_item").unbind('click').bind('click', function () {
+                                var groupId = $(this).data('groupid');
+                                window.location.href = './group_detail.html?groupId=' + groupId + '&communityId=' + communityId + '&accId=' + accId + '&accessToken=' + accessToken;
+                            })
+                        } else {
+                            $(".container_box_main").html("<div class='default-none'><div class='no_tip'>暂无团购</div></div>");
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

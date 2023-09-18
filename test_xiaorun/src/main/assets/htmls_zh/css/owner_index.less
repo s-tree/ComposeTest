@@ -1,0 +1,292 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    width          : 100%;
+    height         : 100%;
+    background     : url('../images/bg2.png') #F5F5F7 no-repeat;
+    background-size: 100% 100%;
+}
+
+.container_box {
+    width : 100%;
+    height: 100%;
+
+    &_main {
+        position: fixed;
+        top     : 1.5rem;
+        left    : 0;
+        bottom  : 0;
+        width   : 100%;
+        height  : auto;
+        overflow: auto;
+        padding : 0 0 .4rem .35rem;
+
+
+        &_activity {
+            width: 100%;
+
+            &_title {
+                width        : 100%;
+                padding-right: .35rem;
+                .flex(row, space-between, center);
+                margin-bottom: .36rem;
+
+                &_left {
+                    .flex(row, flex-start, center);
+
+                    &>div:first-child {
+                        width        : .08rem;
+                        height       : .28rem;
+                        background   : #F79B34;
+                        border-radius: .05rem 0 0 .05rem;
+                    }
+
+                    .tip {
+                        font-size  : .3rem;
+                        font-weight: bold;
+                        color      : #323232;
+                        margin-left: .16rem;
+                    }
+                }
+
+                &_right {
+                    .flex(row, flex-end, center);
+
+                    .tip {
+                        font-size  : .24rem;
+                        font-weight: 500;
+                        color      : #8591A3;
+                    }
+
+                    &>div:last-child {
+                        width : .3rem;
+                        height: .3rem;
+
+                        img {
+                            width : 100%;
+                            height: 100%;
+                        }
+                    }
+                }
+            }
+
+            &_content {
+                width     : 100%;
+                overflow-x: auto;
+                .flex(row, flex-start, center);
+
+                .activity_item {
+                    width        : 3rem;
+                    height       : 3.30rem;
+                    background   : #FFFFFF;
+                    border-radius: .1rem;
+                    margin-right : .2rem;
+                    flex-shrink  : 0;
+                    padding      : .46rem .35rem 0 .35rem;
+
+                    &_tip {
+                        font-size  : .36rem;
+                        font-weight: bold;
+                        color      : #323232;
+                    }
+
+                    &_title {
+                        width      : 100%;
+                        height     : 1rem;
+                        font-size  : .24rem;
+                        font-weight: 500;
+                        color      : #848484;
+                        margin     : .2rem 0 .08rem;
+                    }
+
+                    &_btn {
+                        width        : 1.6rem;
+                        height       : .58rem;
+                        line-height  : .58rem;
+                        background   : linear-gradient(270deg, #39C2BF 0%, #5DD5CE 100%);
+                        border-radius: .29rem;
+                        color        : #FFFFFF;
+                        font-size    : .26rem;
+                        text-align   : center;
+                    }
+                }
+            }
+        }
+
+        &_group {
+            width        : 100%;
+            margin-top   : .6rem;
+            padding-right: .35rem;
+
+            &_title {
+                width: 100%;
+                .flex(row, space-between, center);
+                margin-bottom: .36rem;
+
+                &_left {
+                    .flex(row, flex-start, center);
+
+                    &>div:first-child {
+                        width        : .08rem;
+                        height       : .28rem;
+                        background   : #F79B34;
+                        border-radius: .05rem 0 0 .05rem;
+                    }
+
+                    .tip {
+                        font-size  : .3rem;
+                        font-weight: bold;
+                        color      : #323232;
+                        margin-left: .16rem;
+                    }
+                }
+            }
+
+            &_content {
+                .member_item {
+                    width        : 100%;
+                    background   : #FFFFFF;
+                    border-radius: .2rem;
+                    padding      : .35rem .3rem .4rem .3rem;
+                    margin-bottom: .23rem;
+
+                    &_top {
+                        width: 100%;
+                        .flex(row, space-between, center);
+
+                        &_info {
+                            .flex(row, flex-start, center);
+
+                            &_head {
+                                width        : .88rem;
+                                height       : .88rem;
+                                border-radius: 50%;
+                                overflow     : hidden;
+                                margin-right : .28rem
+                            }
+
+                            &_main {
+                                &_basic {
+                                    .flex(row, flex-start, center);
+
+                                    &_name {
+                                        font-size   : .3rem;
+                                        font-weight : bold;
+                                        color       : #323232;
+                                        margin-right: .1rem;
+                                    }
+
+                                    &_job {
+                                        height       : .38rem;
+                                        line-height  : .38rem;
+                                        padding      : 0 .18rem;
+                                        background   : linear-gradient(102deg, #FF6A3C 0%, #FC4A33 100%);
+                                        border-radius: .19rem;
+                                        color        : #FFFFFF;
+                                        text-align   : center;
+                                        font-size    : .2rem;
+                                    }
+                                }
+
+                                &_phone {
+                                    font-size : .26rem;
+                                    color     : #848484;
+                                    opacity   : 0.99;
+                                    margin-top: .08rem;
+                                }
+                            }
+                        }
+
+                        &_call {
+                            flex-shrink: 0;
+                            width      : .76rem;
+                            height     : .76rem;
+
+                            img {
+                                width : 100%;
+                                height: 100%;
+                            }
+                        }
+                    }
+
+                    &_duty {
+                        width        : 100%;
+                        font-size    : .28rem;
+                        font-weight  : 500;
+                        color        : #323232;
+                        opacity      : 0.99;
+                        overflow     : hidden;
+                        text-overflow: ellipsis;
+                        white-space  : nowrap;
+                        margin       : .4rem 0 .14rem;
+                    }
+
+                    &_time {
+                        width    : 100%;
+                        font-size: .22rem;
+                        color    : #848484;
+                        opacity  : 0.99;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>政务中心</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_index.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">政务中心</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_main_top">
+                <div class="society_icon">
+                    <img src="../images/gov_logo.png">
+                </div>
+                <div class="society_name">街道</div>
+            </div>
+            <div class="container_box_main_classify">
+                <div class="classify_item" data-code="1">
+                    <img src="../images/gov_report_create.png">
+                    <p>投诉即办</p>
+                </div>
+                <div class="classify_item" data-code="2">
+                    <img src="../images/gov_report_list.png">
+                    <p>上报记录</p>
+                </div>
+                <div class="classify_item" data-code="3">
+                    <img src="../images/gov_notice.png">
+                    <p>公告通知</p>
+                </div>
+                <div class="classify_item" data-code="4">
+                    <img src="../images/gov_question.png">
+                    <p>社情问卷</p>
+                </div>
+                <div class="classify_item" data-code="5">
+                    <img src="../images/gov_vote.png">
+                    <p>民意投票</p>
+                </div>
+                <div class="classify_item" data-code="6">
+                    <img src="../images/gov_party.png">
+                    <p>党建学习</p>
+                </div>
+            </div>
+            <div class="container_box_main_group">
+                <div class="container_box_main_group_content"></div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script id="templateMember" type="text/html">
+        {{each data as value i}}
+        <div class="member_item">
+            <div class="member_item_top">
+                <div class="member_item_top_info">
+                    <div class="member_item_top_info_head">
+                        <img src="{{value.img}}" onerror="this.src='../images/head_default.png'">
+                    </div>
+                    <div class="member_item_top_info_main">
+                        <div class="member_item_top_info_main_basic">
+                            <div class="member_item_top_info_main_basic_name">{{value.name}}</div>
+                            <div class="member_item_top_info_main_basic_job">{{value.type == '0'?"警察":value.title}}</div>
+                        </div>
+                        <div class="member_item_top_info_main_phone">电话：{{value.mobile}}</div>
+                    </div>
+                </div>
+                <div class="member_item_top_call">
+                    <a href="tel:{{value.mobile}}" style="display: block;width: 100%;height: 100%;">
+                        <img src="../images/contact.png">
+                    </a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+
+            $('.classify_item').unbind('click').bind('click', function () {
+                var code = $(this).data('code');
+                if (code == '1') {
+                    window.localStorage.removeItem('reportTypeName');
+                    window.localStorage.removeItem('reportTypeCode');
+                    window.location.href = './gov_report_create.html?communityId=' + communityId + '&accId=' + accId + '&familyInfoId=' + familyInfoId
+                } else if (code == '2') {
+                    window.location.href = './gov_report_list.html?communityId=' + communityId + '&accId=' + accId
+                } else if (code == '3') {
+                    window.location.href = './gov_notice_list.html?accId=' + accId + '&familyInfoId=' + familyInfoId
+                } else if (code == '4') {
+                    window.location.href = './gov_question_list.html?communityId=' + communityId + '&accId=' + accId
+                } else if (code == '5') {
+                    window.location.href = './gov_vote_list.html?communityId=' + communityId + '&accId=' + accId + '&familyInfoId=' + familyInfoId
+                } else if (code == '6') {
+                    window.location.href = './gov_party_list.html?communityId=' + communityId + '&accId=' + accId
+                }
+            })
+
+            // 获取街道、社区信息
+            $.slAjax({
+                url: root + 'govServer/govRest/getStreetInfo',
+                type: 'get',
+                data: {
+                    communityId: communityId,
+                },
+                success: function (res) {
+                    if (res.result) {
+                        $('.society_name').text((res.data.street ? res.data.street : '') + '' + (res.data.plot ? res.data.plot : ''))
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+            // 获取网格员、民警
+            $.slAjax({
+                url: root + 'govServer/govRest/getCommunityStaff',
+                type: 'get',
+                data: {
+                    familyInfoId: familyInfoId,
+                },
+                success: function (res) {
+                    if (res.result) {
+                        $('.container_box_main_group_content').html(template("templateMember", res));
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+
+        })
+    </script>
+</body>
+
+</html>

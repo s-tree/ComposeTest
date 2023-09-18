@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>投诉记录</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_report_list.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">投诉记录</div>
+        </div>
+    </div>
+    <div class="order_status" id="statusTopBar">
+        <div class="order_status_item active" data-orderstatus="">全部</div>
+        <div class="order_status_item" data-orderstatus="UNTREATED">待答复</div>
+        <div class="order_status_item" data-orderstatus="PROCESSED">已答复</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/public.js"></script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value}}
+        <div class="order_item" data-reportid="{{value.id}}">
+            <div class="repair_info">
+                <div class="repair_info_title">
+                    <div class="repair_info_title_name">{{value.type}}</div>
+                    <div class="repair_info_title_status">
+                        {{if value.status == 'UNTREATED'}}
+                        待答复
+                        {{else if value.status == 'PROCESSED'}}
+                        已答复
+                        {{else if value.status == '1'}}
+                        处理中
+                        {{else if value.status == '2'}}
+                        不予处理
+                        {{else if value.status == 'COMMENTED'}}
+                        已评价
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="repair_info_time">{{value.createTime}}</div>
+            </div>
+            <div class="service_info">
+                <div class="service_info_item">
+                    <div class="service_info_item_image">
+                        {{if value.photo}}
+                        <img src="{{value.photo.split(',')[0]}}">
+                        {{else}}
+                        <img src="../images/icon_baoxiu.png">
+                        {{/if}}
+                    </div>
+                    <div class="service_info_item_detail">
+                        <div class="service_info_item_detail_address">{{value.address}}</div>
+                        <div class="service_info_item_detail_content">{{value.title}}</div>
+                    </div>
+                </div>
+            </div>
+            {{if value.status == 'business_evaluate'}}
+            <div class="order_btn_group">
+                <div class="order_btn business_evaluate" data-reportid="{{value.id}}">立即评价</div>
+            </div>
+            {{/if}}
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var orderStatus = '';
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无相关记录"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 切换订单状态标签
+            $('.order_status_item').unbind('click').bind('click', function () {
+                var i = $(this).data('orderstatus');
+                if (orderStatus !== i) {
+                    orderStatus = i;
+                    $(this).addClass('active').siblings().removeClass('active');
+                    mescroll.resetUpScroll();
+                }
+            });
+
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(pageData);
+
+                    // 去订单详情
+                    $('.order_item').unbind('click').bind('click', function () {
+                        var reportId = $(this).data('reportid');
+                        var scrollTop = $('#mescrollOrderRecent').scrollTop();
+                        window.location.href = './property_report_detail.html?reportId=' + reportId + '&accId=' + accId + '&communityId=' + communityId + '&accessToken=' + accessToken;
+                    });
+
+                    // 去评价
+                    $('.business_evaluate').unbind('click').bind('click', function (event) {
+                        event.stopPropagation();
+                        var reportId = $(this).data('reportid');
+                        window.location.href = './property_report_evaluate.html?reportId=' + reportId + '&accId=' + accId + '&communityId=' + communityId + '&accessToken=' + accessToken;
+                    })
+
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            function setListData(pageData) {
+                var pageDataObj = {
+                    content: pageData
+                };
+
+                var liDom = template('templateOrderList', pageDataObj);
+                $('#orderList').append(liDom);
+            }
+
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    $.slAjax({
+                        url: root + 'property/rest/complain/page',
+                        type: 'get',
+                        data: {
+                            compoundId: communityId,
+                            complainEnum: orderStatus,
+                            current: pageIndex,
+                            size: pageSize
+                        },
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.data.records, res.data.total)
+                            }else{
+                                errorCallback();
+                            }
+                        }
+                    });
+                }, 300)
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,174 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    background: #F5F5F7;
+}
+
+#mescrollOrderDetails {
+    position: fixed;
+    top     : 1.5rem;
+    bottom  : 0;
+    height  : auto;
+}
+
+.container {
+    width   : 100%;
+    position: relative;
+
+    &_img {
+        width        : 100%;
+        height       : 4.6rem;
+        border-radius: 0 0 .4rem .4rem;
+        overflow     : hidden;
+        position     : absolute;
+        top          : 0;
+        left         : 0;
+        z-index      : -1;
+        background   : linear-gradient(-90deg, #F79B34 0%, #FCA445 100%);
+
+        img {
+            width     : 100%;
+            height    : 100%;
+            object-fit: cover;
+        }
+    }
+
+    &_info {
+        width  : 100%;
+        padding: 3.8rem .3rem .3rem .3rem;
+
+        &>div {
+            width        : 100%;
+            background   : #FFFFFF;
+            border-radius: .2rem;
+            margin-bottom: .2rem;
+            padding      : .3rem;
+            font-size    : .28rem;
+            color        : #818791;
+
+            .tip {
+                font-size    : .32rem;
+                padding      : 0 .2rem .2rem .2rem;
+                font-weight  : 500;
+                color        : #323232;
+                border-bottom: .02rem solid #DEDEDE;
+                margin-bottom: .2rem;
+            }
+        }
+
+        .goods {
+            .name {
+                font-size  : .28rem;
+                font-weight: 500;
+                color      : #323232;
+            }
+
+            .price {
+                font-size: .24rem;
+                margin   : .1rem 0;
+
+                span:first-child {
+                    color       : #FE4601;
+                    margin-right: .3rem;
+
+                    i {
+                        font-size: .34rem;
+                    }
+                }
+
+                span:last-child {
+                    color: #848484;
+                }
+            }
+
+            .other {
+                .flex(row, space-between, center);
+                color    : #848484;
+                font-size: .24rem;
+            }
+        }
+    }
+
+    &_footer {
+        width  : 100%;
+        padding: .4rem 0;
+
+        .loanBtn {
+            width        : 86%;
+            height       : .88rem;
+            line-height  : .88rem;
+            text-align   : center;
+            color        : #FFFFFF;
+            background   : linear-gradient(-90deg, #F79B34 0%, #FCA445 100%);
+            border-radius: .1rem;
+            font-size    : .36rem;
+            margin       : 0 auto;
+        }
+
+        .tip {
+            font-size : .24rem;
+            color     : #848484;
+            text-align: center;
+            margin-top: .3rem;
+        }
+    }
+}
+
+
+// 顶部导航样式
+.page_header {
+    z-index      : 3;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>上报记录</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_report_list.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">上报记录</div>
+        </div>
+    </div>
+    <div class="order_status" id="statusTopBar">
+        <!-- 0: '待处理', 1: '已答复待审核', 2: '已处理', 3: '审核未通过' -->
+        <div class="order_status_item active" data-reportstatus="">全部</div>
+        <div class="order_status_item" data-reportstatus="0">待答复</div>
+        <div class="order_status_item" data-reportstatus="2">已答复</div>
+        <div class="order_status_item" style="visibility: hidden;">占位</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/public.js"></script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value}}
+        <div class="order_item" data-reportid="{{value.id}}">
+            <div class="report_info">
+                <div class="report_info_title">{{value.title}}</div>
+                <div class="report_info_from">上报对象：{{value.target == 1 ? '社区':'街道'}}</div>
+                <div class="report_info_time">{{dateFormat(value.reportTime,"yyyy-MM-dd hh:mm")}}</div>
+            </div>
+            {{if value.status == '0' ||  value.status == '1' ||  value.status == '3'}}
+            <div class="report_btn">待答复</div>
+            {{/if}}
+            {{if value.status == '2' && !value.read}}
+            <div class="report_btn replyNew">新答复</div>
+            {{/if}}
+            {{if value.status == '2' && value.read}}
+            <div class="report_btn replyOver">已答复</div>
+            {{/if}}
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var reportStatus = '';
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无相关记录"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 切换订单状态标签
+            $('.order_status_item').unbind('click').bind('click', function () {
+                var i = $(this).data('reportstatus');
+                if (reportStatus !== i) {
+                    reportStatus = i;
+                    $(this).addClass('active').siblings().removeClass('active');
+                    mescroll.resetUpScroll();
+                }
+            });
+
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(pageData);
+
+                    // 去订单详情
+                    $('.order_item').unbind('click').bind('click', function () {
+                        var reportId = $(this).data('reportid');
+                        var scrollTop = $('#mescrollOrderRecent').scrollTop();
+                        window.location.href = './gov_report_detail.html?reportId=' + reportId + '&accessToken=' + accessToken;
+                    });
+
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            function setListData(pageData) {
+                var pageDataObj = {
+                    content: pageData
+                };
+
+                var liDom = template('templateOrderList', pageDataObj);
+                $('#orderList').append(liDom);
+            }
+
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    $.slAjax({
+                        url: root + 'govServer/reportRest/reportLog',
+                        type: 'get',
+                        data: {
+                            communityId: communityId,
+                            accId: accId,
+                            status: reportStatus,
+                            pageIndex: pageIndex
+                        },
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.content, res.totalSize)
+                            }
+                            else{
+                                errorCallback();
+                            }
+                        }
+                    });
+                }, 300)
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

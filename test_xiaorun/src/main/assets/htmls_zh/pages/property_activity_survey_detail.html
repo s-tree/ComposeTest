@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>问卷调查</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_activity_survey_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">问卷调查</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_main"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/jquery.base64.js"></script>
+    <!-- 问卷题目模板 -->
+    <script type="text/html" id="templateSurvey">
+        {{each surveyOptionsList as value i}}
+        <div class="survey_item" data-type="{{value.type}}" data-id="{{value.id}}">
+            <p>{{value.index}}.{{value.title}}</p>
+            {{if value.type == 'radio'}}
+            <ul>
+                {{each value.surveyOptionsItemsList as question}}
+                <li>
+                    <input type="radio" id="{{question.id}}" name="{{value.id}}" />
+                    <label for="{{question.id}}">{{question.info}}</label>
+                </li>
+                {{/each}}
+            </ul>
+            {{else if value.type == 'checkbox'}}
+            <ul>
+                {{each value.surveyOptionsItemsList as question}}
+                <li>
+                    <input type="checkbox" id="{{question.id}}" name="{{question.id}}" />
+                    <label for="{{question.id}}">{{question.info}}</label>
+                </li>
+                {{/each}}
+            </ul>
+            {{else if value.type == 'content'}}
+                <textarea placeholder="写点什么吧..." class="quesTxt" id="{{value.id}}"></textarea>
+            {{/if}}
+        </div>
+        {{/each}}
+        <div class="submit_btn">提交问卷</div>
+    </script>
+    <script>
+        $(function () {
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var activityId = getQueryString("activityId") !== null ? getQueryString("activityId") : getCookie("activityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var titleName = getQueryString("titleName") !== null ? getQueryString("titleName") : getCookie("titleName");
+            var startTime = new Date().getTime();
+            var isFinish = true;
+            $('.page_header_main_title').text(titleName ? titleName : '问卷调查');
+
+            $.slAjax({
+                type: 'get',
+                url: root + "operating/rest/voteSurvey/surveyDetail/" + activityId,
+                data: {
+                    memberId: accId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        for(var index = 1; index <= res.data.surveyOptionsList.length; index ++){
+                            res.data.surveyOptionsList[index - 1].index = index;
+                        }
+
+                        $('.container_box_main').html(template("templateSurvey", res.data));
+
+                        // 解决iOS唤起键盘底部留白问题
+                        $('input, textarea').on('blur', function () {
+                            window.scrollBy(0, 1)
+                        });
+
+                        // 提交
+                        $('.submit_btn').unbind('click').bind('click', function () {
+                            isFinish = true;
+                            var endTime = new Date().getTime();
+                            var useTimeLength = parseInt((endTime - startTime) / 1000);
+
+                            var questionData = [];
+
+                            $('.survey_item').each(function () {
+                                var type = $(this).data('type');
+                                var optionId = $(this).data('id');
+                                if (type == "radio") {
+                                    var hasChecked = $(this).find("input[type=radio]:checked").attr('id');
+                                    if (!hasChecked) {
+                                        isFinish = false;
+                                        layer.msg('还有问题未完成');
+                                        return false;
+                                    }
+                                    $(this).find("input[type=radio]").each(function (i, item) {
+                                        
+                                        var question = {};
+                                        question['surveyId'] = activityId;
+                                        question['surveyOptionsId'] = optionId;
+                                        question['surveyItemId'] = item.id;
+                                        question['flag'] = item.checked;
+                                        question['memberId'] = accId;
+                                        questionData.push(question);
+                                    })
+                                } else if (type == "checkbox") {
+                                    itemsData_ = [];
+                                    $(this).find("input[type=checkbox]").each(function (i, item) {
+                                        if (item.checked) {
+                                            itemsData_.push({ "id": item.id });
+                                        }
+
+                                        var question = {};
+                                        question['surveyId'] = activityId;
+                                        question['surveyOptionsId'] = optionId;
+                                        question['surveyItemId'] = item.id;
+                                        question['flag'] = item.checked;
+                                        question['memberId'] = accId;
+                                        questionData.push(question);
+                                    })
+                                    if (itemsData_.length == 0) {
+                                        isFinish = false;
+                                        layer.msg('还有问题未完成');
+                                        return false;
+                                    }
+                                } else if (type == "content") {
+                                    $(this).find("textarea").each(function (i, item) {
+                                        var content = item.value.replace(/\s+/g, "");
+                                        if (!content) {
+                                            isFinish = false;
+                                            layer.msg('还有问题未完成');
+                                            return false;
+                                        }
+
+                                        var question = {};
+                                        question['surveyId'] = activityId;
+                                        question['surveyOptionsId'] = optionId;
+                                        question['surveyItemId'] = item.id;
+                                        question['content'] = content;
+                                        question['memberId'] = accId;
+                                        questionData.push(question);
+                                    })
+                                    
+                                }
+                            })
+
+                            console.log(questionData);
+
+                            if (isFinish) {
+
+                                $.slAjax({
+                                    url: root + "operating/rest/voteSurvey/surveySubmit",
+                                    type: "post",
+                                    contentType:"application/json",
+                                    dataType: "json",
+                                    data: JSON.stringify(questionData),
+                                    success: function (res) {
+                                        console.log(res)
+                                        if (res.code == 0) {
+                                            layer.msg('提交成功，感谢参与', { shift: -1, time: 1000 }, function () {
+                                                callHandlerBridge('linkToPage', { 'pageName': 'property_activity_index.html', 'refresh': true });
+                                            })
+                                        } else {
+                                            layer.msg(res.msg)
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+        })
+    </script>
+</body>
+
+</html>

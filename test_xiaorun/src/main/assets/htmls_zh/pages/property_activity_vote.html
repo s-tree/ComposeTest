@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>投票详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/swiper.min.css">
+    <link rel="stylesheet" href="../css/property_activity_vote.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .layui-layer {
+            border-radius: .2rem !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title">投票详情</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_photo"></div>
+        <div class="container_box_main">
+            <div class="container_box_main_statistical">
+                <div class="container_box_main_statistical_list">
+                    <div>
+                        <div class="count count2">-</div>
+                        <div class="tip">参与人数</div>
+                    </div>
+                    <div>
+                        <div class="count count3">-</div>
+                        <div class="tip">累计投票</div>
+                    </div>
+                </div>
+                <div class="container_box_main_statistical_last">
+                    <div>距离活动结束：</div>
+                    <div class="time"></div>
+                </div>
+                <div class="container_box_main_statistical_score">
+                    参与可获得<span>-</span>积分
+                </div>
+            </div>
+            <div style="width: 100%;height:.1rem;background: rgba(241, 241, 241, .6);"></div>
+            <div class="container_box_main_tab">
+                <div class="active" data-tabindex="1">参赛选手</div>
+                <div data-tabindex="2">活动简介</div>
+            </div>
+            <div class="container_box_main_content"></div>
+        </div>
+    </div>
+    <div id="palyer_layer" style="display: none;">
+        <div class="layerBox">
+            <div class="layerBox_photo"></div>
+            <div class="layerBox_info">
+                <div>
+                    <div class="layerBox_info_count1"><span>-</span></div>
+                    <div class="tip">选手编号</div>
+                </div>
+                <div>
+                    <div class="layerBox_info_count2">NO.<span>-</span></div>
+                    <div class="tip">当前名次</div>
+                </div>
+                <div>
+                    <div class="layerBox_info_count3"><span>-</span>票</div>
+                    <div class="tip">当前票数</div>
+                </div>
+            </div>
+            <div class="layerBox_btn">投票</div>
+            <div class="layerBox_tip">-</div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/jquery.countdown.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/swiper.jquery.min.js"></script>
+    <script type="text/html" id="templateVoteInfo">
+        <div class="playerBox">
+            {{each data.voteOptionsList as value i}}
+            <div class="palyer_item" 
+                data-playerid="{{value.id}}" 
+                data-cover="{{value.image}}" 
+                data-number="{{value.sn}}" 
+                data-rank="{{i+1}}" 
+                data-votes="{{value.num ? value.num : 0}}" 
+                data-describe="{{value.intro}}" 
+                data-voted="{{''+value.submit}}">
+                <div class="palyer_item_top">
+                    <div class="palyer_item_top_photo">
+                        <img src="{{value.image}}" onerror="this.parentNode.removeChild(this)">
+                    </div>
+                    {{if i == 0}}
+                    <div class="palyer_item_top_rank" style="background: url('../images/rank1.png');background-size: 100% auto;"></div>
+                    {{else if i == 1}}
+                    <div class="palyer_item_top_rank" style="background: url('../images/rank2.png');background-size: 100% auto;"></div>
+                    {{else if i == 2}}
+                    <div class="palyer_item_top_rank" style="background: url('../images/rank3.png');background-size: 100% auto;"></div>
+                    {{else}}
+                    <div class="palyer_item_top_rank" style="background: url('../images/rank.png');background-size: 100% auto;">{{ i+1 }}</div>
+                    {{/if}}
+                </div>
+                <div class="palyer_item_info">
+                    <div class="palyer_item_info_main">
+                        <div class="palyer_item_info_main_name">{{value.sn}}.{{value.name}}</div>
+                        <div class="palyer_item_info_main_count">{{value.num ? value.num : 0}}票</div>
+                    </div>
+                    {{if value.submit}}
+                    <div class="palyer_item_info_vote voted">已投票</div>
+                    {{else}}
+                    <div class="palyer_item_info_vote">投票</div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        <div class="infoBox" style="height: 0;white-space:pre-line">
+            {{data.intro}}
+            <br />
+            {{data.award || ''}}
+            <br /><br />
+        </div>
+    </script>
+    <script>
+        $(function () {
+            var activityId = getQueryString("activityId") !== null ? getQueryString("activityId") : getCookie("activityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var activityStatus;
+            var limitVotes = 1; // 限投次数
+            var hasVotes = 0; // 已投次数
+
+            getVoteInfo();
+
+            function getVoteInfo() {
+
+                $.slAjax({
+                    type: 'get',
+                    url: root + "operating/rest/voteSurvey/voteDetail/" + activityId,
+                    data: {},
+                    success: function (res) {
+                        if (res.code == 0) {
+
+                            // 基本信息赋值
+                            $('.container_box_photo').html('<img src="' + res.data.image + '" onerror="this.parentNode.removeChild(this)">');
+                            $('.page_header_main_title').text(res.data.title);
+
+                            var award = res.data.award;
+                            if(award && award.length > 300){
+                                res.data.award = award.substr(0,300) + "...";
+                            }
+                            $('.award').text(award ? award : '');
+
+                            var intro = res.data.intro;
+                            if(intro && intro.length > 300){
+                                res.data.intro = intro.substr(0,300) + "...";
+                            }
+
+                            $('.container_box_main_content').html(template("templateVoteInfo", res));
+
+                            // $('.count1').text(res.content.browseNumber ? res.content.browseNumber : '0');
+                            // $('.count2').text(res.content.playerCount);
+                            // $('.count3').text(res.content.voteCount ? res.content.voteCount : '0');
+
+                            if(!res.data.sumMemberNum){
+                                res.data.sumMemberNum = 0;
+                            }
+                            if(!res.data.sumMemberVoteCount){
+                                res.data.sumMemberVoteCount = 0;
+                            }
+                            $('.count2').text(res.data.sumMemberNum);
+                            $('.count3').text(res.data.sumMemberVoteCount);
+
+                            limitVotes = Number(res.data.maxCount);
+                            hasVotes = Number(res.data.finishCount);
+                            activityStatus = res.data.status;
+
+                            // 是否展示积分
+                            // if (res.content.integral) {
+                            //     $('.container_box_main_statistical_score').css('display', 'block')
+                            //     $('.container_box_main_statistical_score span').text(res.content.integral)
+                            // }
+
+                            // 截止时间
+                            var deadline_ = getExactTime(res.data.endTime);
+                            var voteDate = new Date(deadline_[0], parseInt(deadline_[1]) - 1, deadline_[2],deadline_[3],deadline_[4],deadline_[5]);
+                            $('.container_box_main_statistical_last .time').countdown({ format: "DD HH:MM:SS", until: voteDate });
+
+                            // 主页投票、取消操作
+                            $('.palyer_item_info_vote').unbind('click').bind('click', function (event) {
+                                event.stopPropagation();
+                                var isVote = $(this).hasClass('voted');
+                                var votePlayerId = $(this).parents('.palyer_item').data('playerid');
+                                if (isVote) {
+                                    // 取消投票
+                                    // 暂时不支持取消
+                                    // voteOperate(votePlayerId, false);
+                                    return;
+                                } else {
+                                    // 投票
+                                    if (limitVotes > hasVotes) {
+                                        voteOperate(votePlayerId, true);
+                                    } else {
+                                        layer.msg('每人只能投' + limitVotes + '票');
+                                    }
+                                }
+                            })
+
+                            // 打开详情弹框
+                            $('.palyer_item').unbind('click').bind('click', function () {
+                                var cover = $(this).data('cover');
+                                var number = $(this).data('number');
+                                var rank = $(this).data('rank');
+                                var votes = $(this).data('votes');
+                                var voted = $(this).data('voted');
+                                var describe = $(this).data('describe');
+                                var votePlayerId = $(this).data('playerid');
+
+                                $('.layerBox_photo').html('<img src="' + cover + '" onerror="this.parentNode.removeChild(this)">');
+                                $('.layerBox_info_count1 span').text(number);
+                                $('.layerBox_info_count2 span').text(rank);
+                                $('.layerBox_info_count3 span').text(votes);
+                                $('.layerBox_tip').text(describe);
+                                if (voted == true) {
+                                    $('.layerBox_btn').text('已投票');
+                                    $('.layerBox_btn').addClass('voted');
+                                } else {
+                                    $('.layerBox_btn').text('投票');
+                                    $('.layerBox_btn').removeClass('voted');
+                                }
+
+                                layer.open({
+                                    type: 1,
+                                    title: false,
+                                    closeBtn: 0,
+                                    scrollbar: false,
+                                    area: ['90%', '9rem'],
+                                    content: $("#palyer_layer")
+                                });
+                                // 关闭弹框
+                                $(".layui-layer-shade").unbind("click").bind('click', function () {
+                                    layer.closeAll();
+                                })
+                                // 弹框内投票、取消投票
+                                $('.layerBox_btn').unbind('click').bind('click', function () {
+                                    var isVote = $(this).hasClass('voted');
+                                    if (isVote) {
+                                        // 取消投票
+                                        // 暂时不支持取消
+                                        // voteOperate(votePlayerId, false);
+                                        // layer.closeAll();
+                                    } else {
+                                        // 投票
+                                        if (limitVotes > hasVotes) {
+                                            voteOperate(votePlayerId, true);
+                                            // layer.closeAll();
+                                        } else {
+                                            layer.msg('每人只能投' + limitVotes + '票');
+                                        }
+                                    }
+                                })
+                            })
+
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                })
+            }
+
+            // 投票与否接口
+            function voteOperate(votePlayerId, isVote) {
+                if (activityStatus == 'active') {
+                    var voteData = [];
+                    var voteItem = {};
+                    voteItem["memberId"] = accId;
+                    voteItem["voteId"] = activityId;
+                    voteItem["voteOptionsId"] = votePlayerId;
+                    voteData.push(voteItem);
+                    $.slAjax({
+                        url: root + "operating/rest/voteSurvey/voteSubmit",
+                        type: "post",
+                        contentType:"application/json",
+                        dataType: "json",
+                        data: JSON.stringify(voteData),
+                        success: function (res) {
+                            if (res.code == 0) {
+                                getVoteInfo();
+                                layer.closeAll();
+                            } else {
+                                layer.msg(res.msg)
+                            }
+                        }
+                    })
+                } else {
+                    layer.msg('不在活动时间内')
+                }
+            }
+
+            // 切换tab
+            $('.container_box_main_tab>div').unbind('click').bind('click', function () {
+                var index_ = $(this).data('tabindex');
+                if (!$(this).hasClass('active')) {
+                    $(this).siblings().removeClass('active');
+                    $(this).addClass('active');
+                    if (index_ == '1') {
+                        $('.playerBox').css('height', 'auto');
+                        $('.infoBox').css('height', '0');
+                        $('.infoBox').css('overflow', 'hidden');
+                    } else if (index_ == '2') {
+                        $('.infoBox').css('height', 'auto');
+                        $('.infoBox').css('overflow', 'auto');
+                        $('.playerBox').css('height', '0');
+                        $('.playerBox').css('overflow', 'hidden');
+                    }
+                }
+            })
+
+            // 监听页面滚动条距离顶部高度
+            // $('.container_box').scroll(function () {
+            //     var scroH = $(this).scrollTop();  //滚动高度
+            //     if (scroH > 0) {
+            //         $(".page_header").css('background-color', '#ffffff');
+            //         $('.page_header_main_back img').attr('src', '../images/hback_b.png');
+            //         $('.page_header_main_title').css('color', '#323232');
+            //     } else {
+            //         $(".page_header").css('background-color', 'transparent');
+            //         $('.page_header_main_back img').attr('src', '../images/hback_w.png');
+            //         $('.page_header_main_title').css('color', '#ffffff');
+            //     }
+            // });
+
+            // 时间格式化
+            function getExactTime(time) {
+                var date = new Date(time);
+                // var date = new Date(time* 1000);
+                var year = date.getFullYear();
+                var month = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
+                var dates = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+                var hour = date.getHours();
+                var min = date.getMinutes();
+                var second = date.getSeconds();
+                var result = [];
+                result[0] = year;
+                result[1] = month;
+                result[2] = dates;
+                result[3] = hour;
+                result[4] = min;
+                result[5] = second;
+                return result;
+                // return year + month + dates + hour + min + second;
+            }
+        })
+    </script>
+
+</body>
+
+</html>

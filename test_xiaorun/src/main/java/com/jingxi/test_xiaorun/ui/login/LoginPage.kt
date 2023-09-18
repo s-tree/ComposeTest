@@ -9,4 +9,5 @@ object LoginPage{
     const val REGISTER = "Login_Register"
 
     const val FORGET = "Login_Forget"
+
 }

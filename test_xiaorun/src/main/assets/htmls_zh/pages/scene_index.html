@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>场景预约</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/scene_index.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">场景预约</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="scene_box"></div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script type="text/html" id="templateScene">
+        {{each content as value}}
+        <div class="scene_item" data-code="{{value.code}}">
+            <div class="scene_item_photo">
+                <img src="{{value.image}}" onerror="this.parentNode.removeChild(this)">
+            </div>
+            <div class="scene_item_name">{{value.name}}</div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var sceneList = {
+                content: [
+                    {
+                        code: "neighbor",
+                        image: "../scene_images/neighbor.jpg",
+                        name: "邻里场景"
+                    },
+                    {
+                        code: "education",
+                        image: "../scene_images/education.jpg",
+                        name: "教育场景"
+                    },
+                    {
+                        code: "health",
+                        image: "../scene_images/health.jpg",
+                        name: "健康场景"
+                    },
+                    {
+                        code: "job",
+                        image: "../scene_images/job.jpg",
+                        name: "创业场景"
+                    },
+                    {
+                        code: "traffic",
+                        image: "../scene_images/traffic.jpg",
+                        name: "交通场景"
+                    },
+                    {
+                        code: "service",
+                        image: "../scene_images/service.jpg",
+                        name: "服务场景"
+                    },
+                    {
+                        code: "govern",
+                        image: "../scene_images/govern.jpg",
+                        name: "治理场景"
+                    },
+                    {
+                        code: "lowCarbon",
+                        image: "../scene_images/lowCarbon.jpg",
+                        name: "低碳场景"
+                    },
+                    {
+                        code: "building",
+                        image: "../scene_images/building.jpg",
+                        name: "建筑场景"
+                    }
+                ]
+            }
+
+            $('.scene_box').html(template('templateScene', sceneList));
+
+            $('.scene_item').unbind('click').bind('click', function () {
+                var sceneName = $(this).find('.scene_item_name').text();
+                var sceneCode = $(this).data('code');
+                window.location.href = './scene_detail.html?sceneName=' + sceneName + '&sceneCode=' + sceneCode;
+            })
+
+
+
+
+        });
+    </script>
+</body>
+
+</html>

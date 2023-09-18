@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>租借成功</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/loan_success.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden">租借成功</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_icon">
+            <img src="../images/success.png">
+        </div>
+        <div class="container_box_tip1">下单成功</div>
+        <div class="container_box_tip2">租借码：<span id="code"></span></div>
+        <div class="container_box_tip3">请在物业中心取件并付款后，再将此码提供给工作人员 下单后1小时内取件，否则租借将自动取消</div>
+        <div class="container_box_btn">
+            <div class="viewRecord">查看记录</div>
+            <div class="backIndex">返回首页</div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script>
+        $(function () {
+            var code = getQueryString("code") !== null ? getQueryString("code") : getCookie("code");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+
+            $('#code').text(code)
+
+            $('.viewRecord').unbind('click').bind("click", function () {
+                callHandlerBridge('linkToPageWithBack', { 'pageName': 'loan_record.html?accId=' + accId + '&communityId=' + communityId })
+            })
+
+            $('.backIndex').unbind('click').bind("click", function () {
+                callHandlerBridge('backToNative', {});
+            })
+        })
+    </script>
+
+</body>
+
+</html>

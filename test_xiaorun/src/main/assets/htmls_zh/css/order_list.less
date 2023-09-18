@@ -1,0 +1,329 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    background: #F5F5F7;
+}
+
+#mescrollOrderRecent {
+    position: fixed;
+    top     : 2.22rem;
+    bottom  : 0;
+    height  : auto;
+}
+
+.order_status {
+    position: fixed;
+    top     : 1.36rem;
+    left    : 0;
+    width   : 100%;
+    height  : 0.86rem;
+    padding : 0 .3rem;
+    .flex(row, space-between, center);
+
+    &_item {
+        height     : 100%;
+        line-height: 0.86rem;
+        font-size  : 0.26rem;
+        color      : #848484;
+
+        &.active {
+            position: relative;
+            color   : #323232;
+
+            &:after {
+                content      : '';
+                position     : absolute;
+                bottom       : 0;
+                left         : 0;
+                width        : 100%;
+                height       : 0.06rem;
+                border-radius: 0.06rem;
+                background   : #F79B34;
+            }
+        }
+    }
+}
+
+.order_list {
+    width     : 100%;
+    height    : auto;
+    margin-top: .3rem;
+    padding   : 0 .3rem;
+
+    .order_item {
+        background-color: #FFFFFF;
+        padding         : .4rem .3rem;
+        box-shadow      : 0 .04rem .14rem .04rem rgba(193, 193, 193, 0.15);
+        border-radius   : .2rem;
+        margin-bottom   : .2rem;
+
+        .shop_info {
+            &_title {
+                width: 100%;
+                .flex(row, space-between, center);
+
+                &_name {
+                    max-width    : 58%;
+                    overflow     : hidden;
+                    text-overflow: ellipsis;
+                    white-space  : nowrap;
+                }
+
+                &_status {
+                    max-width    : 38%;
+                    overflow     : hidden;
+                    text-overflow: ellipsis;
+                    white-space  : nowrap;
+                    color        : #848484;
+                }
+            }
+
+            &_star {
+                .flex(row, flex-start, center);
+                margin-top: .1rem;
+
+                &_count {
+                    color      : #FE4601;
+                    font-size  : .18rem;
+                    margin-left: .16rem;
+
+                    span {
+                        font-size: .24rem;
+                    }
+                }
+            }
+        }
+
+        .goods_info {
+            margin-top: .4rem;
+
+            &_item {
+                .flex(row, space-between, center);
+                margin-bottom: .4rem;
+
+                &_image {
+                    width        : 1.2rem;
+                    height       : 1.2rem;
+                    border-radius: .1rem;
+                    overflow     : hidden;
+                    flex-shrink  : 0;
+
+                    img {
+                        width : 100%;
+                        height: 100%;
+                    }
+                }
+
+                &_detail {
+                    flex  : 1;
+                    width : 0;
+                    margin: 0 .2rem;
+
+                    .name {
+                        width        : 100%;
+                        overflow     : hidden;
+                        text-overflow: ellipsis;
+                        white-space  : nowrap;
+                        font-size    : .28rem;
+                        color        : #323232;
+                        font-weight  : bold;
+                    }
+
+                    .orders {
+                        margin-top: .16rem;
+                        color     : #848484;
+                        font-size : .24rem;
+                    }
+                }
+
+                &_count {
+                    flex-shrink: 0;
+                    text-align : right;
+
+                    .price {
+                        color    : #323232;
+                        font-size: .24rem;
+
+                        span {
+                            font-size: .3rem;
+                        }
+                    }
+
+                    .count {
+                        color     : #848484;
+                        font-size : .24rem;
+                        margin-top: .16rem;
+                    }
+                }
+            }
+
+            &_item1 {
+                .flex(row, space-between, center);
+                margin-bottom: .4rem;
+
+                &_image {
+                    flex: 1;
+                    .flex(row, flex-start, center);
+                    overflow-x: auto;
+
+                    &_list {
+                        width        : 1.2rem;
+                        height       : 1.2rem;
+                        border-radius: .1rem;
+                        overflow     : hidden;
+                        flex-shrink  : 0;
+                        margin-right : .1rem;
+
+                        img {
+                            width : 100%;
+                            height: 100%;
+                        }
+                    }
+                }
+
+                &_count {
+                    flex-shrink: 0;
+                    margin-left: .2rem;
+                    text-align : right;
+
+                    .price {
+                        color    : #323232;
+                        font-size: .24rem;
+
+                        span {
+                            font-size: .3rem;
+                        }
+                    }
+
+                    .count {
+                        color     : #848484;
+                        font-size : .24rem;
+                        margin-top: .16rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.order_btn_group {
+    width: 100%;
+    .flex(row, flex-end, center);
+
+    .order_btn {
+        width        : 1.6rem;
+        height       : .58rem;
+        line-height  : .58rem;
+        border       : .02rem solid rgba(166, 175, 183, .55);
+        border-radius: .29rem;
+        text-align   : center;
+        font-size    : .26rem;
+        color        : #848484;
+
+        &.ml {
+            margin-left: .2rem;
+        }
+
+        &.business_pay {
+            border    : none;
+            color     : #FFFFFF;
+            background: linear-gradient(-90deg, #FF4F36 0%, #FF714B 100%);
+        }
+
+        &.business_evaluate {
+            border    : none;
+            color     : #FFFFFF;
+            background: linear-gradient(-90deg, #3AC3C0 0%, #59D3CD 100%);
+        }
+    }
+}
+
+.layui-layer-title {
+    padding    : 0 !important;
+    width      : 100%;
+    height     : 42px !important;
+    line-height: 42px !important;
+    text-align : center;
+    border     : none !important;
+    font-size  : .28rem !important;
+}
+
+.layui-layer-awesome .layui-layer-btn .layui-layer-btn1 {
+    color: #333333 !important;
+}
+
+.layui-layer-awesome .layui-layer-content {
+    padding: 0.4rem 0.25rem !important;
+}
+
+.layui-layer-awesome-msg .layui-layer-content {
+    padding  : 0.25rem 0.4rem !important;
+    font-size: 0.26rem !important;
+}
+
+.changepricenum {
+    display   : inline-block;
+    border    : .01rem solid #eeeeee;
+    height    : 0.6rem;
+    width     : 2rem;
+    text-align: center;
+    color     : #686868;
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>党建学习</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_party_list.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        /* 隐藏视频播放的全屏按钮 */
+        /* video::-webkit-media-controls-fullscreen-button {
+            display: none;
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">党建学习</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight"></div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateActivity">
+        {{each content as value}}
+        <div class="container_box_item" data-partytype="{{value.contentMethod}}" data-partyid="{{value.id}}">
+            <div class="container_box_item_photo">
+                <div class="activity_status act_1">{{value.typeName}}</div>
+                {{if value.contentMethod == '0'}}
+                    <img src="{{value.cover}}" onerror="this.parentNode.removeChild(this)">
+                {{else if value.contentMethod == '1'}}
+                    <video class="video" src="{{value.video}}" poster="{{value.cover}}" controls controlslist="nodownload" disablePictureInPicture="true" webkit-playsinline="true" playsinline="true"></video>
+                {{/if}}
+            </div>
+            <div class="container_box_item_info">
+                <div class="container_box_item_info_title">{{value.title}}</div>
+                <div class="container_box_item_info_other">
+                    <div class="act_create">{{value.streetName}}宣</div>
+                    <div class="act_count">{{value.contentMethod == '0'?'阅读':'观看'}}：{{value.quantity ?value.quantity:'0'}}</div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var isLoading = true;
+            var pageIndex = 1;
+
+            getActivityList();
+
+            // 获取活动列表
+            function getActivityList() {
+                $.slAjax({
+                    type: 'get',
+                    url: root + 'govServer/propagandaRest/propagandaList',
+                    data: {
+                        communityId: communityId,
+                        pageIndex: pageIndex,
+                        pageSize: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.result) {
+                            if (res.content.length > 0) {
+                                $('.container_box').html(template("templateActivity", res));
+                                joinActivity();
+
+                                if (res.content.length == res.totalSize) {
+                                    $(".container_box").append('<div class="load-over">没有更多...</div>');
+                                } else {
+                                    $('.container_box').scroll(function () {
+                                        var scrollTop = $(this).scrollTop();  // 滚动高度
+                                        var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                        var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                        if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                            isLoading = false;
+                                            pageIndex++;
+                                            $.slAjax({
+                                                type: 'get',
+                                                url: root + 'govServer/propagandaRest/propagandaList',
+                                                data: {
+                                                    communityId: communityId,
+                                                    pageIndex: pageIndex,
+                                                    pageSize: PAGESIZE
+                                                },
+                                                beforeSend: function () {
+                                                    $(".container_box").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                                },
+                                                success: function (data) {
+                                                    $(".container_box .loading_w").remove();
+                                                    if (data.result) {
+                                                        if (data.content.length > 0) {
+                                                            $('.container_box').append(template("templateActivity", data));
+                                                            isLoading = true;
+                                                            joinActivity();
+                                                        } else {
+                                                            $(".container_box").append('<div class="load-over">没有更多...</div>');
+                                                        }
+                                                    } else {
+                                                        layer.msg(data.msg);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            } else {
+                                $(".container_box").html("<div class='default-none'><div class='no_tip'>暂无内容</div></div>");
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 活动点击
+            function joinActivity() {
+                $('.container_box_item').unbind('click').bind('click', function () {
+                    var partyType = $(this).data('partytype');
+                    var partyId = $(this).data('partyid');
+                    if (partyType == '0') {
+                        window.location.href = './gov_party_detail.html?partyId=' + partyId + '&accId=' + accId
+                    }
+                })
+            }
+        })
+    </script>
+</body>
+
+</html>

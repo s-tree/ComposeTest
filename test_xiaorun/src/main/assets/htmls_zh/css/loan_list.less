@@ -1,0 +1,186 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    background     : #F5F5F7;
+    background-size: 100% 100%;
+}
+
+.order_status {
+    position  : fixed;
+    top       : 1.36rem;
+    left      : 0;
+    width     : 100%;
+    height    : 0.86rem;
+    padding   : 0 .3rem;
+    width     : 100%;
+    overflow-x: auto;
+    .flex(row, flex-start, center);
+
+    &_item {
+        height      : 100%;
+        line-height : 0.86rem;
+        font-size   : 0.26rem;
+        color       : #848484;
+        margin-right: .4rem;
+        flex-shrink : 0;
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        &.active {
+            position: relative;
+            color   : #323232;
+
+            &:after {
+                content      : '';
+                position     : absolute;
+                bottom       : 0;
+                left         : 0;
+                width        : 100%;
+                height       : 0.06rem;
+                border-radius: 0.06rem;
+                background   : #F79B34;
+            }
+        }
+    }
+}
+
+// 不显示滚动条
+.order_status::-webkit-scrollbar {
+    height: 0;
+    width : 0;
+    color : transparent;
+}
+
+#mescrollOrderRecent {
+    position: fixed;
+    top     : 2.22rem;
+    bottom  : 0;
+    height  : auto;
+}
+
+.order_list {
+    width     : 100%;
+    height    : auto;
+    margin-top: .3rem;
+    padding   : 0 .3rem;
+    .flex(row, flex-start, top);
+    flex-wrap: wrap;
+
+    .order_item {
+        width           : 48%;
+        background-color: #ffffff;
+        border-radius   : .2rem;
+        overflow        : hidden;
+        margin-bottom   : .22rem;
+        margin-right    : 4%;
+
+        &:nth-child(2n) {
+            margin-right: 0;
+        }
+
+        &_image {
+            width     : 100%;
+            height    : 2.2rem;
+            background: rgba(247, 155, 52, .3);
+
+            img {
+                width     : 100%;
+                height    : 100%;
+                object-fit: cover;
+            }
+        }
+
+        &_info {
+            width  : 100%;
+            padding: .2rem;
+
+            &>p {
+                width        : 100%;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+            }
+
+            &_name {
+                font-size  : .28rem;
+                color      : #323232;
+                font-weight: 800;
+            }
+
+            &_other {
+                font-size : .24rem;
+                color     : #848484;
+                margin-top: .16rem;
+            }
+
+            &_price {
+                color    : #FE4601;
+                font-size: .24rem;
+
+                span {
+                    font-size: .34rem;
+                }
+            }
+        }
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

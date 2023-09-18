@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>积分兑换</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/integral_list.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">积分兑换</div>
+            <div class="page_header_main_btns">
+                <div class="search_btn" id="toSearch">
+                    <img src="../images/hbtn_search_b.png">
+                </div>
+                <div class="search_btn" id="toRecord" style="width: 0.4rem;height: 0.4rem;margin-left: .4rem;">
+                    <img src="../images/record.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <ul class="shop_category_list" id="shopCategoryList"> </ul>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateShopList">
+        {{each records as value}}
+        <li class="shop_category_list_item" data-productid="{{value.id}}">
+            <div class="shop_category_list_item_image">
+                <img src="{{value.image}}" onerror="this.parentNode.removeChild(this)">
+            </div>
+            <div class="shop_category_list_item_info">
+                <p class="shop_category_list_item_info_name">{{value.name}}</p>
+                <p class="shop_category_list_item_info_other">市场价：￥{{value.price}}</p>
+                <p class="shop_category_list_item_info_price"><span>{{value.point}}</span>积分</p>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var pageIndex = 1;
+            var isLoading = true;
+
+            // 搜索
+            $('#toSearch').unbind('click').bind('click', function () {
+                window.location.href = './integral_search.html?communityId=' + communityId + '&accId=' + accId
+            });
+
+            // 查看记录
+            $('#toRecord').unbind('click').bind('click', function () {
+                window.location.href = './integral_record.html?communityId=' + communityId + '&accId=' + accId
+            });
+
+            // 请求商品列表
+            $.slAjax({
+                url: root + 'bus/rest/bus/point',
+                type: 'get',
+                data: {
+                    current: pageIndex,
+                    size: PAGESIZE
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        if (res.data && res.data.records && res.data.records.length > 0) {
+                            $('#shopCategoryList')[0].innerHTML = template("templateShopList", res.data);
+
+                            $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                var productId = $(this).data('productid');
+                                window.location.href = './integral_detail.html?productId=' + productId + '&accId=' + accId + '&communityId=' + communityId
+                            });
+
+                            if (res.data.records.length == res.data.total) {
+                                $(".container_box_main").append('<div class="load-over">没有更多...</div>');
+                            } else {
+                                $('.container_box_main').scroll(function () {
+                                    var scrollTop = $(this).scrollTop();  // 滚动高度
+                                    var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                    var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                    if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                        isLoading = false;
+                                        pageIndex++;
+                                        $.slAjax({
+                                            url: root + 'bus/rest/bus/point',
+                                            type: 'get',
+                                            data: {
+                                                current: pageIndex,
+                                                size: PAGESIZE
+                                            },
+                                            beforeSend: function () {
+                                                $(".container_box_main").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                            },
+                                            success: function (data) {
+                                                $(".container_box_main .loading_w").remove();
+                                                if (data.code == 0) {
+                                                    if (data.data && data.data.records && data.data.records.length > 0) {
+                                                        $('#shopCategoryList').append(template("templateShopList", data));
+                                                        isLoading = true;
+                                                        $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                                            var productId = $(this).data('productid');
+                                                            window.location.href = './integral_detail.html?productId=' + productId + '&accId=' + accId + '&communityId=' + communityId
+                                                        });
+                                                    } else {
+                                                        $(".container_box_main").append('<div class="load-over">没有更多...</div>');
+                                                    }
+                                                } else {
+                                                    layer.msg(data.msg);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        } else {
+                            $(".container_box_main").append("<div class='default-none'><div class='no_img' style='width:100%;padding-top:1rem'><img src='../images/shop_null.png'></div><div class='no_tip'>暂无商品</div></div>");
+                        }
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+        });
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,164 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    background     : url('../images/bg2.png') #F5F5F7 no-repeat;
+    background-size: 100% 100%;
+}
+
+.order_status {
+    position: fixed;
+    top     : 1.36rem;
+    left    : 0;
+    width   : 100%;
+    height  : 0.86rem;
+    padding : 0 .3rem;
+    .flex(row, space-between, center);
+
+    &_item {
+        height     : 100%;
+        line-height: 0.86rem;
+        font-size  : 0.26rem;
+        color      : #848484;
+
+        &.active {
+            position: relative;
+            color   : #323232;
+
+            &:after {
+                content      : '';
+                position     : absolute;
+                bottom       : 0;
+                left         : 0;
+                width        : 100%;
+                height       : 0.06rem;
+                border-radius: 0.06rem;
+                background   : #F79B34;
+            }
+        }
+    }
+}
+
+#mescrollOrderRecent {
+    position: fixed;
+    top     : 2.22rem;
+    bottom  : 0;
+    height  : auto;
+}
+
+.order_list {
+    width     : 100%;
+    height    : auto;
+    margin-top: .3rem;
+    padding   : 0 .3rem;
+
+    .order_item {
+        background-color: #FFFFFF;
+        padding         : .4rem .3rem;
+        box-shadow      : 0 .04rem .14rem .04rem rgba(193, 193, 193, 0.15);
+        border-radius   : .2rem;
+        margin-bottom   : .2rem;
+        .flex(row, space-between, center);
+
+        .report_info {
+            width: 0;
+            flex : 1;
+
+            &_title {
+                width        : 100%;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+                font-size    : .28rem;
+                font-weight  : bold;
+            }
+
+            &_from,
+            &_time {
+                font-size : .24rem;
+                color     : #848484;
+                margin-top: .12rem;
+            }
+        }
+
+        .report_btn {
+            flex-shrink  : 0;
+            margin-left  : .1rem;
+            font-size    : .26rem;
+            width        : 1.2rem;
+            height       : .58rem;
+            line-height  : .58rem;
+            border-radius: .29rem;
+            text-align   : center;
+            background   : #38CC98;
+            color        : #FFFFFF;
+
+            &.replyOver {
+                background: rgba(132, 132, 132, .15);
+                color     : rgba(0, 0, 0, .9);
+            }
+
+            &.replyNew {
+                background: linear-gradient(0deg, #FD9B25 0%, #FDA943 100%);
+                color     : #FFFFFF
+            }
+        }
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

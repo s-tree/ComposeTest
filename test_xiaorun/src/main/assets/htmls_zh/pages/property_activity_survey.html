@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>问卷调查</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/swiper.min.css">
+    <link rel="stylesheet" href="../css/property_activity_survey.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title">问卷调查</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_top">
+            <div class="container_box_top_main">
+                <div>
+                    <div class="tip">共有题目</div>
+                    <div class="questionCount"><span>-</span>道题</div>
+                </div>
+                <div>
+                    <div class="tip">预计占用</div>
+                    <div class="timeCount"><span>-</span>分钟</div>
+                </div>
+            </div>
+        </div>
+        <div class="container_box_info">
+            <div class="tip" >
+                <p class="basicInfo">感谢参与我们的调研问卷</p>
+                <br />
+                <p class="score">参与可获得<span>-</span>积分</p>
+                <p class="award"></p>
+            </div>
+            <div class="submitBtn">点击开始</div>
+            <br />
+            <br />
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/swiper.jquery.min.js"></script>
+    <script>
+        $(function () {
+            var activityId = getQueryString("activityId") !== null ? getQueryString("activityId") : getCookie("activityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var title = getQueryString("title") !== null ? getQueryString("title") : getCookie("title");
+            var hasJoined = false;
+            $('.page_header_main_title').text(title ? title : '问卷调查');
+
+            $.slAjax({
+                type: 'get',
+                url: root + "operating/rest/voteSurvey/surveyDetail/" + activityId,
+                data: {
+                    memberId: accId
+                },
+                success: function (res) {
+                    if(res.code != 0){
+                        layer.msg(res.msg);
+                        return;
+                    }
+                    var award = res.data.award;
+                    if(award && award.length > 300){
+                        award = award.substr(0,300) + "...";
+                    }
+                    $('.award').text(award ? award : '');
+
+                    var intro = res.data.intro;
+                    if(intro && intro.length > 300){
+                        intro = intro.substr(0,300) + "...";
+                    }
+                    if(intro){
+                        $('.basicInfo').text(intro);
+                    }
+
+                    // 是否展示积分
+                    // if (res.content.integral) {
+                    //     $('.score').css('display', 'block')
+                    //     $('.score span').text(res.content.integral)
+                    // }
+
+                    if (res.data.join) {
+                        hasJoined = true;
+                        layer.msg("已经参与过该问卷");
+                    }
+
+                    var time = 0;
+                    var optionList = res.data.surveyOptionsList;
+                    for(var i = 0; i < optionList.length; i++){
+                        if(optionList[i].type == 'radio'){
+                            time += 30;
+                        }
+                        else if(optionList[i].type == 'checkbox'){
+                            time += 60;
+                        }
+                        else if(optionList[i].type == 'content'){
+                            time += 180;
+                        }
+                    }
+                    var minutes = (time / 60) + (time % 60 != 0 ? 1 : 0);
+                    $('.questionCount').text(optionList.length + '道题');
+                    $('.timeCount').text(minutes + '分钟');
+                }
+            })
+
+            $('.submitBtn').unbind('click').bind('click', function () {
+                if(hasJoined){
+                    layer.msg("已经参与过该问卷");
+                    return;
+                }
+                window.location.href = './property_activity_survey_detail.html?activityId=' + activityId + '&accId=' + accId + '&titleName=' + title + '&familyInfoId=' + familyInfoId;
+            })
+        })
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>图书共享</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/books_list.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important;
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">图书共享</div>
+        </div>
+    </div>
+    <div class="toCreate">捐</div>
+    <div class="order_status" id="statusTopBar">
+        <div class="order_status_item active" data-status="">全部</div>
+        <div class="order_status_item" data-status="INIT">待确认</div>
+        <div class="order_status_item" data-status="ACCEPT">已完成</div>
+        <div class="order_status_item" data-status="CANCEL">已取消</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"> </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/public.js"></script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value i}}
+        <div class="order_item" data-id="{{value.id}}">
+            <div class="order_item_top">
+                <div class="sn">捐赠编号：{{value.sn}}</div>
+                <div class="tip">{{value.statusStr}}</div>
+            </div>
+            <div class="order_item_info">
+                {{if value.books > 0}}
+                <div class="order_item_info_basic">
+                    <div class="photo">
+                        <img src="{{value.avatar}}" onerror="this.parentNode.removeChild(this)">
+                    </div>
+                    <div class="info">
+                        <div class="info_name">{{value.title}}</div>
+                        <div class="info_basic">{{value.author}}</div>
+                        <div class="info_basic">{{value.bookCompany}}</div>
+                        <div class="info_basic">{{value.publishDate}}</div>
+                    </div>
+                </div>
+                {{/if}}
+                <div class="order_item_info_count">共{{value.books}}本</div>
+            </div>
+            {{if value.status == 'INIT'}}
+            <div class="order_item_do">
+                <div class="order_btn" data-id="{{value.id}}">取消捐赠</div>
+            </div>
+            {{/if}}
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId")
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId")
+            var bookStatus = ''; // 捐赠记录状态
+
+            // 配置layer弹框
+            layer.config({
+                skin: 'layui-layer-awesome',
+                width: '80%',
+                title: false,
+                closeBtn: 0,
+                scrollbar: false
+            });
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    page: {
+                        size: 20 // 默认10
+                    },
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无记录"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 切换状态标签
+            $('.order_status_item').unbind('click').bind('click', function () {
+                var i = $(this).data('status');
+                if (bookStatus !== i) {
+                    bookStatus = i;
+                    $(this).addClass('active').siblings().removeClass('active');
+                    mescroll.resetUpScroll();
+                }
+            });
+
+            // 上拉回调
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(pageData);
+
+                    // 去订单详情
+                    $('.order_item').unbind('click').bind('click', function () {
+                        var id = $(this).data('id')
+                        var scrollTop = $('#mescrollOrderRecent').scrollTop();
+                        window.location.href = './books_detail.html?id=' + id
+                    });
+
+                    // 取消捐赠
+                    orderCancel();
+
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            // 塞数据
+            function setListData(pageData) {
+                var length = pageData.length;
+                for(var i = 0; i < length; i++){
+                    var status = pageData[i].status;
+                    if(status == 'INIT'){
+                        pageData[i].statusStr = "待确认";
+                    }else if(status == "ACCEPT"){
+                        pageData[i].statusStr = "已完成";
+                    }else if(status == "REJECT"){
+                        pageData[i].statusStr = "已拒绝";
+                    }else if(status == "CANCEL"){
+                        pageData[i].statusStr = "已取消";
+                    }else{
+                        pageData[i].statusStr = "";
+                    }
+                }
+                var pageDataObj = {
+                    content: pageData
+                };
+                var liDom = template('templateOrderList', pageDataObj);
+                $('#orderList').append(liDom);
+            }
+
+            // 请求接口
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    _data =  {
+                        current: pageIndex,
+                        size: pageSize
+                    };
+                    if(bookStatus != ''){
+                        _data["status"] = bookStatus;
+                    }
+                    $.slAjax({
+                        url: root + 'crc/rest/book/page',
+                        type: 'get',
+                        data: _data,
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.data.records, res.data.total)
+                            }
+                            else{
+                                errorCallback();
+                            }
+                        }
+                    });
+                }, 300)
+            }
+
+            // 去创建
+            $('.toCreate').unbind('click').on('click', function (e) {
+                window.location.href = './books_create.html?accId=' + accId + '&communityId=' + communityId
+            })
+
+            // 取消捐赠
+            function orderCancel() {
+                $('.order_btn').unbind('click').on('click', function (e) {
+                    var id = $(this).data('id')
+                    e.stopPropagation()
+                    layer.confirm('您确定取消捐赠吗?', {
+                        btn: ['取消', '确定']
+                    }, function (i) {
+                        layer.close(i);
+                    }, function () {
+                        $.slAjax({
+                            url: root + 'crc/rest/book/' + id,
+                            type: "put",
+                            data: {},
+                            beforeSend: function () {
+                                layer.load(2);
+                            },
+                            success: function (res) {
+                                layer.closeAll();
+                                if (res.code == 0) {
+                                    layer.msg("已取消捐书", {
+                                        time: 2500
+                                    });
+                                    mescroll.triggerDownScroll();
+                                } else {
+                                    layer.msg(res.msg, {
+                                        time: 2500
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

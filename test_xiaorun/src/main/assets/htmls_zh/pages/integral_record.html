@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <title>兑换记录</title>
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/integral_record.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .mescroll-empty {
+            position: absolute;
+            left: 0;
+            top: 40%;
+            -webkit-transform: translateY(-66%);
+            -moz-transform: translateY(-66%);
+            -ms-transform: translateY(-66%);
+            -o-transform: translateY(-66%);
+            transform: translateY(-66%)
+        }
+
+        .mescroll-empty .empty-icon {
+            width: 100% !important;
+        }
+
+        .mescroll-empty .empty-tip {
+            font-size: .28rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">兑换记录</div>
+        </div>
+    </div>
+    <div class="order_status" id="statusTopBar">
+        <div class="order_status_item active" data-status="0">全部</div>
+        <div class="order_status_item" data-status="1">待完成</div>
+        <div class="order_status_item" data-status="2">已完成</div>
+        <div class="order_status_item" data-status="" style="visibility: hidden">占位</div>
+    </div>
+    <div class="mescroll" id="mescrollOrderRecent">
+        <div class="order_list" id="orderList"> </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/public.js"></script>
+    <script id="templateOrderList" type="text/html">
+        {{each content as value i}}
+        <div class="order_item">
+            <div class="order_item_top">
+                <div class="time">{{value.createTime}}</div>
+                <div class="tip">{{value.status ? "已完成" : "待完成"}}</div>
+            </div>
+            <div class="order_item_info">
+                <div class="order_item_info_basic">
+                    <div class="photo">
+                        <img src="{{value.productImage}}" onerror="this.parentNode.removeChild(this)">
+                    </div>
+                    <div class="info">
+                        <div class="info_name">{{value.productName}}</div>
+                        <div class="info_score">市场价：￥{{value.productPrice}}</div>
+                        <div class="info_other">
+                            <span class="info_other_tip1">{{value.point}}积分</span>
+                            <span class="info_other_tip2">共{{value.quantity}}件</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="order_item_do">
+               合计使用积分：<span>{{value.point * value.quantity}}</span>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId")
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId")
+            var recordStatus = '0'; // 记录状态
+
+            // 配置layer弹框
+            layer.config({
+                skin: 'layui-layer-awesome',
+                width: '80%',
+                title: false,
+                closeBtn: 0,
+                scrollbar: false
+            });
+
+            var mescroll = new MeScroll('mescrollOrderRecent', {
+                up: {
+                    clearEmptyId: 'orderList',
+                    callback: upCallback,
+                    page: {
+                        size: 20 // 默认10
+                    },
+                    empty: {
+                        icon: "../images/content_null.png",
+                        tip: "暂无记录"
+                    },
+                    toTop: {
+                        // src: "../images/toTop.png"
+                    }
+                }
+            });
+
+            // 切换状态标签
+            $('.order_status_item').unbind('click').bind('click', function () {
+                var i = $(this).data('status');
+                if (recordStatus !== i) {
+                    recordStatus = i;
+                    $(this).addClass('active').siblings().removeClass('active');
+                    mescroll.resetUpScroll();
+                }
+            });
+
+            // 上拉回调
+            function upCallback(page) {
+                getListDataFromNet(page.num, page.size, function (pageData, totalszie) {
+                    mescroll.endBySize(pageData.length, totalszie);
+                    setListData(pageData);
+                }, function () {
+                    mescroll.endErr();
+                })
+            }
+
+            // 塞数据
+            function setListData(pageData) {
+                var pageDataObj = {
+                    content: pageData
+                };
+                var liDom = template('templateOrderList', pageDataObj);
+                $('#orderList').append(liDom);
+            }
+
+            // 请求接口
+            function getListDataFromNet(pageIndex, pageSize, successCallback, errorCallback) {
+                setTimeout(function () {
+                    var _data = {};
+                    if(recordStatus != "0"){
+                        var status = recordStatus == "2";
+                        _data = {
+                            status: status,
+                            current: pageIndex,
+                            size: pageSize
+                        }
+                    }else{
+                        _data = {
+                            current: pageIndex,
+                            size: pageSize
+                        }
+                    }
+                    $.slAjax({
+                        url: root + 'bus/rest/bus/point/list',
+                        type: 'get',
+                        data: _data,
+                        success: function (res) {
+                            if(res.code == 0){
+                                successCallback(res.data.records, res.data.total)
+                            }else{
+                                errorCallback();
+                            }
+                        }
+                    });
+                }, 300)
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>

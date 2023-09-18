@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title id="title_name">投诉</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/complaint.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title" id="title_name_show">投诉</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_content">
+            <div class="tip">问题描述</div>
+            <div class="container_box_content_main">
+                <textarea placeholder="请具体描述问题..." id="comment_content"></textarea>
+            </div>
+        </div>
+        <div class="container_box_image">
+            <div class="tip">上传照片</div>
+            <div class="image_list">
+                <div id="upload_image">
+                    <img src="../images/upload.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_btn">
+            <div>提交</div>
+        </div>
+    </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script>
+        $(function () {
+            var orderId = getQueryString("orderId") !== null ? getQueryString("orderId") : getCookie("orderId");
+            // complaint(投诉) / refund(申请退款) / applyReturn(申请退货)
+            var type = getQueryString("type");
+            var pattern = new RegExp("[~'!@#$%^&*()-+_=:]");
+            var title = "投诉";
+            var requestUrl = '';
+            if(type == 'refund'){
+                title = "申请退款";
+                requestUrl = 'bus/rest/order/applyRefund';
+            }
+            else if(type == "applyReturn"){
+                title = "申请退货";
+                requestUrl = 'bus/rest/order/applyReturn';
+            }
+
+            $('#title_name').html(title);
+            $('#title_name_show').html(title);
+
+            // 上传图片
+            $('#upload_image').unbind('click').bind('click', function () {
+                var _count = $(this).siblings('.image_list_litem').length;
+                if (_count < 9) {
+                    callHandlerBridge('uploadPicMultiple', { maxCount: 9 - _count, uploadType: 'complain', orderSn: orderId }, function (imageData) {
+                        const picArr = JSON.parse(imageData);
+                        for (var value of picArr) {
+                            var imageItem = '<div class="image_list_litem"><div class="delete_img"><img src="../images/icon_close.png"></div><div class="main_img"><img src="' + value + '"></div></div>';
+                            $('.image_list').prepend(imageItem);
+                        }
+                        // 查看大图
+                        $('.main_img').unbind('click').bind('click', function () {
+                            var _i = $(this).parent().index();
+                            var _urlArr = [];
+                            $('.image_list_litem').each(function () {
+                                var _url = $(this).find('.main_img>img').attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+                        // 删除图片
+                        $('.delete_img').unbind('click').bind('click', function () {
+                            $(this).parents('.image_list_litem').fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                        });
+                    });
+                } else {
+                    layer.msg('不能超过九张图片!');
+                    return false;
+                }
+            });
+
+            // 提交
+            $('.container_box_btn div').on('click', function () {
+                var data = {};
+                data.id = orderId;
+
+                // 投诉内容
+                var content = $('#comment_content').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (content) {
+                    if (pattern.test(content)) {
+                        layer.msg('描述带有非法字符，请重新输入');
+                        return false;
+                    } else {
+                        data.remark = content;
+                    }
+                } else {
+                    layer.msg('请输入问题描述');
+                    return false;
+                }
+
+                // 投诉图片
+                var imageCount = $('.image_list').find('.image_list_litem').length;
+                if (imageCount > 0) {
+                    var imageString_ = [];
+                    $('.image_list_litem').each(function () {
+                        var _url = $(this).find('.main_img>img').attr('src');
+                        imageString_.push(_url);
+                    });
+                    data.photo = imageString_.join(',');
+                }
+
+                if(requestUrl){
+                    // 提交数据
+                    $.slAjax({
+                        url: root + requestUrl,
+                        contentType: "application/json",
+                        type: 'put',
+                        data: JSON.stringify(data),
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(title + '成功');
+                                callHandlerBridge('autoGoback', { 'refresh': true });
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                }else{
+                    var request = {};
+                    request.orderId = data.id;
+                    request.photo = data.photo;
+                    request.content = data.remark;
+                    request.memberId = accId;
+                    // 提交数据
+                    $.slAjax({
+                        url: root + "bus/rest/complain",
+                        contentType: "application/json",
+                        type: "post",
+                        data: JSON.stringify(request),
+                        success: function (res) {
+                            if (res.code == 0) {
+                                layer.msg(title + '成功');
+                                callHandlerBridge('autoGoback', { 'refresh': true });
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                }
+                
+            });
+            
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        });
+    </script>
+</body>
+
+</html>

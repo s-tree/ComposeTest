@@ -1,0 +1,589 @@
+@charset "utf-8";
+/**
+ * flex布局
+ * @param  {string} @flex-direction:column  主轴的方向
+ * row：主轴为水平方向，起点在左端。
+ * row-reverse：主轴为水平方向，起点在右端。
+ * column：主轴为垂直方向，起点在上沿。
+ * column-reverse：主轴为垂直方向，起点在下沿。
+ * @param  {string} @justify-content:center 在主轴上的对齐方式
+ * flex-start：左对齐
+ * flex-end：右对齐
+ * center： 居中
+ * space-between：两端对齐，项目之间的间隔都相等
+ * @param  {string} @align-items:center     在交叉轴上如何对齐。
+ * flex-start：交叉轴的起点对齐。
+ * flex-end：交叉轴的终点对齐。
+ * center：交叉轴的中点对齐。
+ * baseline: 项目的第一行文字的基线对齐。
+ * stretch：如果项目未设置高度或设为auto，将占满整个容器的高度。
+ *
+ */
+/**
+ * flex子元素
+ * @param  {boolen} @display 是否允许伸缩
+ */
+body,
+html {
+  width: 100%;
+  height: 100%;
+}
+.star {
+  height: 0.29rem;
+  padding: 0.02rem;
+}
+.star .star_box {
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  width: 1.33rem;
+  height: 0.28rem;
+  position: relative;
+  background: #d0dcee;
+}
+.star .star_box .gradient-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: #fda131;
+}
+.star .star_box img {
+  width: 100%;
+  height: 0.28rem;
+  z-index: 2;
+}
+.default-none {
+  width: 100%;
+}
+.default-none .no_img {
+  width: 100%;
+  margin: 0 auto;
+}
+.default-none .no_img img {
+  width: 100%;
+}
+.default-none .no_tip {
+  width: 100%;
+  font-size: 0.24rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  color: #323232;
+}
+.load-over,
+.loadMore {
+  width: 100%;
+  text-align: center;
+  color: #999999;
+  font-size: 0.24rem;
+  margin: 0.08rem 0;
+}
+.loading_w {
+  width: 0.6rem;
+  margin: 0 auto;
+}
+.loading_w img {
+  width: 100%;
+}
+body {
+  width: 100%;
+  height: 100%;
+}
+.container_box {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: linear-gradient(0deg, #F3F2F5 0%, #FFFFFF 75%);
+  position: relative;
+}
+.container_box_photo {
+  width: 100%;
+  height: 4.2rem;
+  background: linear-gradient(-90deg, #FDA94B 0%, #F79B34 100%);
+  overflow: hidden;
+}
+.container_box_photo img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_main {
+  width: 100%;
+  position: absolute;
+  top: 3.8rem;
+  left: 0;
+  border-top-left-radius: 0.2rem;
+  border-top-right-radius: 0.2rem;
+  overflow: hidden;
+}
+.container_box_main_statistical {
+  width: 100%;
+  padding: 0.4rem 0;
+  background: #ffffff;
+}
+.container_box_main_statistical_list {
+  width: 100%;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_main_statistical_list > div {
+  flex: 1;
+  text-align: center;
+}
+.container_box_main_statistical_list > div .count {
+  color: #FE5C38;
+  font-size: 0.42rem;
+}
+.container_box_main_statistical_list > div .tip {
+  color: #848484;
+  font-size: 0.22rem;
+  margin-top: 0.06rem;
+}
+.container_box_main_statistical_last {
+  width: 100%;
+  margin-top: 0.4rem;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -moz-justify-content: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  font-size: 0.24rem;
+  color: #323232;
+}
+.container_box_main_statistical_last .time {
+  height: 0.44rem;
+  line-height: 0.44rem;
+  background: rgba(254, 170, 68, 0.1);
+  border-radius: 0.06rem;
+  padding: 0 0.3rem;
+}
+.container_box_main_statistical_last .time span {
+  color: #FE5C38;
+}
+.container_box_main_statistical_score {
+  display: none;
+  width: 100%;
+  text-align: center;
+  font-size: 0.24rem;
+  margin-top: 0.4rem;
+  color: #848484;
+}
+.container_box_main_tab {
+  margin-top: 0.1rem;
+  width: 100%;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  padding: 0.4rem 0.35rem;
+}
+.container_box_main_tab > div {
+  color: #848484;
+  font-size: 0.28rem;
+  position: relative;
+  padding-bottom: 0.2rem;
+}
+.container_box_main_tab > div.active {
+  color: #323232;
+}
+.container_box_main_tab > div.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.28rem;
+  height: 0.08rem;
+  border-radius: 0.04rem;
+  background-color: #F79B34;
+}
+.container_box_main_tab > div:first-child {
+  margin-right: 0.6rem;
+}
+.container_box_main_content {
+  width: 100%;
+  padding: 0 0.35rem;
+}
+.container_box_main_content .playerBox {
+  width: 100%;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: start;
+  -moz-justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.container_box_main_content .playerBox .palyer_item {
+  width: 48%;
+  margin-right: 3%;
+  margin-bottom: 0.3rem;
+  border-radius: 0.1rem;
+  overflow: hidden;
+}
+.container_box_main_content .playerBox .palyer_item:nth-child(2n) {
+  margin-right: 0;
+}
+.container_box_main_content .playerBox .palyer_item_top {
+  width: 100%;
+  position: relative;
+}
+.container_box_main_content .playerBox .palyer_item_top_photo {
+  width: 100%;
+  height: 2rem;
+  border-top-left-radius: 0.1rem;
+  border-top-right-radius: 0.1rem;
+  overflow: hidden;
+  background-color: rgba(106, 196, 194, 0.1);
+}
+.container_box_main_content .playerBox .palyer_item_top_photo img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_main_content .playerBox .palyer_item_top_rank {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0.71rem;
+  height: 0.58rem;
+  line-height: 0.58rem;
+  text-align: center;
+  font-size: 0.24rem;
+  font-style: italic;
+  color: #ffffff;
+}
+.container_box_main_content .playerBox .palyer_item_top_rank img {
+  width: 100%;
+  height: 100%;
+}
+.container_box_main_content .playerBox .palyer_item_info {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 0.25rem 0.15rem 0.3rem;
+}
+.container_box_main_content .playerBox .palyer_item_info_main {
+  width: 100%;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.container_box_main_content .playerBox .palyer_item_info_main_name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #848484;
+  font-size: 0.26rem;
+}
+.container_box_main_content .playerBox .palyer_item_info_main_count {
+  color: #FE5C38;
+  font-size: 0.28rem;
+  flex-shrink: 0;
+}
+.container_box_main_content .playerBox .palyer_item_info_vote {
+  width: 1.8rem;
+  height: 0.58rem;
+  line-height: 0.58rem;
+  background: linear-gradient(-90deg, #FDA94B 0%, #F79B34 100%);
+  border-radius: 0.1rem;
+  color: #FFFFFF;
+  font-size: 0.28rem;
+  text-align: center;
+  margin: 0.3rem auto 0;
+}
+.container_box_main_content .playerBox .palyer_item_info_vote.voted {
+  background: linear-gradient(-90deg, rgba(253, 169, 75, 0.2) 0%, rgba(247, 155, 52, 0.2) 100%);
+  color: #F79B34;
+}
+.container_box_main_content .infoBox p {
+  color: #848484;
+  font-size: 0.26rem;
+}
+#palyer_layer .layerBox {
+  width: 100%;
+  padding: 0.3rem 0.3rem 0.5rem 0.3rem;
+}
+#palyer_layer .layerBox_photo {
+  width: 100%;
+  height: 3.8rem;
+  border-radius: 0.2rem;
+  overflow: hidden;
+  background-color: rgba(106, 196, 194, 0.1);
+}
+#palyer_layer .layerBox_photo img {
+  width: 100%;
+  height: 100%;
+}
+#palyer_layer .layerBox_info {
+  width: 100%;
+  margin-top: 0.3rem;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+#palyer_layer .layerBox_info > div {
+  flex: 1;
+  text-align: center;
+}
+#palyer_layer .layerBox_info > div .tip {
+  color: #848484;
+  font-size: 0.22rem;
+  margin-top: 0.06rem;
+}
+#palyer_layer .layerBox_info_count1 {
+  color: #323232;
+  font-size: 0.24rem;
+}
+#palyer_layer .layerBox_info_count1 span {
+  font-size: 0.42rem;
+  font-weight: bold;
+}
+#palyer_layer .layerBox_info_count2 {
+  color: #323232;
+  font-size: 0.42rem;
+  font-weight: bold;
+}
+#palyer_layer .layerBox_info_count3 {
+  color: #FE5C38;
+  font-size: 0.24rem;
+}
+#palyer_layer .layerBox_info_count3 span {
+  font-size: 0.42rem;
+  font-weight: bold;
+}
+#palyer_layer .layerBox_btn {
+  width: 3.8rem;
+  height: 0.88rem;
+  line-height: 0.88rem;
+  background: linear-gradient(-90deg, #FDA94B 0%, #F79B34 100%);
+  border-radius: 0.1rem;
+  font-size: 0.36rem;
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0.4rem auto;
+}
+#palyer_layer .layerBox_btn.voted {
+  background: linear-gradient(-90deg, rgba(253, 169, 75, 0.2) 0%, rgba(247, 155, 52, 0.2) 100%);
+  color: #F79B34;
+}
+#palyer_layer .layerBox_tip {
+  width: 100%;
+  font-size: 0.26rem;
+  color: #848484;
+  padding-top: 0.3rem;
+  border-top: 0.02rem solid #F1F1F1;
+}
+.page_header {
+  z-index: 2;
+  width: 100%;
+  height: 1.36rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding-left: 0.23rem;
+  padding-right: 0.23rem;
+  padding-top: 0.48rem;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.page_header_main {
+  width: 100%;
+  position: relative;
+}
+.page_header_main_back {
+  width: 0.48rem;
+  height: 0.48rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.page_header_main_back img {
+  width: 100%;
+  height: 100%;
+}
+.page_header_main_title {
+  width: 100%;
+  padding: 0 0.5rem;
+  font-size: 0.34rem;
+  color: #ffffff;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.page_header_main_btns {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: -webkit-box;
+  /* 老版本语法 : Safari, iOS, Android browser, older WebKit browsers. */
+  display: -moz-box;
+  /* 老版本语法 : Firefox (buggy) */
+  display: -ms-flexbox;
+  /* 混合版本语法: IE 10 */
+  display: -webkit-flex;
+  /* 新版本语法 : Chrome 21+ */
+  display: flex;
+  /* 新版本语法 : Opera 12.1, Firefox 22+ */
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: justify;
+  -moz-justify-content: space-between;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.page_header_main_btns > div {
+  width: 0.48rem;
+  height: 0.48rem;
+}
+.page_header_main_btns > div img {
+  width: 100%;
+  height: 100%;
+}

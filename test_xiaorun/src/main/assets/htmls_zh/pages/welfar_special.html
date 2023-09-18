@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>限时特惠</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/welfar_special.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">限时特惠</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_discount">
+            <div class="container_box_discount_main"></div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <!-- 限时特惠模板 -->
+    <script type="text/html" id="templateLimitSale">
+        {{each records as value i}}
+        <div class="discount_item" data-link="{{value.link}}">
+            <a href="javascript:void(0)">
+                <img src="{{value.photo}}" onerror="this.parentNode.removeChild(this)">
+            </a>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var isLoading = true;
+            var pageIndex = 1;
+
+            getLimitSaleList();
+
+            // 获取限时特惠列表
+            function getLimitSaleList() {
+                $.slAjax({
+                    url: root + 'operating/api/adleaf',
+                    type: 'get',
+                    data: {
+                        current: pageIndex,
+                        size: PAGESIZE,
+                        typeEnum: 'PROMOTION'
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.records.length > 0) {
+                                $('.container_box_discount_main').html(template("templateLimitSale", res.data));
+
+                                // 点击限时特惠 ...
+                                $('.discount_item').unbind('click').bind('click', function () {
+                                    var linkUrl = $(this).data('link');
+                                    callHandlerBridge('adLink', { 'link': linkUrl });
+                                });
+
+                                if (res.data.records.length == res.data.total) {
+                                    $(".container_box_discount_main").append('<div class="load-over">没有更多...</div>');
+                                } else {
+                                    $('.container_box').scroll(function () {
+                                        var scrollTop = $(this).scrollTop();  // 滚动高度
+                                        var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                        var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                        if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                            isLoading = false;
+                                            pageIndex++;
+                                            $.slAjax({
+                                                url: root + 'operating/api/adleaf',
+                                                type: 'get',
+                                                data: {
+                                                    current: pageIndex,
+                                                    size: PAGESIZE,
+                                                    styleTypeEnum: 'PROMOTION'
+                                                },
+                                                beforeSend: function () {
+                                                    $(".container_box_discount_main").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                                },
+                                                success: function (data) {
+                                                    $(".container_box_discount_main .loading_w").remove();
+                                                    if (res.code == 0) {
+                                                        if (res.data && res.data.records && res.data.records.length > 0) {
+                                                            $('.container_box_discount_main').append(template("templateLimitSale", data.data));
+                                                            isLoading = true;
+
+                                                            // 点击限时特惠 ...
+                                                            $('.discount_item').unbind('click').bind('click', function () {
+                                                                var linkUrl = $(this).data('link');
+                                                                callHandlerBridge('adLink', { 'link': linkUrl });
+                                                            });
+
+                                                        } else {
+                                                            $(".container_box_discount_main").append('<div class="load-over">没有更多...</div>');
+                                                        }
+                                                    } else {
+                                                        layer.msg(data.msg);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            } else {
+                                $(".container_box_discount_main").html("<div class='default-none'><div class='no_tip'>暂无限时特惠</div></div>");
+                            }
+                        }
+                    }
+                });
+            }
+        })
+    </script>
+</body>
+
+</html>

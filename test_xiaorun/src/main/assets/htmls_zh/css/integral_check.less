@@ -1,0 +1,252 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    width          : 100%;
+    height         : 100%;
+    background     : #F5F5F7;
+    background-size: 100% 100%;
+}
+
+.container_box {
+    width : 100%;
+    height: 100%;
+
+    &_main {
+        position: fixed;
+        top     : 1.5rem;
+        left    : 0;
+        bottom  : 0;
+        width   : 100%;
+        height  : auto;
+        overflow: auto;
+        padding : 0 .35rem 1.5rem .35rem;
+    }
+
+    &_address {
+        width        : 100%;
+        background   : #FFFFFF;
+        border-radius: .2rem;
+        padding      : .4rem .3rem;
+        .flex(row, space-between, center);
+
+        &_left {
+            flex : 1;
+            width: 0;
+
+            .receive_address {
+                width        : 100%;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+                font-size    : .34rem;
+                font-weight  : bold;
+                color        : #323232;
+            }
+
+            .receive_name {
+                margin-top: .1rem;
+                font-size : .26rem;
+                color     : #818791;
+            }
+        }
+
+        &_right {
+            flex-shrink: 0;
+            width      : .4rem;
+            height     : .4rem;
+            margin-left: .2rem;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+    }
+
+    &_goods {
+        width        : 100%;
+        background   : #FFFFFF;
+        border-radius: .2rem;
+        padding      : .4rem .3rem;
+        margin       : .2rem 0;
+        .flex(row, space-between, center);
+
+        .goods_photo {
+            width        : 1.4rem;
+            height       : 1.6rem;
+            border-radius: .1rem;
+            overflow     : hidden;
+            margin-right : .2rem;
+            flex-shrink  : 0;
+
+            img {
+                width     : 100%;
+                height    : 100%;
+                object-fit: cover;
+            }
+        }
+
+        .goods_info {
+            flex : 1;
+            width: 0;
+
+            &>div {
+                width: 100%;
+            }
+
+            &_name {
+                font-size    : .28rem;
+                font-weight  : 500;
+                color        : #323232;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+            }
+
+            &_other {
+                font-size: .24rem;
+                color    : #848484;
+                margin   : .06rem 0 .1rem;
+            }
+
+            &_order {
+                .flex(row, space-between, center);
+
+                .price {
+                    flex     : 1;
+                    font-size: .24rem;
+                    color    : #FE4601;
+
+                    span {
+                        font-size  : .3rem;
+                        font-weight: 500;
+                    }
+                }
+
+                .count {
+                    .flex(row, space-between, center);
+
+                    &>div:first-child,
+                    &>div:last-child {
+                        width : .48rem;
+                        height: .48rem;
+
+                        img {
+                            width : 100%;
+                            height: 100%;
+                        }
+                    }
+
+                    .tip {
+                        width     : .8rem;
+                        text-align: center;
+                        color     : #848484;
+                        font-size : .3rem;
+                    }
+                }
+            }
+        }
+
+    }
+
+    &_footer {
+        position        : fixed;
+        left            : 0;
+        bottom          : 0;
+        width           : 100%;
+        height          : 1.1rem;
+        background-color: #FFFFFF;
+        padding         : 0 .35rem;
+        .flex(row, space-between, center);
+
+        .totalScore {
+            font-size: .24rem;
+            color    : #848484;
+        }
+
+        .useScore {
+            color      : #523318;
+            font-size  : .3rem;
+            font-weight: 500;
+        }
+
+        .scoreBtn {
+            width        : 2.2rem;
+            height       : .78rem;
+            line-height  : .78rem;
+            border-radius: .39rem;
+            text-align   : center;
+            color        : #FFFFFF;
+            font-size    : .3rem;
+        }
+
+        .payBtn {
+            display   : none;
+            background: #F79C36;
+        }
+
+        .nullBtn {
+            background: #dddddd;
+        }
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    background   : #FFFFFF;
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+
+}

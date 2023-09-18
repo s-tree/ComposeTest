@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>预约</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/scene_check.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">预约</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_main_address">
+                <div class="container_box_main_address_left">
+                    <div class="address">预约人地址</div>
+                    <div class="member">预约人姓名、电话</div>
+                </div>
+            </div>
+            <div class="container_box_main_other">
+                <div class="container_box_main_other_startTime">
+                    <div class="tip">预约开始时间</div>
+                    <div class="content">
+                        <input type="text" id="startTime" placeholder="请选择" readonly>
+                    </div>
+                </div>
+                <div class="container_box_main_other_endTime">
+                    <div class="tip">预约结束时间</div>
+                    <div class="content">
+                        <input type="text" id="endTime" placeholder="请选择" readonly>
+                    </div>
+                </div>
+                <div class="container_box_main_other_count">
+                    <div class="tip">人数</div>
+                    <div class="content">
+                        <input type="text" id="memberCount" placeholder="请输入"
+                            oninput="value=value.replace(/[^\d]/g,'').replace(/^0{1,}/g,'')"
+                            onkeyup="value=value.replace(/[^\d]/g,'').replace(/^0{1,}/g,'')">
+                    </div>
+                </div>
+                <div class="container_box_main_other_photo">
+                    <div class="tip">上传人脸照片</div>
+                    <div class="image_list">
+                        <div id="upload_image">
+                            <img src="../images/upload.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_box_btn">提交预约</div>
+        </div>
+    </div>
+    <div id="check_layer" style="display: none;">
+        <div class="layerBox">
+            <div class="layerBox_icon">
+                <img src="../images/success.png">
+            </div>
+            <p class="layerBox_tip1">预约成功</p>
+            <p class="layerBox_tip2">请保持电话畅通，预约期间我们可能会与您联系。</p>
+            <div class="layerBox_btn">
+                <div class="layerBox_btn_no">关闭</div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../plugins/rolldate/rolldate.min.js"></script>
+</body>
+
+<script>
+    $(function () {
+        var name = getQueryString("name") !== null ? getQueryString("name") : getCookie("name");
+        var equipNos = getQueryString("equipNos") !== null ? getQueryString("equipNos") : getCookie("equipNos");
+        var equipNosArr = []
+
+        if (name) {
+            $('.page_header_main_title').text(name + '预约');
+        } else {
+            $('.page_header_main_title').text('预约');
+        }
+
+        if (equipNos) {
+            equipNosArr = equipNos.split('-')
+        } else {
+            equipNosArr = []
+        }
+
+        var userInfo = {};
+        var imgData = '';
+
+        new Rolldate({
+            el: '#startTime',
+            format: 'YYYY-MM-DD',
+            beginYear: 2021,
+            endYear: 2100
+        })
+
+        new Rolldate({
+            el: '#endTime',
+            format: 'YYYY-MM-DD',
+            beginYear: 2021,
+            endYear: 2100
+        })
+
+        // 获取客户端个人信息
+        registerHandlerBridge('pageFinished', function (response) {
+            callHandlerBridge('getUserInfo', {}, function (response) {
+                if (response === '' || response === null) {
+                    layer.msg('无法获取个人信息')
+                } else {
+                    userInfo = JSON.parse(response);
+                    $('.address').text(userInfo.currentFamilyNo);
+                    $('.member').text(userInfo.nickName + ' ' + userInfo.mobile);
+                }
+            });
+        })
+
+        // 上传图片
+        $('#upload_image').unbind('click').bind('click', function () {
+            var that = $(this)
+            callHandlerBridge('getFace', {}, function (response) {
+                if (response) {
+                    imgData = response;
+                    // 预览
+                    var imageItem = '<div class="image_list_litem"><div class="delete_img"><img src="../images/icon_close.png"></div><div class="main_img"><img src="data:image/jpg;base64,' + response + '"></div></div>';
+                    $('.image_list').append(imageItem);
+                    that.hide();
+                    // 删除
+                    $('.delete_img').unbind('click').bind('click', function () {
+                        $(this).parents('.image_list_litem').fadeOut(300, function () {
+                            $(this).remove();
+                            that.show();
+                        });
+                    });
+                } else {
+                    layer.msg('人脸信息获取失败')
+                }
+            });
+        })
+
+        // 提交预约
+        $(".container_box_btn").unbind('click').bind('click', function () {
+            var request = {}
+            request.system = 'web' // web、android、socket、websocket
+            request.systemVersion = 'v10.0'  // 系统版本号
+            request.data = {};
+
+            // 设备列表
+            if (equipNosArr.length > 0) {
+                request.data.equipNos = equipNosArr;
+            } else {
+                layer.msg('无可用设备');
+                return false;
+            }
+
+            // 预约人信息
+            if (userInfo.nickName) {
+                request.data.userName = userInfo.nickName;
+            } else {
+                layer.msg('预约人姓名获取失败');
+                return false;
+            }
+            if (userInfo.mobile) {
+                request.data.userId = userInfo.mobile;
+            } else {
+                layer.msg('预约人联系方式获取失败');
+                return false;
+            }
+
+            // 开始时间
+            var startTime = $('#startTime').val();
+            if (startTime) {
+                request.data.startTime = startTime.split('-').join('') + '000000';
+            } else {
+                layer.msg('请选择预约开始时间');
+                return false;
+            }
+
+            // 结束时间
+            var endTime = $('#endTime').val();
+            if (endTime) {
+                request.data.endTime = endTime.split('-').join('') + '000000';
+            } else {
+                layer.msg('请选择预约结束时间');
+                return false;
+            }
+
+            // 人数
+            var memberCount = $('#memberCount').val();
+            if (!memberCount) {
+                layer.msg('请填写人数');
+                return false;
+            }
+
+            // 人脸图片
+            if (imgData) {
+                request.data.facePhoto = imgData
+            } else {
+                layer.msg('请上传人脸照片');
+                return false;
+            }
+
+            console.log(request)
+
+            $.ajax({
+                type: "post",
+                url: 'http://112.74.112.76:9000/api/doorcontrol/subscribe/add',
+                contentType: "application/json",
+                data: JSON.stringify(request),
+                success: function (res) {
+                    if (res.code == '200') {
+                        layer.open({
+                            type: 1,
+                            title: false,
+                            closeBtn: 0,
+                            scrollbar: false,
+                            area: ['90%', '6rem'],
+                            content: $("#check_layer")
+                        });
+                        $("#check_layer .layerBox_btn_no").unbind("click").bind('click', function () {
+                            layer.closeAll();
+                        })
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            })
+
+        })
+
+    })
+</script>
+</body>
+
+</html>

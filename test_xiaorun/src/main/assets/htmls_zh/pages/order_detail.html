@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>订单详情</title>
+    <link rel="stylesheet" href="../plugins/switch/switch.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/mescroll.min.css">
+    <link rel="stylesheet" href="../css/order_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">订单详情</div>
+        </div>
+    </div>
+    <div class="mescroll adjustHeightDetail" id="mescrollOrderDetails">
+        <div class="container"></div>
+    </div>
+    <div class="alertbox" style="display: none;">
+        <p style="font-size: 0.24rem; color: #f73b39;margin-bottom: 0.2rem;">请跟商家确认服务总额</p>
+        <p>
+            <span style="color: #999999;font-size: 0.3rem;margin-right: 0.2rem;">服务总额</span>
+            <input type="text" maxlength="10" class="changepricenum" onkeyup="clearNoNum(this)"
+                oninput="clearNoNum(this)">
+            <span style="color: #999999;font-size: 0.3rem;margin-left: 0.2rem;">元</span>
+        </p>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/mescroll.min.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../plugins/switch/switch.js"></script>
+    <script src="../js/order.js"></script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var orderId = getQueryString("orderId") !== null ? getQueryString("orderId") : getCookie("orderId");
+            var orderType = getQueryString("orderType") !== null ? getQueryString("orderType") : getCookie("orderType");
+
+            var familyMemberPoint; // 家庭积分
+            var reachPoint; // 积分规则 - 满
+            var discountPoint; // 积分规则 - 减
+            var orderTotalPrice = 0;  // 订单总价
+            var score = 0; // 实际使用的积分
+
+            var mescroll = new MeScroll('mescrollOrderDetails', {
+                down: {
+                    auto: true,
+                    callback: downCallback
+                }
+            });
+
+            function downCallback() {
+                getListDataFromNet(function (pageData) {
+                    mescroll.endSuccess();
+                    //订单状态为待收货时，物流状态不为取消退货，则使用物流状态
+                    if(pageData.busOrder 
+                        && pageData.busOrder.status == "SHIPPED" 
+                        && pageData.busOrder.goodsState
+                        && pageData.busOrder.goodsState != "CANCEL_RETURN"){
+                        pageData.busOrder.status = pageData.busOrder.goodsState;
+                    }
+                    setListData(pageData);
+                    orderOperation(mescroll);
+                }, function () {
+                    mescroll.endErr();
+                });
+            }
+
+            function setListData(pageData) {
+                pageData.busOrder.complainStatus = pageData.busComplain ? pageData.busComplain.status : ''
+                var liDom = template('templateOrderDetails', pageData);
+                $('.container').empty().append(liDom);
+                orderTotalPrice = pageData.price;
+
+                var el = document.querySelector('.checkbox-switch');
+                var mySwitch = new Switch(el, {
+                    size: 'small',
+                    onSwitchColor: '#38CC98'
+                })
+
+            }
+
+            function getListDataFromNet(successCallback, errorCallback) {
+                $.slAjax({
+                    url: root + 'bus/rest/order/queryOrderInfo/' + orderId,
+                    type: "get",
+                    data: {} ,
+                    success: function (res) {
+                        if(res.code == 0){
+                            successCallback(res.data);
+                        }else{
+                            errorCallback();
+                        }
+                    }
+                });
+
+            }
+
+        })
+        function clearNoNum(obj) {
+            obj.value = obj.value.replace(/[^\d.]/g, ""); //清除“数字”和“.”以外的字符
+            obj.value = obj.value.replace(/\.{2,}/g, "."); //只保留第一个. 清除多余的
+            obj.value = obj.value.replace(".", "$#$").replace(/\./g, "").replace("$#$", ".");
+            obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3'); //只能输入两个小数
+            if (obj.value.indexOf(".") < 0 && obj.value != "") { //以上已经过滤，此处控制的是如果没有小数点，首位不能为类似于 01、02的金额
+                obj.value = parseFloat(obj.value);
+            }
+            if (obj.value.indexOf(".") == 0) {
+                obj.value = 0 + obj.value;
+            }
+        }
+    </script>
+    <script type="text/html" id="templateOrderDetails">
+        {{if busOrder.type == 'GOODS'}}
+            <div class="container_tip">
+                <p class="order_status">{{businessOrderStatus(busOrder.status,busComplain ? busComplain.status : "")}}</p>
+                {{if busOrder.status == "REFUSAL_REFUND" || busOrder.status == "REFUSAL_RETURN"}}
+                <p class="order_tip">拒绝理由：{{busOrder.rejectReason}} </p>
+                {{else if busOrder.busComplain}}
+                <p class="order_tip">投诉理由：{{busOrder.busComplain.remark}} </p>
+                {{else}}
+                <p class="order_tip">{{businessOrderTip(busOrder.status)}} </p>
+                {{/if}}
+            </div>
+            <div class="container_shop">
+                <div class="container_shop_item">
+                    <div class="shop_info">
+                        <div class="shop_info_name">{{busStore.name}}</div>
+                        <div class="shop_info_star">
+                            <div class="star">
+                                <div class="star_box">
+                                    <span class="gradient-box" style="width: {{busStore.score * 20}}%;"></span>
+                                    <img src="../images/star_five.png">
+                                </div>
+                            </div>
+                            <div class="shop_info_star_count"><span>{{busStore.score}}</span>分</div>
+                        </div>
+                    </div>
+                    <div class="goods_info">
+                        {{each orderDetailList as value i}}
+                        <div class="goods_info_item">
+                            <div class="goods_info_item_image">
+                                <img src="{{value.image}}">
+                            </div>
+                            <div class="goods_info_item_detail">
+                                <div class="name">{{value.name}}</div>
+                                <div class="orders">月售{{value.sales}} 好评率{{value.score}}%</div>
+                            </div>
+                            <div class="goods_info_item_count">
+                                <div class="price">￥<span>{{value.price}}</span></div>
+                                <div class="count">共<span>{{value.quantity}}</span>件</div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                    <div class="vip_info">
+                        {{if busOrder.vipDiscount}}
+                        <div>
+                            <div class="tip">会员折扣</div>
+                            <div class="discount"><span>{{busOrder.vipDiscount / 10}}</span>折</div>
+                        </div>
+                        {{/if}}
+                        {{if busOrder.couponsId}}
+                        <div>
+                            <div class="tip">优惠券</div>
+                            <div class="coupons">
+                                <div class="coupons_count">-￥<span>{{busOrder.couponsPrice}}</span></div>
+                            </div>
+                        </div>
+                        {{/if}}
+                        {{if busOrder.scorePrice}}
+                        <div>
+                            <div class="tip">家庭积分</div>
+                            <div class="home_score">
+                                <div class="home_score_count">-￥<span>{{busOrder.scorePrice}}</span></div>
+                            </div>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="total_info">
+                        {{if busOrder.amount != busOrder.originalPrice}}
+                        <div class="total_info_discount">已优惠<span>￥{{(busOrder.originalPrice - busOrder.amount).toFixed(2)}}</span></div>
+                        {{/if}}
+                        <div class="total_info_price">小计：<span>￥{{busOrder.amount}}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_address">
+                <div>联系地址</div>
+                <div>
+                    <div>
+                        <div class="tip">配送地址</div>
+                        <div class="content">{{busOrder.address}}</div>
+                    </div>
+                    <div>
+                        <div class="tip"></div>
+                        <div class="content">{{busOrder.name}} {{busOrder.mobile}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_order">
+                <div>订单信息</div>
+                <div>
+                    <div>
+                        <div class="tip">订单号码</div>
+                        <div class="content">{{busOrder.orderSn}}</div>
+                    </div>
+                    <div>
+                        <div class="tip">下单时间</div>
+                        <div class="content">{{busOrder.createTime}}</div>
+                    </div>
+                    {{if payChannel}}
+                    <div>
+                        <div class="tip">支付方式</div>
+                        <div class="content">{{orderPayType(payChannel)}}</div>
+                    </div>
+                    {{/if}}
+                    <div>
+                        <div class="tip">订单备注</div>
+                        <div class="content">{{busOrder.remark}}</div>
+                    </div>
+                </div>
+            </div>
+            {{if busOrder.status == 'SHIPPED' || busOrder.status == 'RECEIVE' || busOrder.status == 'TRADE_FINISHED' || busOrder.status == 'EVALUATE'}}
+            <div class="container_delivery">
+                <div>配送方式</div>
+                <div>
+                    <div>
+                        <div class="tip">物流途径</div>
+                        <div class="content">{{busOrder.expressName == null ? "商家配送" : busOrder.expressName}}</div>
+                    </div>
+                    {{if busOrder.expressName}}
+                    <div>
+                        <div class="tip">物流单号</div>
+                        <div class="content">{{busOrder.expressSn}}</div>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
+
+            <div class="container_footer order_item"  
+                data-familyinfoid="{{busOrder.familyId}}" 
+                data-ordersn="{{busOrder.orderSn}}"
+                data-ordertype="{{busOrder.type}}" 
+                data-accid="{{busOrder.memberId}}" 
+                data-price="{{busOrder.amount}}"
+                data-orderid="{{busOrder.id}}"
+                data-complainid="{{busComplain ? busComplain.id : ''}}">
+                {{include 'templateBusinessOrderBtn' busOrder}}
+            </div>
+        {{/if}}
+        {{if busOrder.type == 'SERVICE'}}
+            <div class="container_tip">
+                <p class="order_status">{{businessOrderStatus(busOrder.status,busComplain ? busComplain.status : "")}}</p>
+                <p class="order_tip">{{serviceOrderTip(status)}} </p>
+            </div>
+            <div class="container_shop">
+                <div class="container_shop_item">
+                    <div class="shop_info">
+                        <div class="shop_info_name">{{busStore.name}}</div>
+                        <div class="shop_info_star">
+                            <div class="star">
+                                <div class="star_box">
+                                    <span class="gradient-box" style="width: {{busStore.score * 20}}%;"></span>
+                                    <img src="../images/star_five.png">
+                                </div>
+                            </div>
+                            <div class="shop_info_star_count"><span>{{busStore.score}}</span>分</div>
+                        </div>
+                    </div>
+                    <div class="goods_info">
+                        {{each orderDetailList as value i}}
+                        <div class="goods_info_item">
+                            <div class="goods_info_item_image">
+                                <img src="{{value.image}}">
+                            </div>
+                            <div class="goods_info_item_detail">
+                                <div class="name">{{value.name}}</div>
+                                <div class="orders">月售{{value.sales}} 好评率{{value.score}}%</div>
+                            </div>
+                            <div class="goods_info_item_count">
+                                <div class="price">￥<span>{{value.price}}</span></div>
+                                <div class="count">共<span>{{value.quantity}}</span>件</div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                    <div class="vip_info">
+                        {{if scorePrice}}
+                        <div>
+                            <div class="tip">家庭积分</div>
+                            <div class="home_score">
+                                <div class="home_score_count">-￥<span>{{scorePrice}}</span></div>
+                            </div>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="total_info">
+                        <div class="total_info_price">小计：<span>￥{{busOrder.amount}}</span></div>
+                    </div>
+                </div>
+            </div>
+            {{if busOrder.status == "homestatus1"}}
+            <div class="container_score">
+                <div class="container_score_info">
+                    <div class="tip">家庭积分 <span>共<i>-</i>积分</span></div>
+                    <div class="content">每满<span class="limitScore">-</span>积分，可抵扣<span class="limitPrice">-</span>元</div>
+                </div>
+                <div class="container_score_do">
+                    <div class="ischoose">
+                        <input id="scoreSwitch" type="checkbox" class="checkbox-switch switch-success" />
+                    </div>
+                    <div class="detail">已抵扣<span>￥0</span></div>
+                </div>
+            </div>
+            {{/if}}
+            <div class="container_address">
+                <div>联系地址</div>
+                <div>
+                    <div>
+                        <div class="tip">配送地址</div>
+                        <div class="content">{{busOrder.address}}</div>
+                    </div>
+                    <div>
+                        <div class="tip"></div>
+                        <div class="content">{{busOrder.name}} {{busOrder.mobile}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_order">
+                <div>订单信息</div>
+                <div>
+                    <div>
+                        <div class="tip">订单号码</div>
+                        <div class="content">{{busOrder.orderSn}}</div>
+                    </div>
+                    <div>
+                        <div class="tip">下单时间</div>
+                        <div class="content">{{busOrder.createTime}}</div>
+                    </div>
+                    {{if payChannel}}
+                    <div>
+                        <div class="tip">支付方式</div>
+                        <div class="content">{{orderPayType(payChannel)}}</div>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            <div class="container_footer order_item"  
+                data-familyinfoid="{{busOrder.familyInfoId}}" 
+                data-ordersn="{{busOrder.orderSn}}"
+                data-ordertype="{{busOrder.type}}" 
+                data-accid="{{familyMemberAccId}}" 
+                data-price="{{busOrder.price}}"
+                data-orderid="{{busOrder.id}}"
+                data-complainid="{{busComplain ? busComplain.id : ''}}">
+                
+                {{include 'templateHomeServiceOnlineOrderBtn' busOrder}}
+            </div>
+        {{/if}}
+        {{if busOrder.type == 'GROUPON'}}
+            <div class="container_tip">
+                <p class="order_status">{{businessOrderStatus(busOrder.status,busComplain ? busComplain.status : "")}}</p>
+                <p class="order_tip">{{businessOrderTip(busOrder.status)}} </p>
+            </div>
+            <div class="container_shop">
+                <div class="container_shop_item">
+                    <div class="shop_info">
+                        <div class="shop_info_name">社区团购</div>
+                    </div>
+                    <div class="goods_info">
+                        <div class="goods_info_item">
+                            <div class="goods_info_item_image">
+                                <img src="{{orderDetailList[0].image.split(',')[0]}}">
+                            </div>
+                            <div class="goods_info_item_detail">
+                                <div class="name">{{orderDetailList[0].name}}</div>
+                            </div>
+                            <div class="goods_info_item_count">
+                                <div class="price">￥<span>{{busOrder.amount}}</span></div>
+                                <div class="count">共1件</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="total_info">
+                        <div class="total_info_price">小计：<span>￥{{busOrder.amount}}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_address">
+                <div>联系地址</div>
+                <div>
+                    <div>
+                        <div class="tip">配送地址</div>
+                        <div class="content">{{busOrder.address}}</div>
+                    </div>
+                    <div>
+                        <div class="tip"></div>
+                        <div class="content">{{busOrder.name}} {{busOrder.mobile}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="container_order">
+                <div>订单信息</div>
+                <div>
+                    <div>
+                        <div class="tip">订单号码</div>
+                        <div class="content">{{busOrder.orderSn}}</div>
+                    </div>
+                    <div>
+                        <div class="tip">下单时间</div>
+                        <div class="content">{{busOrder.createTime}}</div>
+                    </div>
+                    {{if busOrder.payChannel}}
+                    <div>
+                        <div class="tip">支付方式</div>
+                        <div class="content">{{orderPayType(busOrder.payChannel)}}</div>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{if busOrder.status == 'SHIPPED' || busOrder.status == 'RECEIVE' || busOrder.status == 'TRADE_FINISHED' || busOrder.status == 'EVALUATE'}}
+            <div class="container_delivery">
+                <div>配送方式</div>
+                <div>
+                    <div>
+                        <div class="tip">物流途径</div>
+                        <div class="content">{{busOrder.expressName == null ? "商家配送" : busOrder.expressName}}</div>
+                    </div>
+                    {{if busOrder.expressName}}
+                    <div>
+                        <div class="tip">物流单号</div>
+                        <div class="content">{{busOrder.expressSn}}</div>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
+            <div class="container_footer order_item" 
+                data-ordersn="{{busOrder.orderSn}}" 
+                data-price="{{busOrder.amount}}"
+                data-ordertype="{{busOrder.type}}" 
+                data-orderid="{{busOrder.id}}"
+                data-familyinfoid="{{busOrder.familyId}}"
+                data-complainid="{{busComplain ? busComplain.id : ''}}">
+                {{include 'templateGrouponOrderBtn' busOrder}}
+            </div>
+        {{/if}}
+    </script>
+    <!-- 商务订单操作按钮 -->
+    <script id="templateBusinessOrderBtn" type="text/html">
+        {{if complainStatus == 'WAIT' || complainStatus == "ALREADY"}}
+        <div class="order_operation_group">
+            <div class="order_btn order_uncomplain">撤销投诉</div>
+        </div>
+        {{else if status == 'WAIT_BUYER_PAY'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_cancel">取消订单</div>
+            <div class="order_btn business_pay ml btn_red">立即付款</div>
+        </div>
+        {{else if status == 'PAY_ERROR'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_cancel">取消订单</div>
+            <div class="order_btn business_pay ml btn_red">立即付款</div>
+        </div>
+        {{else if status == 'TRADE_SUCCESS'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_cancel">取消订单</div>
+        </div>
+        {{else if status == 'WAIT_DELIVER'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_cancel">取消订单</div>
+        </div>
+        {{else if status == 'SHIPPED'}}
+        <div class="order_operation_group">
+            <div class="order_btn business_return">申请退货</div> 
+            <div class="order_btn order_receipt ml">确认收货</div>
+        </div>
+        {{else if status == 'RECEIVE'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_evaluate ml">立即评价</div>
+        </div>
+        {{else if status == 'REFUND'}}
+        <div class="order_operation_group">
+            <div class="order_btn business_uncancel_pay">撤销申请</div>
+        </div>
+        {{else if status == 'REFUSAL_REFUND'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_complain">投诉</div>
+            <div class="order_btn business_uncancel_pay ml">撤销申请</div>
+        </div>
+        {{else if status == 'APPLY_RETURN'}}
+        <div class="order_operation_group">
+            <div class="order_btn business_unreturn">撤销申请</div>
+            <div class="order_btn order_receipt ml">确认收货</div>
+        </div>
+        {{else if status == 'REFUSAL_RETURN'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_complain">投诉</div>
+            <div class="order_btn business_unreturn ml">撤销申请</div>
+        </div>
+        {{/if}}
+    </script>
+    <!-- 服务订单操作按钮 -->
+    <script id="templateHomeServiceOnlineOrderBtn" type="text/html">
+        {{if complainStatus == 'WAIT' || complainStatus == "ALREADY"}}
+        <div class="order_operation_group">
+            <div class="order_btn order_uncomplain">撤销投诉</div>
+        </div>
+        {{else if status == 'TRADE_SUCCESS'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_cancel">取消预约</div>
+        </div>
+        {{else if status == 'WAIT_BUYER_PAY'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_complain">投诉</div>
+            <div class="order_btn home_changeprice ml">修改价格</div>
+            <div class="order_btn home_pay ml btn_red" data-fromorderlist=true data-lastprice="{{amount}}">立即付款</div>
+        </div>
+        {{else if status == 'RECEIVE'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_evaluate">评价</div>
+        </div>
+        {{/if}}
+    </script>
+    <!-- 团购订单操作按钮 -->
+    <script id="templateGrouponOrderBtn" type="text/html">
+        {{if status == 'WAIT_BUYER_PAY'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_cancel">取消订单</div>
+            <div class="order_btn groupon_pay ml btn_red">立即付款</div>
+        </div>
+        {{else if status == 'SHIPPED'}}
+        <div class="order_operation_group">
+            <div class="order_btn order_receipt">确认收货</div>
+        </div>
+        {{/if}}
+    </script>
+</body>
+
+</html>

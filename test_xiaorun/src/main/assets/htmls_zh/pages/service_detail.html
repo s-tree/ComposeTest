@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>服务详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/service_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title">服务详情</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="service_header adjustHeight">
+            <div class="service_image">
+                <img src="../images/bg3.png" onerror="this.src='../images/bg3.png'">
+            </div>
+            <div class="shop_list">
+                <div class="shop_list_item">
+                    <div class="shop_list_item_basic">
+                        <div class="shop_list_item_basic_left">
+                            <p class="shop_list_item_basic_left_name">-</p>
+                            <div class="shop_list_item_basic_left_star">
+                                <div class="star">
+                                    <div class="star_box">
+                                        <span class="gradient-box" style="width: 20%;"></span>
+                                        <img src="../images/star_five.png">
+                                    </div>
+                                </div>
+                                <span class="score_index"><i>-</i>分</span>
+                                <span class="count">月接单<i>-</i></span>
+                            </div>
+                        </div>
+                        <div class="shop_list_item_basic_image"></div>
+                    </div>
+                    <div class="shop_list_item_other">
+                        <p>营业时间：<span>-</span></p>
+                        <p>地址：<span>-</span></p>
+                    </div>
+                    <div class="shop_list_item_choose">
+                        <div class="shop_list_item_choose_tip">选择这家</div>
+                        <div class="shop_list_item_choose_icon">
+                            <img src="../images/choosed.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul class="tab_bar">
+                <li class="active" data-tabindex="1">服务详情</li>
+                <li data-tabindex="2">评价</li>
+            </ul>
+        </div>
+        <div class="service_box">
+            <div class="service_box_detail"></div>
+            <div class="service_box_comment" style="height: 0px;overflow: hidden;">
+                <ul id="dataList" class="service_box_comment_list"></ul>
+            </div>
+        </div>
+        <div class="service_footer">
+            <div class="service_footer_phone">
+                <a href="javascript:void(0)" style="display: block;width: 100%;height: 100%;">
+                    <div class="footer_icon">
+                        <img src="../images/phone.png">
+                    </div>
+                    <div class="tip">电话咨询</div>
+                </a>
+            </div>
+            <div class="service_footer_price">
+                <div class="aboutPrice">￥<span></span></div>
+                <div class="tip">参考价格</div>
+            </div>
+            <div class="service_footer_btn">立即预约</div>
+        </div>
+    </div>
+
+    <div class="mask_view"></div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templatePics">
+        {{if data.info}}
+        {{each data.info.split(',') as value i}}
+         <img src="{{value}}">
+         {{/each}}
+        {{/if}}
+    </script>
+    <script type="text/html" id="templateSeiviceShops">
+        {{each records as value i}}
+        <div class="shop_list_item" data-shopmanageid="{{value.id}}" >
+            <div class="shop_list_item_basic">
+                <div class="shop_list_item_basic_left">
+                    <p class="shop_list_item_basic_left_name">{{value.name}}</p>
+                    <div class="shop_list_item_basic_left_star">
+                        <div class="star">
+                            <div class="star_box">
+                                <span class="gradient-box" style="width: {{value.score * 20}}%;"></span>
+                                <img src="../images/star_five.png">
+                            </div>
+                        </div>
+                        <span class="score_index"><i>{{value.score}}</i>分</span>
+                        <span class="count">月接单<i>{{value.sales?value.sales:'0'}}</i></span>
+                    </div>
+                </div>
+                <div class="shop_list_item_basic_image">
+                    <img src="{{value.headImage}}">
+                </div>
+            </div>
+            <div class="shop_list_item_other">
+                <p>营业时间：<span>{{workStr(value.openTime,value.closeTime,value.workDay)}}</span></p>
+                <p>地址：<span>{{value.address}}</span></p>
+            </div>
+            <div class="shop_list_item_choose {{if i == 0}}active{{/if}}"
+                data-phone="{{value.serviceNumber}}" 
+                data-name="{{value.name}}"
+                data-star="{{value.score}}"
+                data-order="{{value.sales}}"
+                data-rate="{{value.score}}">
+                <div class="shop_list_item_choose_tip">选择这家</div>
+                <div class="shop_list_item_choose_icon">
+                    <img src="../images/choosed.png">
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/html" id="templateComments">
+        {{each records as value}}
+        <li class="comment_item">
+            <div class="user_image">
+                <img src="{{value.avatar}}" onerror="this.src='../images/head_default.png'">
+            </div>
+            <div class="comment_container">
+                <div class="user_name">
+                    <p>{{value.memberName?value.memberName:'匿名用户'}}</p>
+                </div>
+                <div class="star">
+                    <div class="star_box">
+                        <span class="gradient-box" style="width: {{value.star * 20}}%;"></span>
+                        <img src="../images/star_five.png">
+                    </div>
+                </div>
+                <div class="comment_content">
+                    <p>{{value.content}}</p>
+                </div>
+                <div class="comment_images">
+                    {{if value.image != null}}
+                    {{each value.image}}
+                    <div class="image_item">
+                        <img src="{{$value}}">
+                    </div>
+                    {{/each}}
+                    {{/if}}
+                </div>
+                <div class="comment_time">
+                    <p>{{value.createTime}}</p>
+                </div>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var shopProductId = getQueryString("shopProductId") !== null ? getQueryString("shopProductId") : getCookie("shopProductId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+
+            var serviceName = '';
+            var servicePrice = 0;
+            var publicStar = '';
+            var publicShopManageId = '';
+            var publicShopManageMobile = '';
+            var publicShopAccId = '';
+            var publicShopMemberName = '';
+            var publicShopMemberHeadImage = '';
+            var tabIndex = '1';
+            var pageIndex = 1;
+            var isLoading = true;
+
+            // 获取服务基本信息
+            $.slAjax({
+                url: root + 'bus/rest/service/products/' + shopProductId,
+                type: 'get',
+                data: {},
+                success: function (res) {
+                    if (res.code == 0) {
+                        $(".service_box_detail").html(template('templatePics', res));
+                        $('.service_image img').attr('src', res.data.image);
+                        servicePrice = res.data.price;
+                        serviceName = res.data.name;
+                        $(".page_header_main_title").text(res.data.name ? res.data.name : '服务详情');
+                        $('.aboutPrice span').text(servicePrice);
+                    }
+                }
+            });
+
+            // 获取店铺列表
+            $.slAjax({
+                async: false,
+                url: root + 'bus/rest/service/products/getStoreByServicePage',
+                type: 'get',
+                data: {
+                    serviceId: shopProductId,
+                    current: 1,
+                    size: 500
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        $('.shop_list').html(template('templateSeiviceShops', res.data));
+
+                        // 默认获取第一家店铺信息
+                        if (res.data && res.data.records && res.data.records.length > 0) {
+                            publicShopManageId = res.data.records[0].id;
+                            publicStar = res.data.records[0].score;
+                            getShopComment();
+                        }
+
+                        // 点击切换店铺
+                        $('.shop_list_item').unbind('click').bind('click', function () {
+                            var isChange = $(this).find('.shop_list_item_choose').hasClass('active');
+                            if (!isChange) {
+                                $(this).siblings().find('.shop_list_item_choose').removeClass('active');
+                                $(this).find('.shop_list_item_choose').addClass('active');
+                                publicShopManageId = $(this).data('shopmanageid');
+                                if (tabIndex == '2') {
+                                    getShopComment();
+                                }
+                            }
+                        })
+
+                        // 点击切换tab
+                        $('.tab_bar li').unbind('click').bind('click', function () {
+                            var index_ = $(this).data('tabindex');
+                            if (!$(this).hasClass('active')) {
+                                $(this).siblings().removeClass('active');
+                                $(this).addClass('active');
+                                if (index_ == '1') {
+                                    tabIndex = '1';
+                                    $('.service_box_detail').css('height', 'auto');
+                                    $('.service_box_comment').css('height', '0');
+                                    $('.service_box_comment').css('overflow', 'hidden');
+                                } else if (index_ == '2') {
+                                    tabIndex = '2';
+                                    $('.service_box_comment').css('height', 'auto');
+                                    $('.service_box_comment').css('overflow', 'auto');
+                                    $('.service_box_detail').css('height', '0');
+                                    $('.service_box_detail').css('overflow', 'hidden');
+                                    getShopComment();
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+
+            // 获取店铺评论
+            function getShopComment() {
+                $('.service_box_comment_list').html('');
+                pageIndex = 1;
+                isLoading = true;
+                $.slAjax({
+                    url: root + 'bus/rest/evaluation/page',
+                    type: "get",
+                    data: {
+                        productId: shopProductId,
+                        storeId: publicShopManageId,
+                        current: pageIndex,
+                        size: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.records.length > 0) {
+                                $("#dataList").html(template('templateComments', res.data));
+                                showBigImg();
+                                if (res.data.records.length < PAGESIZE) {
+                                    $("#dataList").append('<div class="load-over">没有更多...</div>');
+                                    isLoading = false;
+                                } else {
+                                    $('.container_box').scroll(function () {
+                                        var scrollTop = $(this).scrollTop();  // 滚动高度
+                                        var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                        var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+                                        if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                            isLoading = false;
+                                            pageIndex++;
+                                            $.slAjax({
+                                                url: root + 'bus/rest/evaluation/page',
+                                                data: {
+                                                    productId: shopProductId,
+                                                    storeId: publicShopManageId,
+                                                    current: pageIndex,
+                                                    size: PAGESIZE
+                                                },
+                                                beforeSend: function () {
+                                                    $("#dataList").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                                },
+                                                success: function (data) {
+                                                    $("#dataList .loading_w").remove();
+                                                    if (data.code == 0) {
+                                                        if (data.data && data.data.records && data.data.records.length > 0) {
+                                                            $('#dataList').append(template("templateComments", data.data));
+                                                            isLoading = true;
+                                                            showBigImg();
+                                                        } else {
+                                                            $("#dataList").append('<div class="load-over">没有更多...</div>');
+                                                        }
+                                                    } else {
+                                                        layer.msg(data.msg);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            } else {
+                                $("#dataList").html("<div class='default-none' style='padding-top:.4rem'><div class='no_img' style='width:60%'><img src='../images/content_null.png'></div><div class='no_tip'>暂无评论</div></div>");
+                            }
+
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                })
+            }
+
+            // 去预约
+            $('.service_footer_btn').unbind('click').bind('click', function () {
+                if (publicShopManageId) {
+                    window.location.href = './service_order_check.html?shopManageId=' + publicShopManageId + '&shopProductId=' + shopProductId + '&communityId=' + communityId + '&accId=' + accId + '&accessToken=' + accessToken;
+                } else {
+                    layer.msg('未选择任何店铺')
+                }
+            })
+
+            // 电话咨询
+            $('.service_footer_phone a').unbind("click").on('click', function () {
+                $('.service_footer_phone a').attr('href', 'javascript:void(0)');
+                if (publicShopManageId) {
+                    var shopChoosed = $('.shop_list_item_choose.active');
+                    publicShopManageMobile = shopChoosed.data("phone");
+                    if (publicShopManageMobile == null || publicShopManageMobile == '') {
+                        layer.msg('商家暂未提供客服电话');
+                    } else {
+                        $('.service_footer_phone a').attr('href', 'tel:' + publicShopManageMobile);
+                    }
+                } else {
+                    layer.msg("未选择任何店铺");
+                    return false;
+                }
+            })
+
+            // 查看评论中的大图
+            function showBigImg() {
+                $('.image_item').unbind('click').bind('click', function () {
+                    var index = $(this).index();
+                    var urlArr = [];
+                    $(this).parent('.comment_images').find('.image_item').each(function () {
+                        var _url = $(this).find('img').attr('src');
+                        urlArr.push(_url);
+                    });
+                    callHandlerBridge('photoView', {
+                        index: index,
+                        url: urlArr.join(',')
+                    });
+                });
+            }
+
+            // 监听页面滚动条距离顶部高度
+            // $('.container_box').scroll(function () {
+            //     var scroH = $(this).scrollTop();  //滚动高度
+            //     if (scroH > 0) {
+            //         $(".page_header").css('background-color', '#ffffff');
+            //         $('.page_header_main_back img').attr('src', '../images/hback_b.png');
+            //         $('.page_header_main_title').css('color', '#323232');
+            //     } else {
+            //         $(".page_header").css('background-color', 'transparent');
+            //         $('.page_header_main_back img').attr('src', '../images/hback_w.png')
+            //         $('.page_header_main_title').css('color', '#ffffff');
+            //     }
+            // });
+        })
+    </script>
+
+</body>
+
+</html>

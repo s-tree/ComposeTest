@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>确认订单</title>
+    <link rel="stylesheet" href="../plugins/switch/switch.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/business_order_check.css">
+    <script src="../js/flexible.js"></script>
+    <style>
+        .scoreHide {
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">确认订单</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_address">
+                <div class="container_box_address_left">
+                    <div class="receive_address"></div>
+                    <div class="receive_name"></div>
+                </div>
+                <div class="container_box_address_right">
+                    <img src="../images/icons_more.png">
+                </div>
+            </div>
+            <div class="container_box_shop"></div>
+            <div class="container_box_score scoreHide">
+                <div class="container_box_score_info">
+                    <div class="tip">家庭积分 <span>共<i>-</i>积分</span></div>
+                    <div class="content">每满<span class="limitScore">-</span>积分，可抵扣<span class="limitPrice">-</span>元
+                    </div>
+                </div>
+                <div class="container_box_score_do">
+                    <div class="ischoose">
+                        <input id="scoreSwitch" type="checkbox" class="checkbox-switch switch-success" />
+                    </div>
+                    <div class="detail">已抵扣<span>￥0</span></div>
+                </div>
+            </div>
+            <div class="container_box_footer">
+                <div>
+                    <div class="totalPrice">合计：￥<span>-</span></div>
+                    <div class="totalDiscount">总优惠<span></span></div>
+                </div>
+                <div class="payBtn">立即付款</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/date.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../plugins/switch/switch.js"></script>
+    <script id="templateCartMap" type="text/html">
+        {{each content as value}}
+        <div class="container_box_shop_item" data-shopmanageid="{{value.shopManageId}}">
+            <div class="shop_info">
+                <div class="shop_info_name">{{value.shopManageName}}</div>
+                <div class="shop_info_star">
+                    <div class="star">
+                        <div class="star_box">
+                            <span class="gradient-box" style="width: {{value.shopManageStars * 20}}%;"></span>
+                            <img src="../images/star_five.png">
+                        </div>
+                    </div>
+                    <div class="shop_info_star_count"><span>{{value.shopManageStars}}</span>分</div>
+                </div>
+            </div>
+            <div class="goods_info">
+                {{each value.products as item}}
+                <div class="goods_info_item">
+                    <div class="goods_info_item_image">
+                        <img src="{{item.imgPath}}">
+                    </div>
+                    <div class="goods_info_item_detail">
+                        <div class="name">{{item.name}}</div>
+                        <div class="orders">月售{{item.orders}} 好评率{{item.rate}}%</div>
+                    </div>
+                    <div class="goods_info_item_count">
+                        <div class="price">￥<span>{{item.price}}</span></div>
+                        <div class="count">共<span>{{item.shopProductSum}}</span>件</div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            <div class="vip_info">
+                {{if value.shopmanageIsVip === true}}
+                <div>
+                    <div class="tip">会员折扣</div>
+                    <div class="discount"  
+                    data-vipid={{value.vipId}} 
+                    data-shopmanagevipdiscount={{value.shopManageVipDiscount}}
+                    ><span>{{(value.shopManageVipDiscount).toFixed(2)}}</span>折</div>
+                </div>
+                {{/if}}
+                {{if value.shopProductCoupon !== null}}
+                <div class="coupon_info" data-shopmanageid="{{value.shopManageId}}" data-couponsid={{value.couponsId}}>
+                    <div class="tip">优惠券</div>
+                    <div class="coupons">
+                        <div class="coupons_count">
+                            {{if value.shopProductCoupon == 0}}
+                                请选择
+                            {{else if value.couponType == "SUBTRACTION"}}
+                                -¥{{value.shopProductCoupon}}
+                            {{else}}
+                                {{value.couponDiscount / 10}}折
+                            {{/if}}
+                        </div>
+                        <div class="coupons_choose">
+                            <img src="../images/icons_more.png">
+                        </div>
+                    </div>
+                </div>
+                {{/if}}
+                <div>
+                    <div class="tip">备注</div>
+                    <div class="remark"><input type="text" placeholder="填写备注信息"></div>
+                </div>
+            </div>
+            <div class="total_info">
+                <div class="total_info_discount">已优惠<span>￥{{value.discount_self}}</span></div>
+                <div class="total_info_price">小计：<span>￥{{value.lastPrice_self}}</span></div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var pattern = new RegExp("[~'!@#$%^&*()-+_=:]");
+
+            var memberInfo = {}
+            var familyInfoData = {};
+            var familyMemberPoint; // 家庭积分
+            var reachPoint; // 积分规则 - 满
+            var discountPoint; // 积分规则 - 减
+            var orderTotalOriginalPrice = 0;  // 订单原始总价
+            var orderTotalPrice = 0;  // 订单结算总价 - 不包含积分
+            var score = 0; // 实际使用的积分
+
+            var shopManageOriginalTotalPrice = 0; // 单店铺原始总价（用于请求优惠券）
+            var shopProductTotalPrice = 0; // 单店铺减后总价
+            var productIdArr = [];  // 所有商品id
+            var productNumArr = [];  // 所有商品数量
+            var productMemoArr = {}; // 所有店铺留言
+            var shopManageIdArr = []; // 所有店铺id
+            var vipCouponsData = {}; // 结算时使用的优惠券信息集合
+            var shopData = {};
+
+            var el = document.querySelector('.checkbox-switch');
+            var mySwitch = new Switch(el, {
+                size: 'small',
+                onSwitchColor: '#38CC98'
+            })
+
+            // // 客户端调用，判断页面加载完
+            registerHandlerBridge('pageFinished', function (response) {
+                console.log("on pageFinished");
+            //     // 获取家庭地址信息及积分逻辑处理
+                callHandlerBridge('getFamilyInfo', {}, function (response) {
+                    // var response = "{\"address\":\"东共2最1号楼1单元1层103室\",\"avatar\":\"\",\"buildInfoId\":\"1602893113760583682\",\"buildNo\":\"1\",\"communityId\":\"1602631509185789954\",\"compoundId\":\"1602631509185789954\",\"compoundName\":\"东共2最\",\"dockKey\":\"tempor do enim aliqua adipisicing\",\"door\":103,\"familyAvatar\":\"http://10.10.6.234:9999/admin/sys/file/housekeeper/2d9dd1f537cd45b592c4a8d841e3035f.jpg\",\"familyId\":\"1630819157266423809\",\"familyInfoId\":\"1630819157266423809\",\"familyName\":\"张三家\",\"familyStatus\":\"BOUND\",\"floor\":1,\"houseNo\":\"东共2最1号楼1单元1层103室\",\"initials\":\"\",\"isFree\":false,\"memberId\":\"1604677894997827585\",\"memberTypeInFamily\":\"familyOwner\",\"nickName\":\"张三家\",\"owner\":true,\"ownerAccid\":\"\",\"propertyDeviceVO\":{\"alias\":\"minim quis\",\"buttonKey\":\"eu in ea sed\",\"code\":\"4\",\"dockKey\":\"tempor do enim aliqua adipisicing\",\"dockerSn\":\"GS40K36G06250000\",\"host\":true,\"padSn\":\"GS40K36G1111\",\"password\":\"labore nisi laboris\",\"ssid\":\"29\",\"status\":\"est\"},\"relationship\":\"SELF\",\"status\":\"BOUND\",\"unit\":1}";
+                    console.log(response);
+                    var familyInfo = response;
+                    var requestData = {};
+                    if (familyInfo === '' || familyInfo === null) {
+                            layer.msg('未获取到家庭信息');
+                    } else {
+                        familyInfoData = JSON.parse(familyInfo);
+                        $('.receive_address').text(familyInfoData.address);
+                    }
+                    // 选择家庭地址
+                    $('.container_box_address').unbind('click').bind('click', function () {
+                        window.location.href = './address_list.html?communityId=' + communityId + '&accId=' + accId + '&familyInfoId=' + familyInfoId + '&familyInfoIdChoose=' + familyInfoData.familyId + '&accessToken=' + accessToken;
+                    });
+
+
+                    callHandlerBridge('getUserInfo', {}, function (response) {
+                        // var response = "{\"nickName\":\"测试测试\",\"mobile\":\"13160381628\"}";
+                        console.log(response);
+                        if (response === '' || response === null) {
+                            layer.msg('未能获取到用户信息');
+                        } else {
+                            var userInfo = JSON.parse(response);
+                            memberInfo.userName = userInfo.nickName ? userInfo.nickName : '未提供名字'
+                            memberInfo.userMobile = userInfo.mobile
+                            $('.receive_name').text(memberInfo.userName + ' ' + memberInfo.userMobile)
+                        }
+
+                    });
+                });
+
+                //获取购物车选中的商家及商品数据
+                callHandlerBridge('getShopData', {}, function (response) {
+                    console.log(response);
+                    // var response = "{\"sumMoney\":16.0,\"content\":[{\"shopManageId\":\"1630855221961732097\",\"shopManageImgPic\":\"http://dummyimage.com/400x400\",\"shopManageVipDiscount\":\"\",\"shopManageStars\":97.0,\"shopManageName\":\"祥和超市\",\"allSelect\":true,\"products\":[{\"lastAddTime\":0,\"productId\":\"1630083607594696706\",\"shopManageId\":\"1630855221961732097\",\"check\":true,\"shopProductSum\":1,\"isCheck\":true,\"shopCartBean\":{\"shopManageStars\":0.0,\"allSelect\":false,\"products\":[],\"shopManageVipId\":\"\"},\"total\":4.0,\"rate\":\"33\",\"price\":\"4\",\"imgPath\":\"http://dummyimage.com/400x400\",\"name\":\"安变观火红原金\",\"lowerShelf\":false,\"orders\":\"96\"},{\"lastAddTime\":0,\"productId\":\"1630815485754830849\",\"shopManageId\":\"1630855221961732097\",\"check\":true,\"shopProductSum\":1,\"isCheck\":true,\"shopCartBean\":{\"shopManageStars\":0.0,\"allSelect\":false,\"products\":[],\"shopManageVipId\":\"\"},\"total\":12.0,\"rate\":\"33\",\"price\":\"12\",\"imgPath\":\"http://dummyimage.com/400x400\",\"name\":\"精路更copy\",\"lowerShelf\":false,\"orders\":\"96\"}],\"shopManageVipId\":\"\",\"shopCartId\":\"1630855221961732097_1602631509185789954\",\"communityId\":\"1602631509185789954\"}]}";
+                    shopData = JSON.parse(response);
+                    var shopDataLength = shopData.content.length;
+
+                //     // 获取用户自选的优惠券信息
+                    callHandlerBridge('getCouponChoose', {}, function (couponChooseData) {
+                        // var couponChooseData = "{}";
+                        console.log(couponChooseData);
+
+                        // 遍历店铺
+                        for (var i = 0; i < shopDataLength; i++) {
+                            shopManageOriginalTotalPrice = 0;
+                            shopProductTotalPrice = 0;
+                            var _data = shopData.content[i];
+
+                            // 遍历店铺下的商品
+                            if (_data.products.length) {
+                                for (var j = 0; j < _data.products.length; j++) {
+                                    shopManageOriginalTotalPrice = shopManageOriginalTotalPrice + parseFloat((_data.products[j].price * _data.products[j].shopProductSum).toFixed(2)); // 店铺商品原始总价
+                                    productIdArr.push(_data.products[j].productId);
+                                    productNumArr.push(_data.products[j].shopProductSum);
+                                }
+                            }
+                            shopProductTotalPrice = shopManageOriginalTotalPrice;
+                            orderTotalOriginalPrice += shopManageOriginalTotalPrice;
+
+                            // 会员折扣部分
+                            if (_data.shopManageVipId !== undefined) {
+                                getFamilyShopVip(_data);
+                            }
+                            if (_data.shopmanageIsVip) {
+                                shopProductTotalPrice = parseFloat((shopManageOriginalTotalPrice * (_data.shopManageVipDiscount / 10)).toFixed(2));
+                            } else {
+                                shopProductTotalPrice = shopManageOriginalTotalPrice;
+                            }
+
+                            // 优惠券部分
+                            if (couponChooseData !== "") {
+                                var couponChoose = JSON.parse(couponChooseData);
+                                var shopManageCouponChoose = couponChoose[_data.shopManageId];
+
+                                if (shopManageCouponChoose !== undefined) {
+                                    if (JSON.stringify(shopManageCouponChoose) === '{}') {
+                                        console.log("不使用优惠券");
+                                        _data.shopProductCoupon = 0;
+                                        _data.shopProductCouponIsUse = false;
+                                    } else {
+                                        console.log("使用选中优惠券");
+                                        _data.couponType = shopManageCouponChoose.type;
+                                        _data.couponDiscount = shopManageCouponChoose.discount;
+                                        _data.shopProductCoupon = shopManageCouponChoose.amountReduction;
+                                        _data.couponsId = shopManageCouponChoose.couponsId;
+                                        _data.shopProductCouponIsUse = true;
+                                    }
+                                } else {
+                                    getFamilyShopCoupons(_data);
+                                }
+                            } else {
+                                getFamilyShopCoupons(_data);
+                            }
+                            if (_data.shopProductCouponIsUse) {
+                                if (_data.couponType == "SUBTRACTION" && shopProductTotalPrice > _data.shopProductCoupon)
+                                    shopProductTotalPrice = parseFloat((shopProductTotalPrice - _data.shopProductCoupon).toFixed(2));
+                                else if (_data.couponType == "DISCOUNT") {
+                                    var discount = shopProductTotalPrice * _data.couponDiscount / 100;
+                                    shopProductTotalPrice = parseFloat((discount).toFixed(2));
+                                } else {
+                                    shopProductTotalPrice = 0;
+                                }
+                            }
+
+                            _data.discount_self = parseFloat((shopManageOriginalTotalPrice - shopProductTotalPrice).toFixed(2));
+                            _data.lastPrice_self = shopProductTotalPrice;
+
+                            orderTotalPrice = parseFloat((orderTotalPrice + shopProductTotalPrice).toFixed(2)); // 所有商品总价（不包含积分）
+                            $('.totalPrice span').text(orderTotalPrice);
+                            $('.totalDiscount span').text('￥' + _data.discount_self);
+                            $('.container_box_score_do .detail span').text('￥0');
+                        }
+
+                        // 渲染商品数据模板
+                        $('.container_box_shop').html(template('templateCartMap', shopData));
+
+                        // 选择优惠券
+                        $('.coupon_info').unbind('click').bind('click', function () {
+                            var shopManageId = $(this).data('shopmanageid');
+                            window.location.href = './business_coupons.html?familyInfoId=' + familyInfoData.familyId + '&shopManageId=' + shopManageId + '&price=' + shopManageOriginalTotalPrice + '&accessToken=' + accessToken;
+                        });
+
+                        // 获取家庭积分
+                        $.slAjax({
+                            url: root + 'member/rest/family/' + familyInfoData.familyId,
+                            type: "get",
+                            data: {},
+                            success: function (res) {
+                                if(res.code != 0){
+                                    return;
+                                }
+                                familyMemberPoint = res.data.points;
+                                $('.container_box_score_info .tip i').text(familyMemberPoint);
+
+                                // 获取积分抵扣规则 每满x积分可以抵扣x元
+                                $.slAjax({
+                                    url: root + 'bus/rest/order/pointsDeductionRule',
+                                    type: "get",
+                                    data: {},
+                                    success: function (res) {
+                                        if(res.code != 0){
+                                            return;
+                                        }
+                                        $('.container_box_score').removeClass('scoreHide');
+
+                                        reachPoint = parseInt(res.data);
+                                        discountPoint = 1;
+
+                                        $('.limitScore').text(reachPoint);
+                                        $('.limitPrice').text(discountPoint);
+
+                                        var countPrice = Math.floor(orderTotalPrice / discountPoint); // 总价最多需要几个满减
+                                        var countPoint = Math.floor(familyMemberPoint / reachPoint); // 总积分最大可用几个满减
+                                        var count = countPrice < countPoint ? countPrice : countPoint; // 实际能用几个满减
+                                        var pointMaxDiscount = count * discountPoint; // 实际最大减少的钱
+                                        var minPayable = parseFloat((orderTotalPrice - pointMaxDiscount).toFixed(2)); // 剩余支付的钱
+
+                                        if (familyMemberPoint >= reachPoint) {
+                                            if (count > 0) {
+                                                mySwitch.on();
+                                                score = count * reachPoint; // 实际最大使用积分
+                                                $('.totalPrice span').text(minPayable);
+                                                $('.totalDiscount span').text('￥' + parseFloat((orderTotalOriginalPrice - minPayable).toFixed(2)));
+                                                $('.container_box_score_do .detail span').text('￥' + pointMaxDiscount);
+
+                                                // 监听积分开关
+                                                $(".ischoose").unbind('click').bind('click', function () {
+                                                    var isUse = mySwitch.getChecked();
+                                                    if (isUse) {
+                                                        score = count * reachPoint;
+                                                        $('.totalPrice span').text(minPayable);
+                                                        $('.totalDiscount span').text('￥' + parseFloat((orderTotalOriginalPrice - minPayable).toFixed(2)));
+                                                        $('.container_box_score_do .detail span').text('￥' + pointMaxDiscount);
+                                                    } else {
+                                                        score = 0;
+                                                        $('.totalPrice span').text(orderTotalPrice);
+                                                        $('.totalDiscount span').text('￥' + parseFloat((orderTotalOriginalPrice - orderTotalPrice).toFixed(2)));
+                                                        $('.container_box_score_do .detail span').text('￥0');
+                                                    }
+                                                })
+                                            } else {
+                                                mySwitch.disable();
+                                                score = 0; // 实际最大使用积分
+                                                $('.totalPrice span').text(orderTotalPrice);
+                                                $('.totalDiscount span').text('￥' + parseFloat((orderTotalOriginalPrice - orderTotalPrice).toFixed(2)));
+                                                $('.container_box_score_do .detail span').text('￥0');
+                                            }
+                                        } else {
+                                            mySwitch.disable();
+                                            $('.totalPrice span').text(orderTotalPrice);
+                                            $('.totalDiscount span').text('￥' + parseFloat((orderTotalOriginalPrice - orderTotalPrice).toFixed(2)));
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+
+                    // 立即付款
+                    $('.payBtn').unbind('click').bind('click', function () {
+                        var isGo = true;
+
+                        // 地址相关信息
+                        if (!familyInfoData.address || !memberInfo.userMobile) {
+                            layer.msg('收货人信息不完整')
+                            return false
+                        }
+
+                        var request = {};
+                        request.address = familyInfoData.address;
+                        request.compoundId = communityId;
+                        request.mobile = memberInfo.userMobile;
+                        request.name = memberInfo.userName;
+                        request.familyId = familyInfoData.familyId;
+                        request.points = score;
+                        request.type = "GOODS";
+
+                        var payable = Number($('.totalPrice span').text());
+                        $('.container_box_shop_item').each(function () {
+                            var id = $(this).data('shopmanageid');
+                            shopManageIdArr.push(id);
+
+                            // 权益优惠券
+                            var vipId = $(this).find('.discount').data('vipid');
+                            var vipDiscount = $(this).find('.discount').data('shopmanagevipdiscount');
+                            var familyCouponsId = $(this).find('.coupon_info').data('couponsid');
+                            vipCouponsData[id] = {
+                                vipId: vipId,
+                                vipDiscount: vipDiscount,
+                                familyCouponsId: familyCouponsId
+                            };
+
+                            // 备注
+                            var memo = $(this).find('.remark input').val().replace(/(^\s*)|(\s*$)/g, "") ? $(this).find('.remark input').val().replace(/(^\s*)|(\s*$)/g, "") : '';
+                            if (pattern.test(memo)) {
+                                layer.msg("备注带有非法字符");
+                                isGo = false;
+                                return false;
+                            } else {
+                                productMemoArr[id] = memo;
+                            }
+                        });
+
+                        var shopDatas = [];
+                        var shopDataLength = shopData.content.length;
+                        for(var i = 0 ; i < shopDataLength; i++){
+                            var shop = shopData.content[i];
+                            if(!shop || !shop.products){
+                                continue;
+                            }
+                            var shopDataItem = {};
+                            var shopId = shop.shopManageId;
+                            shopDataItem["couponsId"] = vipCouponsData[shopId]["familyCouponsId"];
+                            shopDataItem["vipDiscount"] = vipCouponsData[shopId]["vipDiscount"];
+                            shopDataItem["remark"] = productMemoArr[shopId];
+                            shopDataItem["storeId"] = shopId;
+                            var products = [];
+                            var productLength = shop.products.length;
+                            for(var j = 0 ; j < productLength; j++){
+                                var product = {};
+                                product["count"] = shop.products[j]["shopProductSum"];
+                                product["productId"] = shop.products[j]["productId"];
+                                products.push(product);
+                            }
+                            shopDataItem["products"] = products;
+                            shopDatas.push(shopDataItem);
+                        }
+                        request["cartList"] = shopDatas;
+
+                        if (isGo) {
+
+                            $(this).removeClass("payBtn");
+                            $(this).addClass("payBtnChecking");
+                            console.log(JSON.stringify(request));
+
+                            // 创建订单
+                            $.slAjax({
+                                url: root + 'bus/rest/order/createOrder',
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(request),
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        var shouldPay = payable !== 0; // 判断是否需要走支付流程
+                                        var actualPay = payable
+
+                                        callHandlerBridge('createOrder', {
+                                            'familyInfoId': familyInfoData.familyId,
+                                            'orderSn': res.data,
+                                            'orderType': 'business',
+                                            'actualPay': actualPay,
+                                            'shouldPay': shouldPay
+                                        });
+                                    } else {
+                                        $(".payBtnChecking").addClass("payBtn");
+                                        $(".payBtnChecking").removeClass("payBtnChecking");
+                                        layer.msg(res.msg);
+                                        return false;
+                                    }
+                                }
+                            });
+                        }
+                    })
+
+                    // 判断店铺是否发行VIP
+                    function getFamilyShopVip(_data) {
+                        $.slAjax({
+                            url: root + 'bus/rest/store/info/' + _data.shopManageId,
+                            type: "get",
+                            data: {
+                                familyId: familyInfoData.familyId
+                            },
+                            async: false,
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    var _shopVipData = res.data.busVip;
+                                    // 判断当前用户是否是当前店铺VIP
+                                    if (_shopVipData && _shopVipData.isMember && _shopVipData.enable && _shopVipData.scope == 'ALL') {
+                                        _data.shopmanageIsVip = true;
+                                        _data.vipId = _shopVipData.id;
+                                        _data.shopManageVipDiscount = _shopVipData.discount / 10;
+                                    }
+                                } else {
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        });
+                    }
+
+                    // 查询当前用户对当前店铺可使用的最优惠券
+                    //shopManageOriginalTotalPrice
+                    function getFamilyShopCoupons(_data) {
+                        $.slAjax({
+                            url: root + 'bus/rest/member/coupons/page',
+                            type: "get",
+                            data: {
+                                familyId: familyInfoData.familyId,
+                                storeId: _data.shopManageId,
+                                current: 1,
+                                size: 10
+                            },
+                            async: false,
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    if (res.data && res.data.records && res.data.records.length > 0) {
+                                        var coupon;
+                                        for(var i = 0 ; i < res.data.records.length; i++){
+                                            var item = res.data.records[i];
+                                            if(!item.enable || isExpire(item.endDate) || item.status != 'UNUSED' || item.scope == 'OFFLINE'){
+                                                continue;
+                                            }
+                                            if(item.type == "SUBTRACTION" && shopManageOriginalTotalPrice >= item.initAmount){
+                                                coupon = item;
+                                                break;
+                                            }
+                                            if(item.type == "DISCOUNT"){
+                                                coupon = item;
+                                                break;
+                                            }
+                                        }
+                                        if(coupon){
+                                            // _data.couponType = "DISCOUNT";
+                                            // _data.couponDiscount = 30;
+                                            _data.couponType = coupon.type;
+                                            _data.couponDiscount = coupon.discount;
+                                            _data.shopProductCoupon = coupon.amountReduction;
+                                            _data.couponsId = coupon.id;
+                                            _data.shopProductCouponIsUse = true;
+                                        }
+                                        else{
+                                            _data.shopProductCoupon = null;
+                                            _data.shopProductCouponIsUse = false;
+                                        }
+                                        
+                                    } else {
+                                        _data.shopProductCoupon = null;
+                                        _data.shopProductCouponIsUse = false;
+                                    }
+                                } else {
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        });
+                    }
+                });
+            })
+            
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        })
+    </script>
+</body>
+
+</html>

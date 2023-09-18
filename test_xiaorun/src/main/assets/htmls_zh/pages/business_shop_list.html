@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>商务店铺列表</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/business_shop_list.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">店铺列表</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <ul class="shop_category_list adjustHeightFixed" id="shopCategoryList"></ul>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateShopList">
+        {{each records as value}}
+        <li class="shop_category_list_item" data-shopmanageid="{{value.id}}">
+            <div class="shop_category_list_item_image">
+                <img src="{{value.headImage}}">
+            </div>
+            <div class="shop_category_list_item_info">
+                <p class="shop_category_list_item_info_name">{{value.name}}</p>
+                <div class="shop_category_list_item_info_star">
+                    <div class="star">
+                        <div class="star_box">
+                            <span class="gradient-box" style="width: {{value.score * 20}}%;"></span>
+                            <img src="../images/star_five.png">
+                        </div>
+                    </div>
+                    <div class="score"><span>{{value.score}}</span>分</div>
+                </div>
+                <p class="shop_category_list_item_info_time">营业时间：<span>{{workStr(value.openTime,value.closeTime,value.workDay)}}</span></p>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+
+        $(function () {
+            var shopCategoryId = getQueryString("shopCategoryId") !== null ? getQueryString("shopCategoryId") : getCookie("shopCategoryId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var type_name = getQueryString("name") !== null ? getQueryString("name") : getCookie("name");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var pageIndex = 1;
+            var isLoading = true;
+
+            $(".page_header_main_title").text(type_name ? type_name : '店铺列表');
+
+            // 请求分类下店铺列表
+            $.slAjax({
+                url: root + 'bus/rest/store/page',
+                type: "get",
+                data: {
+                    categoryId: shopCategoryId,
+                    current: pageIndex,
+                    size: PAGESIZE
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        if (res.data && res.data.records && res.data.records.length > 0) {
+                            $('#shopCategoryList')[0].innerHTML = template("templateShopList", res.data);
+
+                            $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                var shopManageId = $(this).data('shopmanageid');
+                                window.location.href = 'business_shop_detail.html?shopManageId=' + shopManageId + '&communityId=' + communityId + '&familyInfoId=' + familyInfoId + '&accId=' + accId + '&accessToken=' + accessToken;
+                            });
+
+                            if (res.data.records.length <= PAGESIZE) {
+                                $("#shopCategoryList").append('<div class="load-over">没有更多...</div>');
+                            } else {
+                                $('#shopCategoryList').scroll(function () {
+                                    var scrollTop = $(this).scrollTop();  // 滚动高度
+                                    var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                    var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                    if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                        isLoading = false;
+                                        pageIndex++;
+                                        $.slAjax({
+                                            url: root + 'bus/rest/store/page',
+                                            type: "get",
+                                            data: {
+                                                categoryId: shopCategoryId,
+                                                current: pageIndex,
+                                                size: PAGESIZE
+                                            },
+                                            beforeSend: function () {
+                                                $("#shopCategoryList").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                            },
+                                            success: function (data) {
+                                                $("#shopCategoryList .loading_w").remove();
+                                                if (data.code == 0) {
+                                                    if (data.data && data.data.records && data.data.records.length > 0) {
+
+                                                        listRecords(res.data.records);
+                                                        $('#shopCategoryList').append(template("templateShopList", data.data));
+                                                        isLoading = true;
+
+                                                        $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                                            var shopManageId = $(this).data('shopmanageid');
+                                                            window.location.href = 'business_shop_detail.html?shopManageId=' + shopManageId + '&communityId=' + communityId + '&familyInfoId=' + familyInfoId + '&accId=' + accId + '&accessToken=' + accessToken;
+                                                        });
+                                                    } else {
+                                                        $("#shopCategoryList").append('<div class="load-over">没有更多...</div>');
+                                                    }
+                                                } else {
+                                                    layer.msg(data.msg);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        } else {
+                            $("#shopCategoryList").append("<div class='default-none'><div class='no_img' style='width:100%;padding-top:1rem'><img src='../images/shop_null.png'></div><div class='no_tip'>暂无店铺</div></div>");
+                        }
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

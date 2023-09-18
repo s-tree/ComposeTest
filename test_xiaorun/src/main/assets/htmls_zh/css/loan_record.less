@@ -1,0 +1,256 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    background     : #F5F5F7;
+    background-size: 100% 100%;
+}
+
+.order_status {
+    position: fixed;
+    top     : 1.36rem;
+    left    : 0;
+    width   : 100%;
+    height  : 0.86rem;
+    padding : 0 .3rem;
+    .flex(row, space-between, center);
+
+    &_item {
+        height     : 100%;
+        line-height: 0.86rem;
+        font-size  : 0.26rem;
+        color      : #848484;
+
+        &.active {
+            position: relative;
+            color   : #323232;
+
+            &:after {
+                content      : '';
+                position     : absolute;
+                bottom       : 0;
+                left         : 0;
+                width        : 100%;
+                height       : 0.06rem;
+                border-radius: 0.06rem;
+                background   : #F79B34;
+            }
+        }
+    }
+}
+
+#mescrollOrderRecent {
+    position: fixed;
+    top     : 2.22rem;
+    bottom  : 0;
+    height  : auto;
+}
+
+.order_list {
+    width     : 100%;
+    height    : auto;
+    margin-top: .3rem;
+    padding   : 0 .3rem;
+
+    .order_item {
+        background-color: #FFFFFF;
+        padding         : .4rem .3rem;
+        border-radius   : .2rem;
+        margin-bottom   : .2rem;
+
+        &_top {
+            .flex(row, space-between, center);
+            font-size    : .28rem;
+            margin-bottom: .2rem;
+
+            .time {
+                flex         : 1;
+                font-weight  : 500;
+                color        : #323232;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+            }
+
+            .tip {
+                color      : #34C0BD;
+                flex-shrink: 0;
+                margin-left: .2rem;
+            }
+        }
+
+        &_info {
+            width: 100%;
+            .flex(row, space-between, center);
+
+            &_count {
+                flex-shrink: 0;
+                margin-left: .2rem;
+                text-align : right;
+
+                .tip1 {
+                    color    : #FF502E;
+                    font-size: .36rem;
+
+                    i {
+                        font-size: .24rem;
+                    }
+                }
+
+                .tip2 {
+                    color    : #848484;
+                    font-size: .24rem;
+                }
+            }
+
+            &_basic {
+                flex: 1;
+                .flex(row, space-between, center);
+
+                .photo {
+                    width        : 1.4rem;
+                    height       : 1.6rem;
+                    border-radius: .1rem;
+                    overflow     : hidden;
+                    background   : rgba(247, 155, 52, .3);
+
+                    img {
+                        width     : 100%;
+                        height    : 100%;
+                        object-fit: cover;
+                    }
+                }
+
+                .info {
+                    width      : 0;
+                    flex       : 1;
+                    margin-left: .2rem;
+
+                    &>div {
+                        width        : 100%;
+                        overflow     : hidden;
+                        text-overflow: ellipsis;
+                        white-space  : nowrap;
+                    }
+
+                    &_name {
+                        font-size  : .28rem;
+                        font-weight: 500;
+                        color      : #323232;
+                    }
+
+                    &_score {
+                        font-size: .24rem;
+                        color    : #848484;
+                        margin   : .1rem 0;
+                    }
+
+                    &_other {
+                        &_tip1 {
+                            color    : #323232;
+                            font-size: .24rem;
+
+                            i {
+                                font-size: .3rem;
+                            }
+                        }
+
+                        &_tip2 {
+                            color      : #848484;
+                            font-size  : .24rem;
+                            margin-left: .2rem;
+                        }
+
+                    }
+                }
+            }
+        }
+
+        &_do {
+            width     : 100%;
+            margin-top: .25rem;
+
+            .flex(row, space-between, center);
+
+            .order_code {
+                flex       : 1;
+                color      : #323232;
+                font-size  : .3rem;
+                font-weight: 500;
+                word-wrap  : break-word;
+                word-break : break-all;
+            }
+
+            .order_btn {
+                flex-shrink  : 0;
+                width        : 1.6rem;
+                height       : .58rem;
+                line-height  : .58rem;
+                border       : .02rem solid #A6AFB7;
+                border-radius: .29rem;
+                text-align   : center;
+                font-size    : .26rem;
+                color        : #848484;
+                margin-left  : .2rem;
+            }
+        }
+
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

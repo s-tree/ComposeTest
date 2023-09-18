@@ -1,0 +1,115 @@
+@charset "utf-8";
+@import "public";
+
+.container_box {
+    width           : 100%;
+    height          : 100%;
+    overflow-y      : auto;
+    padding         : 1.36rem .35rem .35rem .35rem;
+    background-color: #F5F5F7;
+
+    ul {
+        width        : 100%;
+        padding      : .4rem .3rem;
+        background   : #FFFFFF;
+        box-shadow   : 0 .04rem .14rem .04rem rgba(193, 193, 193, 0.15);
+        border-radius: .2rem;
+
+        li {
+            .flex(row, space-between, center);
+            width        : 100%;
+            background   : linear-gradient(270deg, #F4D18F 0%, #FFE5B4 100%);
+            border-radius: .2rem;
+            padding      : .4rem .5rem .4rem .4rem;
+            margin-bottom: .3rem;
+
+            .type_info {
+                color       : #523318;
+                font-size   : .3rem;
+                margin-right: .4rem;
+                flex-shrink : 0;
+            }
+
+            .choose_tip {
+                width           : .32rem;
+                height          : .32rem;
+                background-color: #ffffff;
+                border-radius   : 50%;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    .submitBtn {
+        margin-top   : 1rem;
+        width        : 100%;
+        height       : .88rem;
+        line-height  : .88rem;
+        background   : linear-gradient(-90deg, #FDA94B 0%, #F79B34 100%);
+        border-radius: .1rem;
+        text-align   : center;
+        color        : #ffffff;
+        font-size    : .36rem;
+    }
+}
+
+// 顶部导航样式
+.page_header {
+    z-index         : 2;
+    width           : 100%;
+    height          : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position        : fixed;
+    top             : 0;
+    left            : 0;
+    padding-left    : .23rem;
+    padding-right   : .23rem;
+    padding-top     : .48rem; //客户端传入 状态栏高度
+    background-color: #F5F5F7;
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #323232;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>记录详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_report_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">记录详情</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightDetail"></div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script type="text/html" id="templateOrderInfo">
+        <div class="container_box_tip">
+            <div>
+                {{if data.status == '0' ||  data.status == '1' ||  data.status == '3'}}
+                <p class="order_status">待答复</p>
+                {{else if data.status == '2'}}
+                <p class="order_status">已答复</p>
+                <p class="order_tip">答复时间：{{data.replyTime ? dateFormat(data.replyTime,"yyyy-MM-dd hh:mm"):''}}</p>
+                {{/if}}
+            </div>
+        </div>
+        <div class="container_box_content">
+            <div class="container_box_content_tip">
+                <div class="container_box_content_tip_title">{{data.title}}</div>
+                <div class="container_box_content_tip_time">{{data.reportTime ? dateFormat(data.reportTime,"yyyy-MM-dd hh:mm") : ''}}</div>
+            </div>
+            <div class="container_box_content_main">
+                <p class="container_box_content_main_txt">{{data.content}}</p>
+                {{if data.images}}
+                <div class="container_box_content_main_image">
+                    {{each data.images.split(',') as k}}
+                    <div class="repairImageBox">
+                        <img class="repairImage" src="{{k}}">
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+            </div>
+        </div>
+        {{if data.status == '2'}}
+        <div class="container_box_content">
+            <div class="container_box_content_tip">
+                <div class="container_box_content_tip_title">{{data.replyUser}}答复</div>
+                <div class="container_box_content_tip_time">{{dateFormat(data.replyTime,"yyyy-MM-dd hh:mm")}}</div>
+            </div>
+            <div class="container_box_content_main">
+                <p class="container_box_content_main_txt">{{data.reply}}</p>
+            </div>
+        </div>
+        {{/if}}
+    </script>
+    <script>
+        $(function () {
+            var reportId = getQueryString("reportId") !== null ? getQueryString("reportId") : getCookie("reportId");
+
+            $.slAjax({
+                url: root + 'govServer/reportRest/reportInfo',
+                type: 'get',
+                data: {
+                    reportId: reportId
+                },
+                success: function (res) {
+                    if (res.result) {
+                        $('.container_box_main').html(template('templateOrderInfo', res));
+
+                        // 查看大图 - 上诉图
+                        $('.repairImageBox').unbind('click').bind('click', function () {
+                            var _i = $(this).index();
+                            var _urlArr = [];
+                            $('.repairImage').each(function () {
+                                var _url = $(this).attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

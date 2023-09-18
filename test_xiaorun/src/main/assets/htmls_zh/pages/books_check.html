@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>确认捐赠</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/books_check.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">确认捐赠</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_address">
+                <div class="container_box_address_left">
+                    <div class="address">-</div>
+                    <div class="member">-</div>
+                </div>
+                <div class="container_box_address_right">
+                    <img src="../images/icons_more.png">
+                </div>
+            </div>
+            <div class="container_box_shop"> </div>
+            <div class="container_box_footer">
+                <div class="getScore">预计可获得积分：<span>0</span></div>
+                <div class="submitBtn">立即提交</div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/jquery.base64.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateBook">
+        {{each data as value i}}
+        <div class="container_box_shop_item">
+            <div class="book">
+                <div class="book_photo">
+                    <img src="{{value.avatar}}">
+                </div>
+                <div class="book_info">
+                    <div class="book_info_name">{{value.title}}</div>
+                    <div class="book_info_basic">{{value.author}}</div>
+                    <div class="book_info_basic">{{value.bookCompany}}</div>
+                    <div class="book_info_basic">{{value.publishDate}}</div>
+                </div>
+                {{if data.length>1}}
+                <div class="book_btn" data-sn="{{value.sn}}">
+                    <img src="../images/delete.png">
+                </div>
+                {{/if}}
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId")
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId")
+            var bookDataId = getQueryString("bookDataId") !== null ? getQueryString("bookDataId") : getCookie("bookDataId")
+            var familyInfoData = {} // 地址相关信息
+            var integralStandard = 0  // 单本书的积分
+            var BOOK_INFO = [] // 书籍信息
+
+            // 客户端调用，判断页面加载完
+            registerHandlerBridge('pageFinished', function (response) {
+                // 获取客户端地址信息
+                callHandlerBridge('getFamilyInfo', {}, function (response) {
+                    var familyInfo = response
+                    if (familyInfo === '' || familyInfo === null) {
+                        layer.msg('您还没有加入家庭');
+                    } else {
+                        var familyInfoResult = JSON.parse(familyInfo);
+                        familyInfoData.address = familyInfoResult.address;
+                        familyInfoData.familyId = familyInfoResult.familyId;
+                        $('.address').text(familyInfoData.address);
+                    }
+                    // 切换地址信息
+                    $('.container_box_address').unbind('click').bind('click', function () {
+                        window.location.href = './address_list.html?communityId=' + communityId + '&accId=' + accId + '&isHuarun=true'
+                    })
+                })
+            })
+
+
+            // var temp = "[{\"cover\":\"http://10.10.6.237:9000/housekeeper/a05d8bdcc72b477bad241a5941b506fa.jpg\",\"name\":\"历史历史\",\"author\":\"14313123\",\"sn\":0}]";
+            // 获取存储的书籍信息
+            callHandlerBridge('queryFromCache', bookDataId, function (response) {
+                BOOK_INFO = JSON.parse(response) || []
+                $('.container_box_shop').html(template("templateBook", { data: BOOK_INFO }))
+
+                // 获取单本书积分规则
+                $.slAjax({
+                    url: root + 'crc/rest/book/point',
+                    type: "get",
+                    data: {},
+                    async: false,
+                    success: function (res) {
+                        if (res.code == 0) {
+                            integralStandard = parseInt(res.data || "0");
+                            $('.getScore span').text(Math.round(integralStandard * BOOK_INFO.length))
+                        }
+                    }
+                })
+
+                // 删除书籍
+                $('.book_btn').unbind('click').bind('click', function () {
+                    var this_ = $(this)
+                    var sn_ = $(this).data('sn')
+                    var data = BOOK_INFO.filter(({ sn }) => sn !== sn_);
+                    var data_ = { data: JSON.stringify(data), key: bookDataId }
+
+                    callHandlerBridge('saveToCache', JSON.stringify(data_), function (response) {
+                        BOOK_INFO = response;
+                        // 更新UI
+                        this_.parents('.container_box_shop_item').remove()
+                        $('.getScore span').text(Math.round(integralStandard * BOOK_INFO.length))
+                        if (BOOK_INFO.length == 1) {
+                            $('.book_btn').remove()
+                        }
+                    });
+
+                })
+            });
+
+            // 获取当前用户昵称、手机号
+            callHandlerBridge('getUserInfo', {}, function (response) {
+                // var response = "{\"nickName\":\"测试测试\",\"mobile\":\"13160381628\"}";
+                console.log(response);
+                if (response === '' || response === null) {
+                    layer.msg('未能获取到用户信息');
+                } else {
+                    var userInfo = JSON.parse(response);
+                    familyInfoData.userName = userInfo.nickName ? userInfo.nickName : '未提供名字'
+                    familyInfoData.userMobile = userInfo.mobile
+                    familyInfoData.memberId = userInfo.memberId
+                    $('.member').text(familyInfoData.userName + ' ' + familyInfoData.userMobile)
+                }
+
+            });
+
+            // 提交
+            $('.submitBtn').unbind('click').bind('click', function () {
+                var data = {}
+
+                // 地址相关信息
+                if (!familyInfoData.userMobile || !familyInfoData.address) {
+                    layer.msg('捐赠人信息不完整')
+                    return false
+                }
+                data.memberAddress = familyInfoData.address
+                data.memberName = familyInfoData.userName
+                data.memberId = familyInfoData.memberId
+                data.memberMobile = familyInfoData.userMobile
+                data.familyId = familyInfoData.familyId;
+
+                // 总积分
+                data.point = Math.round(integralStandard * BOOK_INFO.length)
+
+                // 书籍信息
+                // BOOK_INFO.map(k => {
+                //     k.communityId = communityId
+                //     k.integral = integralStandard
+                //     k.source = "居民共享"
+                // })
+                data.bookInfoList = BOOK_INFO
+
+                console.log(JSON.stringify(data))
+
+                // 调接口
+                $.slAjax({
+                    url: root + "crc/rest/book",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg('新增成功');
+                            callHandlerBridge('removeCache',bookDataId );
+                            callHandlerBridge('linkToPage', { 'pageName': 'books_list.html', 'refresh': true });
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                });
+
+            })
+
+        })
+    </script>
+</body>
+
+</html>

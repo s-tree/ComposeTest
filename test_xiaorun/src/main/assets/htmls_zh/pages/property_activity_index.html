@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>物业活动</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_activity_index.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">物业活动</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight"></div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <!-- 物业活动模板 -->
+    <script type="text/html" id="templateActivity">
+        {{each records as value}}
+        <div class="container_box_item" data-status="{{value.status}}" data-join="{{value.join}}" data-activitytype="{{value.type}}" data-activityid="{{value.id}}" data-title="{{value.title}}">
+            <div class="container_box_item_photo">
+                {{if value.status == 'init'}}
+                    <div class="activity_status act_will">即将开始</div>
+                {{else if value.status == 'active'}}
+                    <div class="activity_status act_in">进行中</div>
+                {{else if value.status == 'end'}}
+                    <div class="activity_status act_over">已结束</div>
+                {{/if}}
+                <img src="{{value.image}}" onerror="this.parentNode.removeChild(this)">
+            </div>
+            <div class="container_box_item_info">
+                <div class="container_box_item_info_title">{{if value.type == 'survey'}}问卷{{else if value.type == 'vote'}}投票{{/if}}：{{value.title}}</div>
+                <div class="container_box_item_info_time">截止日期：{{value.endTime ? dateFormat(value.endTime,"yyyy-MM-dd") : '-'}}</div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var isLoading = true;
+            var pageIndex = 1;
+
+            getActivityList();
+
+            // 获取物业活动列表
+            function getActivityList() {
+                $.slAjax({
+                    type: 'get',
+                    url: root + 'operating/rest/voteSurvey/page',
+                    data: {
+                        current: pageIndex,
+                        size: PAGESIZE
+                    },
+                    success: function (res) {
+                        console.log('res :>> ', res);
+                        if (res.code === 0 && res.data) {
+                            if (res.data.records.length > 0) {
+                                $('.container_box').html(template("templateActivity", res.data));
+                                joinActivity();
+
+                                if (res.data.records.length == res.data.total) {
+                                    $(".container_box").append('<div class="load-over">没有更多...</div>');
+                                } else {
+                                    $('.container_box').scroll(function () {
+                                        var scrollTop = $(this).scrollTop();  // 滚动高度
+                                        var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                        var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                        if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                            isLoading = false;
+                                            pageIndex++;
+                                            $.slAjax({
+                                                type: 'get',
+                                                url: root + 'operating/rest/voteSurvey/page',
+                                                data: {
+                                                    current: pageIndex,
+                                                    size: PAGESIZE
+                                                },
+                                                beforeSend: function () {
+                                                    $(".container_box").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                                },
+                                                success: function (data) {
+                                                    $(".container_box .loading_w").remove();
+                                                    if (res.code === 0 && res.data) {
+                                                        if (res.data.records.length > 0) {
+                                                            $('.container_box').append(template("templateActivity", data));
+                                                            isLoading = true;
+                                                            joinActivity();
+                                                        } else {
+                                                            $(".container_box").append('<div class="load-over">没有更多...</div>');
+                                                        }
+                                                    } else {
+                                                        layer.msg(data.msg);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            } else {
+                                $(".container_box").html("<div class='default-none'><div class='no_tip'>暂无物业活动</div></div>");
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 物业活动点击
+            function joinActivity() {
+                $('.container_box_item').unbind('click').bind('click', function () {
+                    var status = $(this).data('status');
+                    var join = $(this).data('join');
+                    var activityType = $(this).data('activitytype');
+                    var activityId = $(this).data('activityid');
+                    var title = $(this).data('title');
+                    if (status == 'init') {
+                        layer.msg('活动即将开始，敬请期待');
+                    } else if (status == 'end') {
+                        layer.msg('活动已结束');
+                    } else if (status == 'active') {
+                        if (join && activityType == 'survey') {
+                            layer.msg('您已参与该活动，谢谢');
+                        } else {
+                            if (activityType == 'survey') {
+                                window.location.href = "./property_activity_survey.html?activityId=" + activityId + "&title=" + title + "&accId=" + accId + "&communityId=" + communityId + '&familyInfoId=' + familyInfoId;
+                            } else if (activityType == 'vote') {
+                                window.location.href = "./property_activity_vote.html?activityId=" + activityId + "&accId=" + accId + '&familyInfoId=' + familyInfoId;
+                            }
+                        }
+                    }
+                })
+            }
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>报事报修</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_repair_add.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back" data-code="repair">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">报事报修</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_area">
+            <div class="tip">报修区域</div>
+            <div class="container_box_area_choose">
+                <div class="container_box_area_choose_item choosed" data-area="INDOOR">
+                    <div class="container_box_area_choose_item_icon">
+                        <img src="../images/choose_y.png">
+                    </div>
+                    <div class="container_box_area_choose_item_name">室内</div>
+                </div>
+                <div class="container_box_area_choose_item" data-area="PUBLIC">
+                    <div class="container_box_area_choose_item_icon">
+                        <img src="../images/choose_n.png">
+                    </div>
+                    <div class="container_box_area_choose_item_name">公共区域</div>
+                </div>
+            </div>
+        </div>
+        <div class="container_box_room">
+            <div class="tip">房间号码</div>
+            <div class="container_box_room_main">
+                <div class="container_box_room_main_name" id="chooseAddress"></div>
+                <div class="container_box_room_main_icon">
+                    <img src="../images/icons_more.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_content">
+            <div class="tip">问题描述</div>
+            <div class="container_box_content_main">
+                <textarea placeholder="请具体描述问题..." id="contentDescribe"></textarea>
+            </div>
+        </div>
+        <div class="container_box_image">
+            <div class="tip">上传照片</div>
+            <div class="image_list">
+                <div id="upload_image">
+                    <img src="../images/upload.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_btn">
+            <div>提交报修</div>
+        </div>
+    </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script type="text/html" id="templateAddress">
+        <option value="" selected disabled>请选择房间号码</option>
+        {{each content as value i}}
+        <option value="{{value.area}}">{{value.houseNo}}</option>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+
+            var address = '';
+            var houseLength = 0;
+
+            // 报修区域缓存
+            var repairAreaStorage = window.localStorage.getItem('repairArea');
+            if (repairAreaStorage) {
+                $('.container_box_area_choose_item').each(function (i, item) {
+                    if ($(item).data('area') == repairAreaStorage) {
+                        $(this).siblings().removeClass('choosed');
+                        $(this).addClass('choosed');
+                        $(this).siblings().find('img').attr('src', '../images/choose_n.png');
+                        $(this).find('img').attr('src', '../images/choose_y.png');
+                    }
+                })
+            } else {
+                window.localStorage.setItem('repairArea', 'INDOOR')
+            }
+
+            // 客户端调用，判断页面加载完
+            registerHandlerBridge('pageFinished', function (response) {
+                // 获取客户端地址信息
+                callHandlerBridge('getFamilyInfo', {}, function (response) {
+                    var familyInfo = response;
+                    if (familyInfo === '' || familyInfo === null) {
+                        layer.msg('您还没有加入家庭');
+                    } else {
+                        var familyInfoData = JSON.parse(familyInfo);
+                        $('#chooseAddress').text(familyInfoData.address);
+                        address = familyInfoData.address;
+                        houseLength = 1;
+                    }
+                    // 选择其他的房间号码
+                    $('.container_box_room_main').unbind('click').bind('click', function () {
+                        if (houseLength > 0) {
+                            window.location.href = './address_list.html?communityId=' + communityId + '&accId=' + accId + '&from=repair' + '&accessToken=' + accessToken;
+                        } else {
+                            layer.msg('您还没有加入家庭')
+                        }
+                    })
+                });
+            })
+
+            // 切换报修区域
+            $('.container_box_area_choose_item').unbind('click').bind('click', function () {
+                if (!$(this).hasClass('choosed')) {
+                    $(this).siblings().removeClass('choosed');
+                    $(this).addClass('choosed');
+                    $(this).siblings().find('img').attr('src', '../images/choose_n.png');
+                    $(this).find('img').attr('src', '../images/choose_y.png');
+                    window.localStorage.setItem('repairArea', $(this).data('area'))
+                }
+            })
+
+            // 上传图片、删除图片、查看大图
+            $('#upload_image').unbind('click').bind('click', function () {
+                var _count = $(this).siblings('.image_list_litem').length;
+                var this_ = $(this);
+                if (_count < 9) {
+                    callHandlerBridge('uploadPicMultiple', { maxCount: 9 - _count, uploadType: 'repair' }, function (imageData) {
+                        console.log("uploadPicMultiple result = " + imageData);
+                        const picArr = JSON.parse(imageData);
+                        for (var value of picArr) {
+                            console.log("value = " + value);
+                            var imageItem = '<div class="image_list_litem"><div class="delete_img"><img src="../images/icon_close.png"></div><div class="main_img"><img src="' + value + '"></div></div>';
+                            $('.image_list').prepend(imageItem);
+                        }
+                        // 删除操作
+                        $('.delete_img').unbind('click').bind('click', function () {
+                            $(this).parents('.image_list_litem').fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                        });
+                        // 查看大图
+                        $('.main_img').unbind('click').bind('click', function () {
+                            var _i = $(this).parent().index();
+                            var _urlArr = [];
+                            $(this).parents('.image_list').find('.image_list_litem').each(function () {
+                                var _url = $(this).find('.main_img>img').attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+                    });
+                } else {
+                    layer.msg('不能超过九张图片');
+                    return false;
+                }
+            });
+
+            // 创建报修
+            $('.container_box_btn>div').unbind('click').bind('click', function () {
+                var data = {};
+                data.memberId = accId;
+                data.compoundId = communityId;
+                data.source = 'SMARTAPP';
+                // 报修区域
+                var areaType = $('.container_box_area_choose_item.choosed').data('area');
+                data.area = areaType;
+
+                // 房间号码
+                if (address) {
+                    data.address = address
+                } else {
+                    layer.msg('您还没有加入家庭');
+                    return false;
+                }
+
+                // 问题描述
+                var content = $('#contentDescribe').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (content) {
+                    var pattern = new RegExp("[~'!@#$%^&*()-+_=:]");
+                    if (pattern.test(content)) {
+                        layer.msg('描述内容带有非法字符');
+                        return false;
+                    } else {
+                        data.info = content
+                    }
+                } else {
+                    layer.msg('请输入问题描述');
+                    return false;
+                }
+
+                // 图片
+                var image_Arr = [];
+                $('.image_list').find('.image_list_litem').each(function () {
+                    var _url = $(this).find('.main_img>img').attr('src');
+                    image_Arr.push(_url);
+                });
+                data.photo = image_Arr.join(',');
+
+                // 提交
+                $.slAjax({
+                    type: 'post',
+                    url: root + "property/rest/report",
+                    contentType:"application/json",
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        if (res.code == 0) {
+                            // var reportId = res.content;
+                            // window.location.href = './property_repair_detail.html?communityId=' + communityId + '&accId=' + accId + '&reportId=' + reportId + '&accessToken=' + accessToken;
+                            // 改成直接回到原生入口页面
+                            layer.msg('提交成功', { shift: -1, time: 1000 }, function () {
+                                window.localStorage.removeItem("repairArea");
+                                callHandlerBridge('backToNative', {});
+                            })
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                });
+            })
+
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        })
+    </script>
+
+</body>
+
+</html>

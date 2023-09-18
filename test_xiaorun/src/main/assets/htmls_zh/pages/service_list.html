@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>服务店铺列表</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/service_list.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">服务列表</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <ul class="shop_category_list" id="shopCategoryList"></ul>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script type="text/html" id="templateShopList">
+        {{each records as value}}
+        <li class="shop_category_list_item" data-shopproductid="{{value.id}}">
+            <div class="shop_category_list_item_image">
+                <img src="{{value.image}}">
+            </div>
+            <div class="shop_category_list_item_info">
+                <p class="shop_category_list_item_info_name">{{value.name}}</p>
+                <p class="shop_category_list_item_info_other">月结单<span>{{value.sales}}</span> 好评率<span>{{value.score}}</span>%</p>
+                <p class="shop_category_list_item_info_price">￥<span>{{value.price}}</span>/{{value.unit}}</p>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var shopCategoryId = getQueryString("shopCategoryId") !== null ? getQueryString("shopCategoryId") : getCookie("shopCategoryId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var shopCategoryName = getQueryString("shopCategoryName") !== null ? getQueryString("shopCategoryName") : getCookie("shopCategoryName");
+            var pageIndex = 1;
+            var isLoading = true;
+
+            $(".page_header_main_title").text(shopCategoryName ? shopCategoryName : '服务列表');
+
+            // 请求分类下店铺列表
+            $.slAjax({
+                url: root + 'bus/rest/service/products/getBusServiceProductsPage',
+                type:'get',
+                data: {
+                    categoryId: shopCategoryId,
+                    current: pageIndex,
+                    size: PAGESIZE,
+                    auditStatusEnum:'ACCEPT'
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        if (res.data.records.length > 0) {
+                            $('#shopCategoryList')[0].innerHTML = template("templateShopList", res.data);
+
+                            $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                var shopProductId = $(this).data('shopproductid');
+                                window.location.href = './service_detail.html?shopProductId=' + shopProductId + '&communityId=' + communityId + '&accId=' + accId + '&accessToken=' + accessToken;
+                            });
+
+                            if (res.data.records.length < PAGESIZE) {
+                                $(".container_box_main").append('<div class="load-over">没有更多...</div>');
+                            } else {
+                                $('.container_box_main').scroll(function () {
+                                    var scrollTop = $(this).scrollTop();  // 滚动高度
+                                    var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                    var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                    if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                        isLoading = false;
+                                        pageIndex++;
+                                        $.slAjax({
+                                            url: root + 'bus/rest/service/products/getBusServiceProductsPage',
+                                            type:'get',
+                                            data: {
+                                                categoryId: shopCategoryId,
+                                                current: pageIndex,
+                                                size: PAGESIZE,
+                                                auditStatusEnum:'ACCEPT'
+                                            },
+                                            beforeSend: function () {
+                                                $(".container_box_main").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                            },
+                                            success: function (data) {
+                                                $(".container_box_main .loading_w").remove();
+                                                if (data.code == 0) {
+                                                    if (data.data.records.length > 0) {
+                                                        $('#shopCategoryList').append(template("templateShopList", data.data));
+                                                        isLoading = true;
+                                                        $('#shopCategoryList li').unbind('click').bind('click', function () {
+                                                            var shopProductId = $(this).data('shopproductid');
+                                                            window.location.href = './service_detail.html?shopProductId=' + shopProductId + '&communityId=' + communityId + '&accId=' + accId + '&accessToken=' + accessToken;
+                                                        });
+                                                    } else {
+                                                        $(".container_box_main").append('<div class="load-over">没有更多...</div>');
+                                                    }
+                                                } else {
+                                                    layer.msg(data.msg);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        } else {
+                            $(".container_box_main").append("<div class='default-none'><div class='no_img' style='width:100%;padding-top:1rem'><img src='../images/shop_null.png'></div><div class='no_tip'>暂无服务</div></div>");
+                        }
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+        });
+    </script>
+
+
+</body>
+
+</html>

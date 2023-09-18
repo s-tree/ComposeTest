@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>业委会公告详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/notice.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">业委会公告详情</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="title"></div>
+        <div class="createtime"></div>
+        <div class="content"></div>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/base64.js"></script>
+    <script src="../js/public.js"></script>
+    <script>
+        $(function () {
+            var noticeId = getQueryString("noticeId") !== null ? getQueryString("noticeId") : getCookie("noticeId");
+
+            $.slAjax({
+                url: root + 'managerServer/manageRest/getMessage',
+                data: {
+                    id: noticeId,
+                },
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == 0) {
+                        $('.title')[0].innerHTML = res.content.propertyMessage.title;
+                        $('.createtime')[0].innerHTML = getExactTime(res.content.propertyMessage.createDate);
+                        $('.content')[0].innerHTML = utf8to16(base64decode(res.content.propertyMessage.content));
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+
+            // 时间格式化
+            function getExactTime(time) {
+                var date = new Date(time);
+                // var date = new Date(time* 1000);
+                var year = date.getFullYear() + '-';
+                var month = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var dates = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+                var hour = date.getHours() + ':';
+                var min = date.getMinutes() + ':';
+                var second = date.getSeconds();
+                return year + month + dates;
+            }
+        })
+    </script>
+</body>
+
+</html>

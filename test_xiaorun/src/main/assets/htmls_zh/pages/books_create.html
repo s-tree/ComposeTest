@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>添加书籍</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/books_create.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">添加书籍</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_item">
+            <div class="tip"><i>*</i>封面</div>
+            <div class="content">
+                <div id="upload_image">
+                    <img src="../images/upload.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_item">
+            <div class="tip"><i>*</i>书名</div>
+            <div class="content">
+                <input type="text" placeholder="请输入书名" id="name">
+            </div>
+        </div>
+        <div class="container_box_item">
+            <div class="tip"><i>*</i>作者</div>
+            <div class="content">
+                <input type="text" placeholder="请输入作者" id="author">
+            </div>
+        </div>
+        <div class="container_box_item">
+            <div class="tip">出版社</div>
+            <div class="content">
+                <input type="text" placeholder="请输入出版社" id="press">
+            </div>
+        </div>
+        <div class="container_box_item">
+            <div class="tip">出版时间</div>
+            <div class="content">
+                <input type="text" id="publicationTime" placeholder="请选择出版时间" readonly>
+            </div>
+        </div>
+        <div class="container_box_btn">
+            <div>保存</div>
+        </div>
+    </div>
+    <div id="status_layer" style="display: none;">
+        <div class="layerBox">
+            <p class="layerBox_tip1">提示</p>
+            <p class="layerBox_tip2">保存成功，是否继续添加书籍？</p>
+            <div class="layerBox_btn">
+                <div class="layerBox_btn_no">不用了</div>
+                <div class="layerBox_btn_yes">是的</div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/jquery.base64.js"></script>
+    <script src="../plugins/rolldate/rolldate.min.js"></script>
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId")
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId")
+            var bookArr = []
+            var cover = ''
+
+            new Rolldate({
+                el: '#publicationTime',
+                format: 'YYYY-MM',
+                beginYear: 1970,
+                endYear: 2100
+            })
+
+            // 上传封面
+            $('#upload_image').unbind('click').bind('click', function () {
+                var this_ = $(this);
+                callHandlerBridge('uploadPicMultiple', { maxCount: 1, uploadType: 'book' }, function (imageData) {
+                    const picArr = JSON.parse(imageData);
+                    cover = picArr[0]
+                    $('#upload_image img').attr('src', cover)
+                });
+            });
+
+            // 保存
+            $('.container_box_btn>div').unbind('click').bind('click', function () {
+                var data = {};
+
+                // 封面
+                if (cover) {
+                    data.avatar = cover
+                } else {
+                    layer.msg('请上传封面');
+                    return false;
+                }
+
+                // 书名
+                var name = $('#name').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (name) {
+                    data.title = name
+                } else {
+                    layer.msg('请输入书名');
+                    return false;
+                }
+
+                // 作者
+                var author = $('#author').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (author) {
+                    data.author = author
+                } else {
+                    layer.msg('请输入作者');
+                    return false;
+                }
+
+                // 出版社
+                var press = $('#press').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (press) {
+                    data.bookCompany = press
+                } 
+                // else {
+                //     layer.msg('请输入出版社');
+                //     return false;
+                // }
+
+                // 出版时间
+                var publicationTime = $('#publicationTime').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (publicationTime) {
+                    data.publishDate = publicationTime
+                }
+                // else {
+                //     layer.msg('请选择出版时间');
+                //     return false;
+                // }
+
+                data.point = 0;
+                bookArr.push(data)
+
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    scrollbar: false,
+                    area: ['90%', '4rem'],
+                    content: $("#status_layer")
+                });
+                $("#status_layer .layerBox_btn_yes").unbind("click").bind('click', function () {
+                    layer.closeAll();
+                    cover = ''
+                    $('#upload_image img').attr('src', '../images/upload.png')
+                    $('.container_box input').val('')
+                });
+                $("#status_layer .layerBox_btn_no").unbind("click").bind('click', function () {
+                    layer.closeAll();
+                    bookArr.map((k, i) => { k.sn = i })
+                    callHandlerBridge('saveToCache', JSON.stringify(bookArr), function (response) {
+                        var bookDataId = response;
+                        callHandlerBridge('linkToPageWithBack', { 'pageName': 'books_check.html?accId=' + accId + '&communityId=' + communityId + '&bookDataId=' + bookDataId })
+                    });
+                })
+
+            })
+
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        })
+    </script>
+
+</body>
+
+</html>

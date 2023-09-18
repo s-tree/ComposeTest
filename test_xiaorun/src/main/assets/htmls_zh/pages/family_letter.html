@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>家书详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/family_letter.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">家书详情</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="letterBox">
+            <div class="letter">
+                <div class="title"></div>
+                <div class="createtime"></div>
+                <div class="content"></div>
+            </div>
+        </div>
+        <div class="bg_bt">
+            <img src="../images/letter_bt.png">
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/base64.js"></script>
+    <script src="../js/public.js"></script>
+    <script>
+        $(function () {
+            var letterId = getQueryString("letterId") !== null ? getQueryString("letterId") : getCookie("letterId");
+            $.slAjax({
+                url: root + 'crc/rest/letter/info/' + letterId,
+                type: 'get',
+                data: {
+                    letterId: letterId,
+                },
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == 0) {
+                        $('.title')[0].innerHTML = res.data.title;
+                        $('.createtime')[0].innerHTML = res.data.updateTime;
+                        $('.content')[0].innerHTML = res.data.content
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

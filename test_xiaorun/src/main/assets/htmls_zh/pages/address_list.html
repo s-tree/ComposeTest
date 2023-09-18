@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>选择收货地址</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/address_list.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">选择地址</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <ul class="adjustHeightFixed"></ul>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script id="templateFamilyInfo" type="text/html">
+        {{each content as value i}}
+        <li data-familyname="{{value.familyName}}" 
+        data-buildno="{{value.buildNo}}" 
+        data-familyid="{{value.familyId}}" 
+        data-address="{{value.address}}">
+            <div class="basic_info">
+                <div class="basic_info_address">{{value.address}}</div>
+                <div class="basic_info_name">{{value.familyName}}</div>
+            </div>
+            {{if value.isChoose}}
+            <img src="../images/icon_location_blue.png" style="width:0.4rem;height:0.4rem"/>
+            {{/if}}
+        </li>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var familyInfoIdChoose = getQueryString("familyInfoIdChoose") !== null ? getQueryString("familyInfoIdChoose") : getCookie("familyInfoIdChoose"); // 来自商务订单 - 跟家庭优惠券关联
+            var isHuarun = getQueryString("isHuarun") !== null ? getQueryString("isHuarun") : getCookie("isHuarun"); //华润
+
+            callHandlerBridge('getCommunityFamilyInfoList', {}, function (response) {
+                var familyInfo = response;
+                // var familyInfo = "[{\"address\":\"东共2最1号楼1单元1层103室\",\"avatar\":\"\",\"buildInfoId\":\"1602893113760583682\",\"buildNo\":\"1\",\"communityId\":\"1602631509185789954\",\"compoundId\":\"1602631509185789954\",\"compoundName\":\"东共2最\",\"dockKey\":\"tempor do enim aliqua adipisicing\",\"door\":103,\"familyAvatar\":\"http://10.10.6.234:9999/admin/sys/file/housekeeper/2d9dd1f537cd45b592c4a8d841e3035f.jpg\",\"familyId\":\"1630819157266423809\",\"familyInfoId\":\"1630819157266423809\",\"familyName\":\"张三家\",\"familyStatus\":\"BOUND\",\"floor\":1,\"houseNo\":\"东共2最1号楼1单元1层103室\",\"initials\":\"\",\"isFree\":false,\"memberId\":\"1604677894997827585\",\"memberTypeInFamily\":\"familyOwner\",\"nickName\":\"张三家\",\"owner\":true,\"ownerAccid\":\"\",\"propertyDeviceVO\":{\"alias\":\"minim quis\",\"buttonKey\":\"eu in ea sed\",\"code\":\"4\",\"dockKey\":\"tempor do enim aliqua adipisicing\",\"dockerSn\":\"GS40K36G06250000\",\"host\":true,\"padSn\":\"GS40K36G1111\",\"password\":\"labore nisi laboris\",\"ssid\":\"29\",\"status\":\"est\"},\"relationship\":\"SELF\",\"status\":\"BOUND\",\"unit\":1}]";
+
+                if (familyInfo === '' || familyInfo === null) {
+                    layer.msg('您还没有加入家庭');
+                    return;
+                } 
+
+                var familyInfoData = JSON.parse(familyInfo);
+                for(var i = 0; i < familyInfoData.length; i++){
+                    familyInfoData[i].isChoose = familyInfoData[i].familyId == familyInfoIdChoose;
+                }
+                var temp = {};
+                temp["content"] = familyInfoData;
+                $('.container_box ul')[0].innerHTML = template('templateFamilyInfo', temp);
+                $('.container_box ul li').unbind('click').bind('click', function () {
+                    var familyName = $(this).data('familyname');
+                    var familyId = $(this).data('familyid');
+                    var buildNo = $(this).data('buildno');
+                    var address = $(this).data('address');
+
+                    var familyInfo = {
+                        familyId: familyId,
+                        address: address,
+                        familyName: familyName,
+                        buildNo: buildNo
+                    };
+
+                    if (isHuarun) {
+                        callHandlerBridge('chooseFamilyInfo', { 'familyInfo': JSON.stringify(familyInfo), 'clear': false }, function (response) {
+                            callHandlerBridge('autoGoback', { 'refresh': false });
+                        });
+                    } else {
+                        if (familyInfoIdChoose == familyId) {
+                            // 没有改变收货地址的商务订单
+                            callHandlerBridge('chooseFamilyInfo', { 'familyInfo': JSON.stringify(familyInfo), 'clear': false }, function (response) {
+                                callHandlerBridge('autoGoback', { 'refresh': false });
+                            });
+                        } else {
+                            // 服务订单、团购订单、以及改变了收货地址的商务订单
+                            var accessToken = window.localStorage.getItem('ACCESS_TOKEN');
+                            window.localStorage.clear();
+                            window.localStorage.setItem('ACCESS_TOKEN', accessToken);
+                            callHandlerBridge('chooseFamilyInfo', { 'familyInfo': JSON.stringify(familyInfo), 'clear': true }, function (response) {// clear 为 true 需要客户端清除优惠券信息
+                                callHandlerBridge('autoGoback', { 'refresh': false });
+                            });
+                        }
+                    }
+                })
+            });
+
+        })
+    </script>
+
+</body>
+
+</html>

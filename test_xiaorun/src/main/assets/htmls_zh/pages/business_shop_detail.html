@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>店铺详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/business_shop_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">店铺详情</div>
+            <div class="page_header_main_btns">
+                <div class="search_btn">
+                    <img src="../images/hbtn_search.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_header adjustHeight" id="content_top">
+            <div class="shop_info">
+                <div class="shop_info_basic">
+                    <div class="shop_info_basic_left">
+                        <p class="shop_info_basic_left_name">...</p>
+                        <div class="shop_info_basic_left_star">
+                            <div class="star">
+                                <div class="star_box">
+                                    <span class="gradient-box" style="width: 0;"></span>
+                                    <img src="../images/star_five.png">
+                                </div>
+                            </div>
+                            <span class="score_index"><i></i>分</span>
+                            <span class="count">月售<i></i></span>
+                        </div>
+                    </div>
+                    <div class="shop_info_basic_image"></div>
+                </div>
+                <div class="shop_info_other">
+                    <p>营业时间：<span></span></p>
+                    <p>地址：<span></span></p>
+                </div>
+            </div>
+            <ul class="tab_bar">
+                <li class="active">本店商品</li>
+                <li>评价<span class="score"></span></li>
+            </ul>
+        </div>
+        <div class="container_box_main" id="content_main">
+            <ul class="product_box"></ul>
+            <ul class="comment_box" style="height: 0;overflow: hidden;"></ul>
+        </div>
+        <div class="container_box_footer">
+            <div class="cart_footer">
+                <div class="footer_list">
+                    <div class="cart_footer_title">
+                        <div class="tip">已选商品</div>
+                        <div id="clearAll">清空</div>
+                    </div>
+                </div>
+                <div class="footer_nav">
+                    <div class="cart_icon">
+                        <img src="../images/shopCart.png">
+                        <span>0</span>
+                    </div>
+                    <div class="total_price">¥<span>0</span></div>
+                    <div class="submit_btn">去结算</div>
+                </div>
+            </div>
+            <div class="vip_footer">
+                <div class="vip_list">
+                    <div class="vip_list_title">店铺优惠</div>
+                    <ul class="vip_list_main"></ul>
+                </div>
+            </div>
+            <div class="mask_view"></div>
+            <div class="mask_view1"></div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/score.js"></script>
+    <script src="../js/date.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <!-- 顶部店铺信息模板 -->
+    <script type="text/html" id="templateShopHeader">
+        <div class="shop_info">
+            <div class="shop_info_basic">
+                <div class="shop_info_basic_left">
+                    <p class="shop_info_basic_left_name">{{data.name}}</p>
+                    <div class="shop_info_basic_left_star">
+                        <div class="star">
+                            <div class="star_box">
+                                <span class="gradient-box" style="width: {{data.score * 20}}%;"></span>
+                                <img src="../images/star_five.png">
+                            </div>
+                        </div>
+                        <span class="score_index"><i>{{data.score}}</i>分</span>
+                        <span class="count">月售<i>{{data.sales}}</i></span>
+                    </div>
+                </div>
+                <div class="shop_info_basic_image">
+                    <img src="{{data.headImage}}">
+                </div>
+            </div>
+            <div class="shop_info_other">
+                <p>营业时间：<span>{{workStr(data.openTime,data.closeTime,data.workDay)}}</span></p>
+                <p>地址：<span>{{data.address}}</span></p>
+            </div>
+            {{if data.busVip || (data.busCouponsVOS && data.busCouponsVOS.length)}}
+            <div class="shop_info_coupons">
+                <div class="shop_info_coupons_qy">
+                    {{if data.busVip && data.busVip.enable }}
+                    <div class="shop_info_coupons_qy_vip">
+                        <span>{{data.busVip.discount / 10}}</span>折 会员专享
+                    </div>
+                    {{/if}}
+                    {{if data.busCouponsVOS.length}}
+                    <div class="shop_info_coupons_qy_list">
+                        <ul>
+                            {{each data.busCouponsVOS as value i}}
+                                {{if value.enable}}
+                                    <li>
+                                        <div class="coupons_info">
+                                            {{if value.type == "SUBTRACTION"}}
+                                                <span>￥</span><i class="couponsCount">{{value.amountReduction}}</i><span>店铺</span>
+                                            {{else}}
+                                                <i class="couponsCount">{{value.discount / 10}}折</i><span>店铺</span>
+                                            {{/if}}
+                                        </div>
+                                        {{if value.use == 0}}
+                                        <div class="coupons_take">领</div>
+                                        {{/if}}
+                                    </li>
+                                {{/if}}
+                            {{/each}}
+                        </ul>
+                    </div>
+                    {{/if}}
+                </div>
+                {{if (data.busCouponsVOS && data.busCouponsVOS.length)}}
+                <div class="shop_info_coupons_show">
+                    <img src="../images/icons_more.png">
+                </div>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+        {{if data.busVip && data.busVip.enable}}
+        <div class="vip_info">
+            <div class="vip_info_basic">
+                <div class="vip_info_basic_tip">
+                    <div class="vip_info_basic_tip_logo">
+                        <img src="../images/icon_vip.png">
+                    </div>
+                    <span>慧管家会员</span>
+                </div>
+                <p class="vip_info_basic_main">领取权益享{{data.busVip.discount / 10}}折优惠</p>
+            </div>
+            {{if data.busVip.isMember}}
+                <div class="vip_info_taked" >已领取</div>
+            {{else}}
+                <div class="vip_info_take" data-vipid="{{data.busVip.id}}" data-discount="{{data.busVip.discount}}">领取权益</div>
+            {{/if}}
+        </div>
+        {{/if}}
+        <ul class="tab_bar">
+            <li class="active">本店商品</li>
+            <li>评价<span class="score">{{data.stars}}</span></li>
+        </ul>
+    </script>
+    <!-- 商品列表模板 -->
+    <script type="text/html" id="templateProductList">
+        {{each records as value}}
+        <li class="product_item">
+            <div class="product_item_image">
+                <img src="{{value.image}}">
+            </div>
+            <div class="product_item_info">
+                <div class="product_item_info_name">{{value.name}}</div>
+                <div class="product_item_info_other">月售{{value.sales}}<span>好评率{{value.score}}%</span></div>
+                <div class="product_item_info_price">
+                    <div class="price">￥<span>{{value.price}}</span></div>
+                    <div class="add" 
+                    data-productid="{{value.id}}"
+                    data-productimgpath="{{value.image}}"
+                    data-productname="{{value.name}}"
+                    data-productprice="{{value.price}}"
+                    data-productorders="{{value.sales}}"
+                    data-productrate="{{value.score}}"
+                    ><img src="../images/count_add.png"></div>
+                </div>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <!-- 评论列表模板 -->
+    <script type="text/html" id="templateCommentList">
+        {{each records as value}}
+        <li class="comment_item">
+            <div class="user_image">
+                <img src="{{value.avatar}}" onerror="this.src='../images/head_default.png'">
+            </div>
+            <div class="comment_container">
+                <div class="user_name">
+                    <p>{{value.memberName ? value.memberName : '匿名用户'}}</p>
+                </div>
+                <div class="star">
+                    <div class="star_box">
+                        <span class="gradient-box" style="width: {{value.star * 20}}%;"></span>
+                        <img src="../images/star_five.png">
+                    </div>
+                </div>
+                <div class="comment_content">
+                    <p>{{value.content}}</p>
+                </div>
+                <div class="comment_images">
+                    {{if value.image != null}}
+                    {{each value.image}}
+                    <div class="image_item">
+                        <img src="{{$value}}">
+                    </div>
+                    {{/each}}
+                    {{/if}}
+                </div>
+                <div class="comment_time">
+                    <p>{{value.createTime}}</p>
+                </div>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <!-- 底部优惠券列表模板 -->
+    <script type="text/html" id="templateCouponsList">
+        {{each busCouponsVOS as value}}
+            {{if value.enable}}
+                <div class="vip_list_item">
+                    {{if value.type == "SUBTRACTION"}}
+                        <div class="vip_list_item_price">￥<span>{{value.amountReduction}}</span></div>
+                    {{else}}
+                        <div class="vip_list_item_price"> <span>{{value.discount / 10}}折</span></div>
+                    {{/if}}
+                    <div class="vip_list_item_content">
+                        <div class="tip">优惠券</div>
+                        <div class="content">满{{value.initAmount}}元使用，{{value.endDate.length > 10 ? value.endDate.substr(0,10) : value.endDate}}到期</div>
+                    </div>
+                    {{if value.use == 1}}
+                    <div class="vip_list_item_btn active">已领</div>
+                    {{else if value.use == 2}}
+                    <div class="vip_list_item_btn active">已使用</div>
+                    {{else}}
+                    <div class="vip_list_item_btn" data-shopcouponsid="{{value.id}}">领取</div>
+                    {{/if}}
+                </div>
+            {{/if}}
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var shopManageId = getQueryString("shopManageId") !== null ? getQueryString("shopManageId") : getCookie("shopManageId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+
+            var nativeCartMap = {};
+            var cartMapData = {};
+            var curNavIndex = 0;
+            var pageIndex_product = 1;
+            var pageIndex_comment = 1;
+            var isLoading0 = true;
+            var isLoading1 = true;
+
+            // 客户端调用，判断页面加载完
+            registerHandlerBridge('pageFinished', function (response) {
+                // 获取客户端购物车数据
+                callHandlerBridge('getNativeShopData', {}, function (response) {
+                    console.log(response);
+                    window.localStorage.setItem('CART_MAP', response);
+                    if (!response) {
+                        cartMapData = {};
+                        cartMapData[shopManageId] = {};
+                    } else {
+                        cartMapData = JSON.parse(response);
+                        var _shopCartMap = cartMapData[shopManageId];
+                        if (_shopCartMap == undefined) {
+                            cartMapData[shopManageId] = {};
+                        } else {
+                            footerList(cartMapData[shopManageId]);
+                        }
+                    }
+                });
+            })
+
+            if (!cartMapData) {
+                cartMapData = {};
+                cartMapData[shopManageId] = {};
+            } else {
+                var _shopCartMap = cartMapData[shopManageId];
+                if (_shopCartMap == undefined) {
+                    cartMapData[shopManageId] = {};
+                } else {
+                    footerList(cartMapData[shopManageId]);
+                }
+            }
+
+            // 搜索店铺内商品
+            $('.search_btn').unbind('click').bind('click', function () {
+                window.location.href = './business_shop_search.html?communityId=' + communityId + '&shopManageId=' + shopManageId + '&accId=' + accId + '&familyInfoId=' + familyInfoId + '&accessToken=' + accessToken;
+            })
+
+            // 获取店铺相关信息 
+            $.slAjax({
+                url: root + 'bus/rest/store/info/' + shopManageId,
+                type: "get",
+                data: {
+                    familyId:familyInfoId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        var busCouponsVOS = res.data.busCouponsVOS;
+                        var temp = [];
+                        if(busCouponsVOS && busCouponsVOS.length > 0){
+                            for(var i = 0; i < busCouponsVOS.length; i++){
+                                if(busCouponsVOS[i].enable && !isExpire(busCouponsVOS[i].endDate) && busCouponsVOS[i].scope == 'ALL'){
+                                    temp.push(busCouponsVOS[i]);
+                                }
+                            }
+                        }
+                        res.data.busCouponsVOS = temp;
+
+                        var busVip = res.data.busVip;
+                        //会员权益为仅线下
+                        if(busVip && busVip.scope == 'OFFLINE'){
+                            res.data.busVip = null;
+                        }
+
+                        $('#content_top').html(template('templateShopHeader', res));
+
+                        // 设置滚动区 padding-top
+                        var header_height = document.getElementById('content_top').offsetHeight;
+                        $(".container_box_main").css('padding-top', header_height);
+
+                        nativeCartMap['content'] = {
+                            shopManageId: res.data.id,
+                            shopManageStars: res.data.score,
+                            shopManageImgPic: res.data.image,
+                            shopManageName: res.data.name,
+                            shopManageVipId: "",
+                            shopManageVipDiscount: "",
+                            products: []
+                        };
+
+                        // 底部优惠券列表赋值
+                        $('.vip_list_main').html(template('templateCouponsList', res.data));
+                        showBottomCoupons();
+
+                        // 获取默认的商品列表
+                        getProductList();
+                        contentScroll_product();
+
+                        // 领取会员权益
+                        takeVip();
+
+                        // 切换商品-评论列表
+                        $(".tab_bar li").unbind('click').bind('click', function () {
+                            if (!$(this).hasClass('active')) {
+                                $(this).siblings().removeClass('active');
+                                $(this).addClass('active');
+                                curNavIndex = $(this).index();
+                                if (curNavIndex === 0) {
+                                    $('.product_box').css('height', '100%');
+                                    $('.product_box').css('overflow', 'auto');
+                                    $('.comment_box').css('height', '0');
+                                    $('.comment_box').css('overflow', 'hidden');
+                                    if (pageIndex_product == 1) {
+                                        getProductList();
+                                    }
+                                    contentScroll_product();
+                                } else if (curNavIndex === 1) {
+                                    $('.comment_box').css('height', '100%');
+                                    $('.comment_box').css('overflow', 'auto');
+                                    $('.product_box').css('height', '0');
+                                    $('.product_box').css('overflow', 'hidden');
+                                    if (pageIndex_comment == 1) {
+                                        getCommentList();
+                                    }
+                                    contentScroll_comment();
+                                }
+                            }
+                        })
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            });
+
+            // 底部购物车 - 打开
+            $('.cart_icon, .total_price').unbind('click').bind('click', function () {
+                var footerListItemLength = $('.footer_list > .footer_list_item').length;
+                if (footerListItemLength > 0) {
+                    $('.footer_list').toggleClass('footer_list_open');
+                    $('.mask_view').toggleClass('mask_view_show');
+                }
+            })
+            // 底部购物车 - 关闭
+            $('.mask_view').unbind('click').bind('click', function () {
+                $('.footer_list').removeClass('footer_list_open');
+                $(this).removeClass('mask_view_show');
+            });
+
+            // 清空购物车内所有该店铺已选商品
+            $("#clearAll").unbind('click').bind('click', function () {
+                callHandlerBridge('emptyCart', { 'shopManageId': shopManageId });
+
+                $('.footer_list').find('.footer_list_item').remove();
+                $('.footer_list').toggleClass('footer_list_open');
+                $('.mask_view').toggleClass('mask_view_show');
+                cartMapData = {};
+                cartMapData[shopManageId] = {};
+                $('.cart_icon > span')[0].innerHTML = 0;
+                $('.total_price > span')[0].innerHTML = 0;
+            })
+
+            // 去结算 
+            $('.submit_btn').unbind('click').bind('click', function () {
+                callHandlerBridge('toShopCart', { 'shopManageId': shopManageId });
+            });
+
+            // 获取商品列表
+            function getProductList() {
+                $.slAjax({
+                    url: root + 'bus/rest/goods/products/page',
+                    type: "get",
+                    data: {
+                        storeId: shopManageId,
+                        current: pageIndex_product,
+                        size: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.records.length > 0) {
+                                $('#content_main .product_box')[0].innerHTML = template("templateProductList", res.data);
+                                addToShopCar();
+                                if (res.data.records.length < PAGESIZE) {
+                                    $("#content_main .product_box").append('<div class="load-over">没有更多...</div>');
+                                    isLoading0 = false;
+                                }
+                            } else {
+                                $("#content_main .product_box").html("<div class='default-none' style='padding-top:.4rem'><div class='no_img' style='width:60%'><img src='../images/hot_goods_null.png'></div><div class='no_tip'>暂无商品</div></div>");
+                            }
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                });
+            }
+
+            // 获取评论列表
+            function getCommentList() {
+                $.slAjax({
+                    url: root + 'bus/rest/evaluation/page',
+                    type: "get",
+                    data: {
+                        storeId: shopManageId,
+                        current: pageIndex_comment,
+                        size: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.records.length > 0) {
+                                $('#content_main .comment_box')[0].innerHTML = template("templateCommentList", res.data);
+                                showBigImg();
+                                if (res.data.records.length < PAGESIZE) {
+                                    $("#content_main .comment_box").append('<div class="load-over">没有更多...</div>');
+                                    isLoading1 = false;
+                                }
+                            } else {
+                                $("#content_main .comment_box").html("<div class='default-none' style='padding-top:.4rem'><div class='no_img' style='width:60%'><img src='../images/content_null.png'></div><div class='no_tip'>暂无评论</div></div>");
+                            }
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                });
+            }
+
+            // 滚动加载更多商品
+            function contentScroll_product() {
+                $('.product_box').scroll(function () {
+                    var scrollTop = $(this).scrollTop();  // 滚动高度
+                    var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                    var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+                    if ((docHeight - scrollTop - viewHeight <= 100) && isLoading0) {
+                        isLoading0 = false;
+                        pageIndex_product++;
+                        $.slAjax({
+                            url: root + 'bus/rest/goods/products/page',
+                            type: "get",
+                            data: {
+                                storeId: shopManageId,
+                                current: pageIndex_product,
+                                size: PAGESIZE
+                            },
+                            beforeSend: function () {
+                                $("#content_main").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                            },
+                            success: function (data) {
+                                $("#content_main .loading_w").remove();
+                                if (data.code == 0) {
+                                    if (res.data && res.data.records && res.data.records.length > 0) {
+                                        $('#content_main .product_box').append(template("templateProductList", data.data));
+                                        isLoading0 = true;
+                                        addToShopCar();
+                                    } else {
+                                        $("#content_main .product_box").append('<div class="load-over">没有更多...</div>');
+                                    }
+                                } else {
+                                    layer.msg(data.msg);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 滚动加载更多评论
+            function contentScroll_comment() {
+                $('.comment_box').scroll(function () {
+                    var scrollTop = $(this).scrollTop();  // 滚动高度
+                    var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                    var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+                    if ((docHeight - scrollTop - viewHeight <= 100) && isLoading1) {
+                        isLoading1 = false;
+                        pageIndex_comment++;
+                        $.slAjax({
+                            url: root + 'bus/rest/evaluation/page',
+                            type: "get",
+                            data: {
+                                storeId: shopManageId,
+                                current: pageIndex_comment,
+                                size: PAGESIZE
+                            },
+                            beforeSend: function () {
+                                $("#content_main").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                            },
+                            success: function (data) {
+                                $("#content_main .loading_w").remove();
+                                if (data.code == 0) {
+                                    if (res.data && res.data.records && res.data.records.length > 0) {
+                                        $('#content_main .comment_box').append(template("templateCommentList", data.data));
+                                        isLoading1 = true;
+                                        showBigImg();
+                                    } else {
+                                        $("#content_main .comment_box").append('<div class="load-over">没有更多...</div>');
+                                    }
+                                } else {
+                                    layer.msg(data.msg);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 查看优惠券列表、领取 
+            function showBottomCoupons() {
+                $('.shop_info_coupons_qy_list,.shop_info_coupons_show').unbind('click').bind('click', function () {
+                    $('.vip_list').toggleClass('vip_list_open');
+                    $('.mask_view1').toggleClass('mask_view_show');
+                    $('.mask_view1').unbind('click').bind('click', function () {
+                        $('.vip_list').removeClass('vip_list_open');
+                        $(this).removeClass('mask_view_show');
+                    });
+                    // 领取优惠券
+                    $('.vip_list_main .vip_list_item_btn').unbind('click').bind('click', function () {
+                        var this_ = $(this);
+                        var index_ = this_.parent().index();
+                        if (!this_.hasClass('active')) {
+                            var shopCouponsId = this_.data('shopcouponsid');
+                            var requestData = {};
+                            requestData["couponsId"] = shopCouponsId;
+                            requestData["familyId"] = familyInfoId;
+                            $.slAjax({
+                                url: root + 'bus/rest/member/coupons',
+                                type: "post",
+                                contentType:"application/json",
+                                data: JSON.stringify(requestData),
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        $('.shop_info_coupons_qy_list li').eq(index_).find('.coupons_take').remove();
+                                        this_.addClass('active');
+                                        this_.text('已领');
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+                        }
+                    })
+                })
+            }
+
+            // 领取会员权益 
+            function takeVip() {
+                $('.vip_info_take').unbind('click').bind('click', function () {
+                    var vipId = $(this).data('vipid');
+                    var discount = $(this).data('discount');
+                    var vipbox = $(this).parent();
+                    var request = {};
+                    request['familyId'] = familyInfoId;
+                    request['vipId'] = vipId;
+                    $.slAjax({
+                        url: root + 'bus/rest/member/vip',
+                        type: 'post',
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: JSON.stringify(request),
+                        success: function (res) {
+                            if (res.code == 0) {
+                                $(".vip_info_take").unbind('click');
+                                $(".vip_info_take").addClass("vip_info_taked");
+                                $(".vip_info_take").removeClass("vip_info_take");
+                                $(".vip_info_taked")[0].innerHTML = "已领取";
+
+                                // 设置滚动区 padding-top
+                                var header_height = document.getElementById('content_top').offsetHeight;
+                                $(".container_box_main").css('padding-top', header_height);
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                })
+            }
+
+            // 将商品加入购物车列表
+            function addToShopCar() {
+                $('.product_box .add').unbind('click').bind('click', function () {
+                    var productQuantity;
+                    var productId = $(this).data('productid');
+                    var productName = $(this).data('productname');
+                    var productPrice = $(this).data('productprice');
+                    var productImgPath = $(this).data('productimgpath');
+                    var productRate = $(this).data('productrate');
+                    var productOrders = $(this).data('productorders');
+
+                    if (cartMapData[shopManageId][productId] == undefined) {
+                        productQuantity = 1;
+                    } else {
+                        var curQuantity = cartMapData[shopManageId][productId].shopProductSum;
+                        productQuantity = curQuantity >= 99 ? 99 : curQuantity + 1;
+                    }
+
+                    cartMapData[shopManageId][productId] = {
+                        productId: productId,
+                        imgPath: productImgPath,
+                        name: productName,
+                        price: productPrice,
+                        shopProductSum: productQuantity,
+                        rate: productRate,
+                        orders: productOrders
+                    };
+
+                    shopCartDataAddDel('addProduct', productId, productName, productImgPath, productPrice, productRate, productOrders);
+                    window.localStorage.setItem('CART_MAP', JSON.stringify(cartMapData));
+                    footerList(cartMapData[shopManageId]);
+                });
+            }
+
+            // 查看评论中的大图
+            function showBigImg() {
+                $('.image_item').unbind('click').bind('click', function () {
+                    var index_ = $(this).index();
+                    var urlArr = [];
+                    $(this).parent('.comment_images').find('.image_item').each(function () {
+                        var _url = $(this).find('img').attr('src');
+                        urlArr.push(_url);
+                    });
+                    callHandlerBridge('photoView', {
+                        index: index_,
+                        url: urlArr.join(',')
+                    });
+                });
+            }
+
+            // 购物车列表
+            function footerList(listdata) {
+                console.log(listdata);
+                var str = '';
+                var totalQuantity = 0;
+                var totalPrice = 0;
+                $('.footer_list .footer_list_item').remove();
+
+                for (var i in listdata) {
+                    totalQuantity += Number(listdata[i].shopProductSum);
+                    totalPrice += Number(listdata[i].price) * Number(listdata[i].shopProductSum);
+                    str += '<div class="footer_list_item" data-productid="' + listdata[i].productId + '" ' +
+                        'data-productimgpath="' + listdata[i].imgPath + '" ' +
+                        'data-productprice="' + listdata[i].price + '" ' +
+                        'data-productname="' + listdata[i].name + '"' +
+                        'data-productrate="' + listdata[i].rate + '"' +
+                        'data-productorders="' + listdata[i].orders + '"' +
+                        '>' +
+                        '   <div class="footer_list_item_image">' +
+                        '       <img src="' + listdata[i].imgPath + '">' +
+                        '   </div>' +
+                        '   <div class="footer_list_item_info">' +
+                        '       <div class="footer_list_item_info_name">' + listdata[i].name + '</div>' +
+                        '       <div class="footer_list_item_info_other">月售' + listdata[i].orders + ' <span>好评率' + listdata[i].rate + '%</span></div>' +
+                        '       <div class="footer_list_item_info_price">' +
+                        '           <div class="price">￥<span>' + listdata[i].price + '</span></div>' +
+                        '           <div class="operation">' +
+                        '               <div class="del_btn"><img src="../images/count_minus.png"></div>' +
+                        '               <div class="count">' + listdata[i].shopProductSum + '</div>' +
+                        '               <div class="add_btn"><img src="../images/count_add.png"></div>' +
+                        '           </div>' +
+                        '       </div>' +
+                        '   </div>' +
+                        '</div>';
+                }
+
+                $('.cart_icon > span')[0].innerHTML = totalQuantity;
+                $('.total_price > span')[0].innerHTML = totalPrice.toFixed(2);
+                $('.footer_list').append(str);
+
+                // 购物车内商品按钮 - 增加
+                $('.footer_list .add_btn').unbind('click').bind('click', function () {
+                    var productId = $(this).parents('.footer_list_item').data('productid');
+                    var productName = $(this).parents('.footer_list_item').data('productname');
+                    var productPrice = $(this).parents('.footer_list_item').data('productprice');
+                    var productImgPath = $(this).parents('.footer_list_item').data('productimgpath');
+                    var productRate = $(this).parents('.footer_list_item').data('productrate');
+                    var productOrders = $(this).parents('.footer_list_item').data('productorders');
+
+                    var curQuantity = cartMapData[shopManageId][productId].shopProductSum;
+                    var quantity;
+                    if (curQuantity >= 99) {
+                        quantity = 99;
+                    } else {
+                        quantity = curQuantity + 1;
+                    }
+                    cartMapData[shopManageId][productId].shopProductSum = quantity;
+
+                    shopCartDataAddDel('addProduct', productId, productName, productImgPath, productPrice, productRate, productOrders);
+                    window.localStorage.setItem('CART_MAP', JSON.stringify(cartMapData));
+                    footerList(cartMapData[shopManageId]);
+                });
+
+                // 购物车内商品按钮 - 减少
+                $('.footer_list .del_btn').unbind('click').bind('click', function () {
+                    var productId = $(this).parents('.footer_list_item').data('productid');
+                    var productName = $(this).parents('.footer_list_item').data('productname');
+                    var productPrice = $(this).parents('.footer_list_item').data('productprice');
+                    var productImgPath = $(this).parents('.footer_list_item').data('productimgpath');
+                    var productRate = $(this).parents('.footer_list_item').data('productrate');
+                    var productOrders = $(this).parents('.footer_list_item').data('productorders');
+
+                    var quantity = cartMapData[shopManageId][productId].shopProductSum - 1;
+                    if (quantity > 0) {
+                        cartMapData[shopManageId][productId].shopProductSum = quantity;
+                    } else {
+                        delete cartMapData[shopManageId][productId];
+
+                        if (Object.keys(cartMapData[shopManageId]).length <= 0) {
+                            $('.footer_list').toggleClass('footer_list_open');
+                            $('.mask_view').toggleClass('mask_view_show');
+                        }
+                    }
+
+                    shopCartDataAddDel('delProduct', productId, productName, productImgPath, productPrice, productRate, productOrders);
+                    window.localStorage.setItem('CART_MAP', JSON.stringify(cartMapData));
+                    footerList(cartMapData[shopManageId]);
+                });
+            }
+
+            // 购物车商品增减交互
+            function shopCartDataAddDel(method, productId, productName, productImgPath, productPrice, productRate, productOrders) {
+                nativeCartMap.content.products.length = 0;
+                nativeCartMap.content.products.push({
+                    productId: productId,
+                    name: productName,
+                    imgPath: productImgPath,
+                    price: productPrice,
+                    rate: productRate,
+                    orders: productOrders,
+                    shopProductSum: 1
+                });
+                callHandlerBridge(method, nativeCartMap, function (response) { });
+            }
+
+        })
+    </script>
+</body>
+
+</html>

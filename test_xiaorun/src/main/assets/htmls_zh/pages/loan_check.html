@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>确认订单</title>
+    <link rel="stylesheet" href="../plugins/switch/switch.css">
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/loan_check.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">确认订单</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_main adjustHeightFixed">
+            <div class="container_box_address">
+                <div class="container_box_address_left">
+                    <div class="receive_address">-</div>
+                    <div class="receive_name">-</div>
+                </div>
+                <div class="container_box_address_right">
+                    <img src="../images/icons_more.png">
+                </div>
+            </div>
+            <div class="container_box_goods"></div>
+            <div class="container_box_total">
+                <div>
+                    <div>租金金额</div>
+                    <div class="rent">-</div>
+                </div>
+                <div>
+                    <div>押金</div>
+                    <div class="deposit">-</div>
+                </div>
+                <div>
+                    <div>免租金额</div>
+                    <div class="rentFree">-</div>
+                </div>
+            </div>
+            <div class="container_box_score">
+                <div class="container_box_score_info">
+                    <div class="tip">家庭积分 <span>共<i>-</i>积分</span></div>
+                    <div class="content">
+                        每满<span class="limitScore">-</span>积分，
+                        可抵扣<span class="limitPrice">-</span>元
+                    </div>
+                    <div class="warn">注：押金不可用积分抵扣</div>
+                </div>
+                <div class="container_box_score_do">
+                    <div class="ischoose">
+                        <input id="scoreSwitch" type="checkbox" class="checkbox-switch switch-success" />
+                    </div>
+                    <div class="detail">已抵扣<span>￥0</span></div>
+                </div>
+            </div>
+            <div class="container_box_footer">
+                <div>
+                    <div class="totalPrice">需付金额：￥<span>-</span> (含押金)</div>
+                    <div class="tip">取件后当面支付</div>
+                </div>
+                <div class="payBtn">确认租借</div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../plugins/switch/switch.js"></script>
+    <script id="templateProductInfo" type="text/html">
+        <div class="goods_photo">
+            <img src="{{data.photo}}" onerror="this.parentNode.removeChild(this)">
+        </div>
+        <div class="goods_info">
+            <div class="goods_info_name">{{data.title}}</div>
+            <div class="goods_info_other">
+                {{if data.freeTime != 0}}
+                <span>{{data.freeTime}}小时内免租金</span>
+                {{/if}}
+                {{if data.point}}
+                <span>可用积分</span>
+                {{else}}
+                <span>不可用积分</span>
+                {{/if}}
+            </p>
+            </div>
+            <div class="goods_info_order">
+                <div class="price">￥<span>{{data.amount}}</span>/小时</div>
+                <div class="count">
+                    <div class="minusBtn">
+                        <img src="../images/count_minus.png">
+                    </div>
+                    <div class="tip">1</div>
+                    <div class="addBtn">
+                        <img src="../images/count_add.png">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        $(function () {
+            var productId = getQueryString("productId") !== null ? getQueryString("productId") : getCookie("productId");
+            // var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+
+            var familyInfoData = {};  // 家庭信息
+            var userInfoData = {};  // 用户信息
+            var familyMemberPoint; // 当前家庭总积分
+            var reachPoint; // 积分规则 - 满
+            var discountPoint; // 积分规则 - 减
+            var minHour = 1 // 最小租借时长
+            var maxHour = 1 // 最大租借时长
+            var useHour = 1 // 用户选择的租借时长
+            var rentUnit = 0 // 每小时的租金
+            var rentOrigin = 0 // 纯租金金额
+            var deposit = 0 // 押金 
+            var rentFreeHour = 0 // 免租时长
+            var rentFree = 0 // 免租金额 
+            var amount = 0 // 最终金额 - 不包含积分计算
+            var isAbleUse = false // 是否能用积分
+            var score = 0; // 实际使用的积分
+
+            var el = document.querySelector('.checkbox-switch');
+            var mySwitch = new Switch(el, {
+                size: 'small',
+                onSwitchColor: '#48AF8B'
+            })
+
+            // 客户端调用，判断页面加载完
+            registerHandlerBridge('pageFinished', function (response) {
+                // 获取家庭地址信息
+                callHandlerBridge('getFamilyInfo', {}, function (response) {
+                    // var response = {"address":"东共2最1号楼1单元1层103室","avatar":"","buildInfoId":"1602893113760583682","buildNo":"1","communityId":"1602631509185789954","compoundId":"1602631509185789954","compoundName":"东共2最","dockKey":"tempor do enim aliqua adipisicing","door":103,"familyAvatar":"http://10.10.6.234:9999/admin/sys/file/housekeeper/2d9dd1f537cd45b592c4a8d841e3035f.jpg","familyId":"1613045569855709186","familyInfoId":"1613045569855709186","familyName":"张三家","familyStatus":"BOUND","floor":1,"houseNo":"东共2最1号楼1单元1层103室","initials":"\u0000","isFree":false,"memberId":"1604677894997827585","memberTypeInFamily":"familyOwner","nickName":"张三家","owner":true,"ownerAccid":"","propertyDeviceVO":{"alias":"minim quis","buttonKey":"eu in ea sed","code":"4","dockKey":"tempor do enim aliqua adipisicing","dockerSn":"GS40K36G06250000","host":true,"padSn":"GS40K36G1111","password":"labore nisi laboris","ssid":"29","status":"est"},"relationship":"SELF","status":"BOUND","unit":1}';
+                    // var response = "{\"address\":\"东共2最1号楼1单元1层103室\",\"familyName\":\"测试家庭\",\"familyId\":\"1687387190203211778\"}";
+                    console.log(response);
+                    var familyInfo = response;
+                    if (familyInfo === '' || familyInfo === null) {
+                        layer.msg('您还没有加入家庭');
+                    } else {
+                        familyInfoData = JSON.parse(familyInfo);
+                        $('.receive_address').text(familyInfoData.address);
+                    }
+                    // 选择家庭地址
+                    $('.container_box_address').unbind('click').bind('click', function () {
+                        window.location.href = './address_list.html?communityId=' + communityId + '&accId=' + accId + '&isHuarun=true'
+                    });
+
+                    // 获取积分信息
+                    getScoreInfo()
+
+                    // 获取商品信息
+                    getProductInfo()
+                });
+
+                callHandlerBridge('getUserInfo', {}, function (response) {
+                    // var response = "{\"nickName\":\"测试测试\",\"mobile\":\"13160381628\"}";
+                    console.log(response);
+                    var userInfo = response;
+                    if (userInfo === '' || userInfo === null) {
+                        layer.msg('未能获取到用户信息');
+                    } else {
+                        userInfoData = JSON.parse(userInfo);
+                        $('.receive_name').text(userInfoData.nickName + " " + userInfoData.mobile);
+                    }
+
+                });
+
+            })
+
+            // 获取商品信息
+            function getProductInfo() {
+                $.slAjax({
+                    url: root + 'crc/rest/lease/goods/' + productId,
+                    type: 'get',
+                    data: {},
+                    success: function (data) {
+                        if (data.code == 0) {
+                            var templateHtml = template('templateProductInfo', data);
+                            $('.container_box_goods').append(templateHtml);
+
+                            // 基本信息
+                            minHour = data.data.times  // 最小租借时长
+                            maxHour = data.data.maxTime // 最大租借时长
+                            rentUnit = data.data.amount // 每小时的租金
+                            useHour = minHour // 最小租借时长作为用户默认租借时长
+                            // 判断是否有押金
+                            if (Number(data.data.deposit) != 0) {
+                                deposit = data.data.deposit // 押金
+                                $('.deposit').text('￥' + deposit)
+                            } else {
+                                deposit = 0
+                                $('.deposit').text('￥0.00')
+                            }
+                            // 判断是否有免租时长
+                            if (Number(data.data.freeTime) != 0) {
+                                rentFreeHour = data.data.freeTime // 免租时长
+                            } else {
+                                rentFreeHour = 0
+                            }
+                            var isAbleUse = data.data.point // 是否能使用积分 
+                            if (isAbleUse) {
+                                $('.container_box_score').css('visibility', 'visible')
+                            }
+                            updateAmount(isAbleUse)
+
+                            // 减少时长
+                            $('.minusBtn').unbind('click').bind('click', function () {
+                                if (useHour > minHour) {
+                                    useHour--
+                                    updateAmount(isAbleUse)
+                                } else {
+                                    layer.msg('最低租借时长' + minHour + '小时')
+                                }
+                            })
+
+                            // 增加时长
+                            $('.addBtn').unbind('click').bind('click', function () {
+                                if (useHour < maxHour) {
+                                    useHour++
+                                    updateAmount(isAbleUse)
+                                } else {
+                                    layer.msg('最大租借时长' + maxHour + '小时')
+                                }
+                            })
+
+                            // 提交
+                            $('.payBtn').unbind('click').bind('click', function () {
+                                var data = {}
+
+                                // 地址相关信息
+                                if (!familyInfoData.address) {
+                                    layer.msg('收货人信息不完整')
+                                    return false
+                                }
+                                data.compoundId = communityId
+                                data.memberAddress = familyInfoData.address
+                                data.memberId = userInfoData.memberId
+                                data.memberMobile = userInfoData.nickName
+                                data.memberName = userInfoData.mobile
+
+                                // 租借信息
+                                data.amount = amount
+                                data.goodsId = productId
+                                data.leaseTime = useHour
+                                data.deposit = deposit
+                                if (isAbleUse) {
+                                    data.point = score
+                                }
+                                // data.sumRent = $('.totalPrice span').text()
+
+                                // console.log(JSON.stringify(data))
+
+                                var index_ = layer.load(2, {
+                                    shade: [0.3, '#fff'],
+                                })
+
+                                $.slAjax({
+                                    url: root + "crc/rest/lease/order",
+                                    contentType: "application/json",
+                                    dataType: "json",
+                                    data: JSON.stringify(data),
+                                    success: function (res) {
+                                        layer.close(index_)
+                                        if (res.code == 0) {
+                                            layer.msg('租借成功', { shift: -1, time: 1000 }, function () {
+                                                callHandlerBridge('linkToPageWithBack', { 'pageName': 'loan_success.html?accId=' + accId + '&communityId=' + communityId + '&code=' + res.data })
+                                            })
+                                        } else {
+                                            layer.msg(res.msg)
+                                        }
+                                    }
+                                });
+
+                            })
+
+
+                        } else {
+                            layer.msg(data.msg);
+                        }
+                    }
+                });
+            }
+
+            // 更新相关金额UI
+            function updateAmount(isCanUse) {
+                // 用户选择的租借时长
+                $('.count .tip').text(useHour)
+                // 初始租金金额
+                rentOrigin = (rentUnit * useHour).toFixed(2)
+                $('.rent').text('￥' + rentOrigin)
+                // 免租金额
+                if (useHour <= rentFreeHour) {
+                    rentFree = (rentUnit * useHour).toFixed(2)
+                } else {
+                    rentFree = (rentUnit * rentFreeHour).toFixed(2)
+                }
+                $('.rentFree').text('-￥' + rentFree)
+                // 总金额 - 不包含积分计算
+                // amount = (Number(rentOrigin) + Number(deposit) - Number(rentFree)).toFixed(2)
+                amount = (Number(rentOrigin) - Number(rentFree)).toFixed(2)
+
+                if (isCanUse) {
+                    updateScore()
+                } else {
+                    $('.totalPrice span').text((Number(amount) + Number(deposit)).toFixed(2))
+                }
+            }
+
+            // 获取积分信息
+            function getScoreInfo() {
+                // 获取当前家庭总积分
+                $.slAjax({
+                    async: false,
+                    url: root + 'member/rest/family/' + familyInfoData.familyId,
+                    type: 'get',
+                    data: {},
+                    success: function (res) {
+                        if(res.code != 0 || res.data == null){
+                            familyMemberPoint = 0;
+                        }else{
+                            familyMemberPoint = res.data.points; // 当前家庭总积分
+                        }
+                        $('.container_box_score_info .tip i').text(familyMemberPoint);
+
+                        // 获取积分规则
+                        $.slAjax({
+                            async: false,
+                            url: root + 'bus/rest/order/pointsDeductionRule',
+                            type: "get",
+                            data: {},
+                            success: function (res) {
+                                if(res.code != 0 || res.data == null){
+                                    reachPoint = 100;// 积分规则 - 满
+                                    discountPoint = 1;// 积分规则 - 减
+                                    return;
+                                }
+                                reachPoint = parseInt(res.data);// 积分规则 - 满
+                                discountPoint = 1;// 积分规则 - 减
+                                $('.limitScore').text(reachPoint);
+                                $('.limitPrice').text(discountPoint);
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 处理积分操作
+            function updateScore() {
+                var countPrice = Math.floor(amount / discountPoint); // 总价最多需要几个满减
+                var countPoint = Math.floor(familyMemberPoint / reachPoint); // 总积分最大可用几个满减
+                var count = countPrice < countPoint ? countPrice : countPoint; // 实际能用几个满减
+                var pointMaxDiscount = count * discountPoint; // 实际最大减少的钱
+                var minPayable = parseFloat((amount - pointMaxDiscount).toFixed(2)); // 剩余支付的钱
+
+                if (familyMemberPoint >= reachPoint) {
+                    if (count > 0) {
+                        mySwitch.enable()
+                        mySwitch.on();
+                        score = count * reachPoint; // 实际最大使用积分
+                        $('.totalPrice span').text((Number(minPayable) + Number(deposit)).toFixed(2));
+                        $('.container_box_score_do .detail span').text('￥' + pointMaxDiscount);
+
+                        // 监听积分开关
+                        $(".ischoose").unbind('click').bind('click', function () {
+                            var isUse = mySwitch.getChecked();
+                            if (isUse) {
+                                score = count * reachPoint;
+                                $('.totalPrice span').text((Number(minPayable) + Number(deposit)).toFixed(2));
+                                $('.container_box_score_do .detail span').text('￥' + pointMaxDiscount);
+                            } else {
+                                score = 0;
+                                $('.totalPrice span').text((Number(amount) + Number(deposit)).toFixed(2));
+                                $('.container_box_score_do .detail span').text('￥0');
+                            }
+                        })
+                    } else {
+                        mySwitch.off();
+                        mySwitch.disable();
+                        score = 0; // 实际最大使用积分
+                        $('.totalPrice span').text((Number(amount) + Number(deposit)).toFixed(2));
+                        $('.container_box_score_do .detail span').text('￥0');
+                        $(".ischoose").unbind('click').bind('click', function () {
+                            layer.msg('不满足积分使用规则')
+                        })
+                    }
+                } else {
+                    mySwitch.off();
+                    mySwitch.disable();
+                    $('.totalPrice span').text((Number(amount) + Number(deposit)).toFixed(2));
+                    $('.container_box_score_do .detail span').text('￥0');
+                    $(".ischoose").unbind('click').bind('click', function () {
+                        layer.msg('积分不足，不可使用')
+                    })
+                }
+            }
+
+
+
+        })
+    </script>
+</body>
+
+</html>

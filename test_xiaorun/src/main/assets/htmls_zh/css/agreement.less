@@ -1,0 +1,78 @@
+@charset "utf-8";
+@import "public";
+
+.container_box {
+    width   : 100%;
+    height  : 100%;
+    overflow: auto;
+    padding : .4rem .2rem;
+
+    p {
+        width: 100%;
+    }
+
+    .wtable {
+        width        : 100%;
+        margin-bottom: .2rem;
+        overflow-x   : scroll;
+
+        table {
+            font-size: .26rem;
+
+            th,
+            td {
+                white-space: nowrap;
+            }
+
+            th {
+                font-weight: 800;
+            }
+        }
+    }
+
+    .title_top {
+        font-size    : .4rem;
+        text-align   : center;
+        margin-bottom: .2rem;
+        font-weight  : 800;
+    }
+
+    .title_leve1,
+    .title_leve2,
+    .title_leve3,
+    .title_leve4 {
+        font-weight  : 800;
+        margin-bottom: .16rem;
+    }
+
+    .title_leve1 {
+        font-size: .32rem;
+    }
+
+    .title_leve2 {
+        font-size: .30rem;
+    }
+
+    .title_leve3 {
+        font-size: .28rem;
+    }
+
+    .title_leve4 {
+        font-size: .26rem;
+    }
+
+    .content_txt {
+        font-size    : .26rem;
+        line-height  : .36rem;
+        margin-bottom: .2rem;
+
+        &.txt_indent {
+            text-indent: 2em;
+        }
+
+        &.txt_indent_s {
+            text-indent: 1em;
+        }
+    }
+
+}

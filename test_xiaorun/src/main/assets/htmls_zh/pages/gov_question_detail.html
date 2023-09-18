@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>问卷调查</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/property_activity_survey_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">问卷调查</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_main"></div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/jquery.base64.js"></script>
+    <!-- 问卷题目模板 -->
+    <script type="text/html" id="templateSurvey">
+        {{each content as value i}}
+        <div class="survey_item" data-type="{{value.type}}" data-surveyid="{{value.id}}">
+            <p>{{value.seq}}.{{value.name}}</p>
+            {{if value.type == 'individualChoice'}}
+            <ul>
+                {{each value.items as question}}
+                <li>
+                    <input type="radio" id="{{question.id}}" name="{{value.id}}" />
+                    <label for="{{question.id}}">{{question.name}}</label>
+                </li>
+                {{/each}}
+            </ul>
+            {{else if value.type == 'multipleChoice'}}
+            <ul>
+                {{each value.items as question}}
+                <li>
+                    <input type="checkbox" id="{{question.id}}" name="{{value.id}}" />
+                    <label for="{{question.id}}">{{question.name}}</label>
+                </li>
+                {{/each}}
+            </ul>
+            {{else if value.type == 'answer'}}
+            <textarea placeholder="写点什么吧..." class="quesTxt"></textarea>
+            {{/if}}
+        </div>
+        {{/each}}
+        <div class="submit_btn">提交问卷</div>
+    </script>
+    <script>
+        $(function () {
+            var activityId = getQueryString("activityId") !== null ? getQueryString("activityId") : getCookie("activityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var titleName = getQueryString("titleName") !== null ? getQueryString("titleName") : getCookie("titleName");
+            var startTime = new Date().getTime();
+            var isFinish = true;
+            $('.page_header_main_title').text(titleName ? titleName : '问卷调查');
+
+            $.slAjax({
+                type: 'get',
+                url: root + "govServer/questionnaireRest/queryQuestionnaireQuestions",
+                data: {
+                    questionnaireId: activityId
+                },
+                success: function (res) {
+                    if (res.result) {
+                        $('.container_box_main').html(template("templateSurvey", res));
+
+                        // 解决iOS唤起键盘底部留白问题
+                        $('input, textarea').on('blur', function () {
+                            window.scrollBy(0, 1)
+                        });
+
+                        // 提交
+                        $('.submit_btn').unbind('click').bind('click', function () {
+                            isFinish = true;
+                            var endTime = new Date().getTime();
+                            var useTimeLength = parseInt((endTime - startTime) / 1000);
+
+                            var questionData = [];
+                            var idData = [];
+                            var contentData = [];
+                            var itemsData = [];
+                            var itemsData_ = [];
+                            var content_ = '';
+
+                            $('.survey_item').each(function () {
+                                var type = $(this).data('type');
+                                var surveyId = $(this).data('surveyid');
+                                itemsData_ = [];
+                                content_ = '';
+                                if (type == "individualChoice") {
+                                    var idChecked = $(this).find("input[type=radio]:checked").attr('id');
+                                    if (idChecked) {
+                                        itemsData_.push({ "id": idChecked });
+                                    } else {
+                                        isFinish = false;
+                                        layer.msg('还有问题未完成');
+                                        return false;
+                                    }
+                                } else if (type == "multipleChoice") {
+                                    $(this).find("input[type=checkbox]").each(function (i, item) {
+                                        if (item.checked) {
+                                            itemsData_.push({ "id": item.id });
+                                        }
+                                    })
+                                    if (itemsData_.length == 0) {
+                                        isFinish = false;
+                                        layer.msg('还有问题未完成');
+                                        return false;
+                                    }
+                                } else if (type == "answer") {
+                                    content_ = $('.quesTxt').val().replace(/\s+/g, "");
+                                    if (!content_) {
+                                        isFinish = false;
+                                        layer.msg('还有问题未完成');
+                                        return false;
+                                    }
+                                }
+                                itemsData.push(itemsData_);
+                                contentData.push(content_);
+                                idData.push(surveyId);
+                            })
+
+                            $('.survey_item').each(function (i) {
+                                questionData.push({
+                                    "id": idData[i],
+                                    "content": contentData[i],
+                                    "items": itemsData[i]
+                                });
+                            })
+
+                            console.log(questionData);
+
+                            if (isFinish) {
+                                var questionDataBase64 = $.base64({
+                                    data: encodeURI(JSON.stringify(questionData)),
+                                    type: 0,
+                                    unicode: 1
+                                }).replace(/=/g, '');
+
+                                $.slAjax({
+                                    url: root + "govServer/questionnaireRest/submitQuestionnaireAnswer",
+                                    data: {
+                                        accId: accId,
+                                        questionnaireId: activityId,
+                                        useTimeLength: useTimeLength,
+                                        questionJson: questionDataBase64
+                                    },
+                                    success: function (res) {
+                                        console.log(res)
+                                        if (res.result) {
+                                            layer.msg('提交成功，感谢参与', { shift: -1, time: 1000 }, function () {
+                                                callHandlerBridge('linkToPage', { 'pageName': 'gov_question_list.html', 'refresh': true });
+                                            })
+                                        } else {
+                                            layer.msg(res.msg)
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+        })
+    </script>
+</body>
+
+</html>

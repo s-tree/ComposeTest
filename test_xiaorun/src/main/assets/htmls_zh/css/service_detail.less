@@ -1,0 +1,361 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    width           : 100%;
+    height          : 100%;
+    background-color: #ffffff;
+}
+
+.container_box {
+    width   : 100%;
+    height  : 100%;
+    overflow: auto;
+
+    .service_header {
+        padding-top: 1.37rem;
+        position   : relative;
+
+        .service_image {
+            width   : 100%;
+            height  : 3rem;
+            position: absolute;
+            top     : 0;
+            left    : 0;
+            z-index : -1;
+            overflow: hidden;
+
+            img {
+                width     : 100%;
+                min-height: 100%;
+            }
+        }
+
+        .shop_list {
+            width     : 100%;
+            overflow-x: auto;
+            padding   : 0 .35rem .35rem .35rem;
+            .flex(row, flex-start, center);
+
+            &_item {
+                flex-shrink     : 0;
+                margin-right    : .2rem;
+                width           : 6.2rem;
+                border-radius   : .2rem;
+                background-color: #ffffff;
+                padding         : .36rem;
+                box-shadow      : 0 .04rem .14rem .04rem rgba(193, 193, 193, 0.15);
+
+                &_basic {
+                    .flex(row, space-between, center);
+
+                    &_left {
+                        flex : 1;
+                        width: 0;
+
+                        &_name {
+                            width        : 100%;
+                            font-size    : .34rem;
+                            color        : #323232;
+                            font-weight  : 800;
+                            overflow     : hidden;
+                            text-overflow: ellipsis;
+                            white-space  : nowrap;
+                        }
+
+                        &_star {
+                            .flex(row, flex-start, center);
+
+
+
+                            .score_index {
+                                color    : #FE4601;
+                                font-size: .24rem;
+                                margin   : 0 .3rem 0 .2rem;
+
+                                i {
+                                    font-size: .36rem;
+                                }
+                            }
+
+                            .count {
+                                font-size: .24rem;
+                                color    : #848484;
+                            }
+                        }
+                    }
+
+                    &_image {
+                        width        : 1.06rem;
+                        height       : 1.06rem;
+                        border-radius: .16rem;
+                        overflow     : hidden;
+                        flex-shrink  : 0;
+                        margin-left  : .1rem;
+
+                        img {
+                            width : 100%;
+                            height: 100%;
+                        }
+                    }
+                }
+
+                &_other {
+                    font-size : .24rem;
+                    color     : #848484;
+                    margin-top: .1rem;
+
+                    p {
+                        margin-bottom: .1rem;
+                    }
+                }
+
+                &_choose {
+                    width        : 2.1rem;
+                    height       : .58rem;
+                    background   : #DDDDDD;
+                    border-radius: .29rem;
+                    margin-top   : .4rem;
+                    .flex(row, center, center);
+
+                    &_tip {
+                        font-size: .26rem;
+                        color    : #FFFFFF;
+                    }
+
+                    &_icon {
+                        width : .32rem;
+                        height: .32rem;
+
+                        img {
+                            width : 100%;
+                            height: 100%
+                        }
+                    }
+
+                    &.active {
+                        background: linear-gradient(-24deg, #FDA84B 0%, #F79C34 100%);
+                    }
+                }
+
+            }
+        }
+
+        .tab_bar {
+            .flex(row, flex-start, center);
+            margin-top: .5rem;
+            font-size : 0.3rem;
+            padding   : 0 .35rem;
+
+            li {
+                margin-right  : 0.3rem;
+                padding-bottom: .13rem;
+                color         : #848484;
+                border-bottom : .04rem solid #ffffff;
+
+                .score {
+                    font-size: .24rem;
+                }
+
+                &.active {
+                    color        : #323232;
+                    border-bottom: .04rem solid #F79B34;
+                }
+            }
+        }
+    }
+
+    .service_box {
+        padding-top   : .2rem;
+        padding-bottom: 1.1rem;
+
+        &_detail {
+            width: 100%;
+
+            img {
+                width: 100%;
+            }
+        }
+
+        &_comment {
+            padding: 0 .35rem;
+
+            &_list {
+                width  : 100%;
+                padding: .2rem 0;
+
+                li {
+                    .flex(row, flex-start, top);
+                    margin-top: .2rem;
+
+                    .user_image {
+                        width        : .68rem;
+                        height       : .68rem;
+                        border-radius: 50%;
+                        overflow     : hidden;
+                        margin-right : .2rem;
+                        flex-shrink  : 0;
+
+                        img {
+                            width : 100%;
+                            height: 100%;
+                        }
+                    }
+
+                    .comment_container {
+                        flex: 1;
+
+                        .user_name {
+                            font-size: .26rem;
+                            color    : #5C5C5C;
+                        }
+
+                        .star {
+                            margin: .1rem 0;
+                        }
+
+                        .comment_content {
+                            font-size: .28rem;
+                            color    : #242424;
+                        }
+
+                        .comment_time {
+                            font-size: .22rem;
+                            color    : #8A8B8F;
+                        }
+
+                        .comment_images {
+                            .flex(row, flex-start, center);
+                            flex-wrap: wrap;
+
+                            .image_item {
+                                // width        : 1.6rem;
+                                width           : 30%;
+                                height          : 1.6rem;
+                                border-radius   : .1rem;
+                                overflow        : hidden;
+                                // margin       : 0 .1rem .1rem 0;
+                                margin          : 0 1% .1rem 0;
+
+                                img {
+                                    width : 100%;
+                                    height: 100%;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    .service_footer {
+        position  : fixed;
+        left      : 0;
+        bottom    : 0;
+        z-index   : 11;
+        width     : 100%;
+        height    : 1.1rem;
+        background: #ffffff;
+        padding   : 0 .35rem;
+
+        .flex(row, space-between, center);
+
+        .footer_icon {
+            width : .48rem;
+            height: .48rem;
+            margin: 0 auto;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        .tip {
+            font-size : .24rem;
+            color     : #848484;
+            margin-top: .1rem;
+        }
+
+        .aboutPrice {
+            color    : #323232;
+            font-size: .3rem;
+            height   : .48rem;
+
+            span {
+                font-size: .4rem;
+            }
+        }
+
+        &_btn {
+            width        : 2.2rem;
+            height       : .78rem;
+            line-height  : .78rem;
+            background   : linear-gradient(88deg, #FF754D 0%, #FF4C35 100%);
+            border-radius: .39rem;
+            color        : #ffffff;
+            text-align   : center;
+            font-size    : .3rem;
+        }
+    }
+}
+
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width     : 100%;
+            font-size : .34rem;
+            color     : #FFFFFF;
+            text-align: center;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

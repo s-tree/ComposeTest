@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>接诉即办</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_report_create.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">接诉即办</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_area">
+            <div class="tip">对象</div>
+            <div class="container_box_area_choose">
+                <div class="container_box_area_choose_item choosed" data-area="0">
+                    <div class="container_box_area_choose_item_icon">
+                        <img src="../images/choose_y.png">
+                    </div>
+                    <div class="container_box_area_choose_item_name">街道</div>
+                </div>
+                <div class="container_box_area_choose_item" data-area="1">
+                    <div class="container_box_area_choose_item_icon">
+                        <img src="../images/choose_n.png">
+                    </div>
+                    <div class="container_box_area_choose_item_name">社区</div>
+                </div>
+            </div>
+        </div>
+        <div class="container_box_type">
+            <div class="tip">类型</div>
+            <div class="container_box_type_main">
+                <div class="container_box_type_main_name" id="reportType" data-code="consult">咨询</div>
+                <div class="container_box_type_main_icon">
+                    <img src="../images/icons_more.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_title">
+            <div class="tip">标题</div>
+            <div class="container_box_title_main">
+                <input type="text" id="reportTitle">
+            </div>
+        </div>
+        <div class="container_box_content">
+            <div class="tip">问题描述</div>
+            <div class="container_box_content_main">
+                <textarea placeholder="请具体描述问题..." id="contentDescribe"></textarea>
+            </div>
+        </div>
+        <div class="container_box_image">
+            <div class="tip">上传照片</div>
+            <div class="image_list">
+                <div id="upload_image">
+                    <img src="../images/upload.png">
+                </div>
+            </div>
+        </div>
+        <div class="container_box_btn">
+            <div>确认提交</div>
+        </div>
+    </div>
+    <div class="mask_view"></div>
+    <div class="typeBox">
+        <div class="typeMain">
+            <div class="typeMain-close">关闭</div>
+            <div class="typeMain-title">选择类型</div>
+            <div class="typeMain-list">
+                <ul>
+                    <li data-code="consult">
+                        <div class="type_info">咨询</div>
+                        <div class="choose_tip choosed">
+                            <img src="../images/choose_y.png">
+                        </div>
+                    </li>
+                    <li data-code="help">
+                        <div class="type_info">求助</div>
+                        <div class="choose_tip"></div>
+                    </li>
+                    <li data-code="suggest">
+                        <div class="type_info">建议</div>
+                        <div class="choose_tip"></div>
+                    </li>
+                    <li data-code="complain">
+                        <div class="type_info">投诉</div>
+                        <div class="choose_tip"></div>
+                    </li>
+                    <li data-code="others">
+                        <div class="type_info">其他</div>
+                        <div class="choose_tip"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+
+            // 选择其他类型
+            $('.container_box_type_main').unbind('click').bind('click', function () {
+                $('.typeBox').toggleClass('typeBox_open');
+                $('.mask_view').toggleClass('mask_view_show');
+                $('.mask_view').unbind('click').bind('click', function () {
+                    $('.typeBox').removeClass('typeBox_open');
+                    $(this).removeClass('mask_view_show');
+                });
+            })
+
+            // 切换类型
+            $('.typeMain-list ul li').unbind('click').bind('click', function () {
+                var this_ = $(this);
+                if (!this_.find('.choose_tip').hasClass('choosed')) {
+                    this_.parents('.typeMain-list').find('.choose_tip').removeClass('choosed');
+                    this_.parents('.typeMain-list').find('.choose_tip img').remove();
+                    this_.find('.choose_tip').addClass('choosed');
+                    this_.find('.choose_tip').html('<img src="../images/choose_y.png">');
+                    $('#reportType').data('code', this_.data('code'))
+                    $('#reportType').text(this_.find('.type_info').text())
+                    $('.typeBox').removeClass('typeBox_open');
+                    $('.mask_view').removeClass('mask_view_show');
+                }
+            })
+
+            // 关闭类型选择
+            $('.typeMain-close').unbind('click').bind('click', function () {
+                $('.typeBox').removeClass('typeBox_open');
+                $('.mask_view').removeClass('mask_view_show');
+            })
+
+            // 切换接诉对象
+            $('.container_box_area_choose_item').unbind('click').bind('click', function () {
+                if (!$(this).hasClass('choosed')) {
+                    $(this).siblings().removeClass('choosed');
+                    $(this).addClass('choosed');
+                    $(this).siblings().find('img').attr('src', '../images/choose_n.png');
+                    $(this).find('img').attr('src', '../images/choose_y.png');
+                }
+            })
+
+            // 上传图片、删除图片、查看大图
+            $('#upload_image').unbind('click').bind('click', function () {
+                var _count = $(this).siblings('.image_list_litem').length;
+                var this_ = $(this);
+                if (_count < 9) {
+                    callHandlerBridge('uploadPicMultiple', { maxCount: 9 - _count, uploadType: 'repair' }, function (imageData) {
+                        // var picArr = ["http://smartlife-test.oss-cn-shanghai.aliyuncs.com/repair/0/2021-10-11/fdf37b57-2575-4614-84e1-91b78a929041.jpg", "http://smartlife-test.oss-cn-shanghai.aliyuncs.com/repair/0/2021-10-11/4349741e-648c-4dec-b076-89bef2cae6f8.jpg", "http://smartlife-test.oss-cn-shanghai.aliyuncs.com/repair/0/2021-10-11/cb059967-0734-4624-bf8e-05877fe2b1fa.jpg", "http://smartlife-test.oss-cn-shanghai.aliyuncs.com/repair/0/2021-10-11/829a24b3-e5a9-4a40-b8ac-f88e032793cb.jpg", "http://smartlife-test.oss-cn-shanghai.aliyuncs.com/repair/0/2021-10-11/2da2f018-d542-477d-9bce-16dc1b97e92a.jpg"]
+                        const picArr = JSON.parse(imageData);
+                        for (var value of picArr) {
+                            var imageItem = '<div class="image_list_litem"><div class="delete_img"><img src="../images/icon_close.png"></div><div class="main_img"><img src="' + value + '"></div></div>';
+                            $('.image_list').prepend(imageItem);
+                        }
+                        // 删除操作
+                        $('.delete_img').unbind('click').bind('click', function () {
+                            $(this).parents('.image_list_litem').fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                        });
+                        // 查看大图
+                        $('.main_img').unbind('click').bind('click', function () {
+                            var _i = $(this).parent().index();
+                            var _urlArr = [];
+                            $(this).parents('.image_list').find('.image_list_litem').each(function () {
+                                var _url = $(this).find('.main_img>img').attr('src');
+                                _urlArr.push(_url);
+                            });
+                            callHandlerBridge('photoView', {
+                                index: _i,
+                                url: _urlArr.join(',')
+                            });
+                        });
+                    });
+                } else {
+                    layer.msg('不能超过九张图片');
+                    return false;
+                }
+            });
+
+            // 创建接诉
+            $('.container_box_btn>div').unbind('click').bind('click', function () {
+                var data = {};
+                data.communityId = communityId;
+                data.accId = accId;
+                data.familyInfoId = familyInfoId;
+
+                // 接诉对象
+                var target = $('.container_box_area_choose_item.choosed').data('area');
+                data.target = target;
+
+                // 类型
+                data.type = $('#reportType').data('code');
+
+                // 标题
+                var title = $('#reportTitle').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (title) {
+                    data.title = title
+                } else {
+                    layer.msg('请填写标题');
+                    return false;
+                }
+
+                // 问题描述
+                var content = $('#contentDescribe').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (content) {
+                    var pattern = new RegExp("[~'!@#$%^&*()-+_=:]");
+                    if (pattern.test(content)) {
+                        layer.msg('描述内容带有非法字符');
+                        return false;
+                    } else {
+                        data.content = content
+                    }
+                } else {
+                    layer.msg('请输入问题描述');
+                    return false;
+                }
+
+                // 图片
+                var image_Arr = [];
+                $('.image_list').find('.image_list_litem').each(function () {
+                    var _url = $(this).find('.main_img>img').attr('src');
+                    image_Arr.push(_url);
+                });
+                if (image_Arr.length > 0) {
+                    data.images = image_Arr.join();
+                }
+
+                // 提交
+                $.slAjax({
+                    url: root + "govServer/reportRest/submitReport",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        if (res.result) {
+                            layer.msg('提交成功', { shift: -1, time: 1000 }, function () {
+                                callHandlerBridge('autoGoback');
+                            })
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                });
+            })
+
+            // 解决iOS唤起键盘底部留白问题
+            $('input[type=text], textarea').on('blur', function () {
+                window.scrollBy(0, 1)
+            });
+        })
+    </script>
+
+</body>
+
+</html>

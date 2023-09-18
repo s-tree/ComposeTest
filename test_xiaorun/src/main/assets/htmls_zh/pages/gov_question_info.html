@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>问卷调查</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/swiper.min.css">
+    <link rel="stylesheet" href="../css/property_activity_survey.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title">问卷调查</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <div class="container_box_top">
+            <div class="container_box_top_main">
+                <div>
+                    <div class="tip">共有题目</div>
+                    <div class="questionCount"><span>-</span>道题</div>
+                </div>
+                <div>
+                    <div class="tip">预计占用</div>
+                    <div class="timeCount"><span>-</span>分钟</div>
+                </div>
+            </div>
+        </div>
+        <div class="container_box_info">
+            <div class="tip">
+                <p class="basicInfo">感谢参与我们的调研问卷</p>
+                <p class="award"></p>
+            </div>
+            <div class="submitBtn">点击开始</div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script src="../js/swiper.jquery.min.js"></script>
+    <script>
+        $(function () {
+            var activityId = getQueryString("activityId") !== null ? getQueryString("activityId") : getCookie("activityId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var isCanJoin;
+            var isDone;
+
+            // 获取题目信息
+            $.slAjax({
+                type: 'get',
+                url: root + "govServer/questionnaireRest/queryQuestionnaireInfo",
+                data: {
+                    accId: accId,
+                    questionnaireId: activityId
+                },
+                success: function (res) {
+                    if (res.result) {
+                        isDone = res.content.done;
+                        isCanJoin = res.content.status;
+                        $('.page_header_main_title').text(res.content.title ? res.content.title : '问卷调查');
+
+                        $('.questionCount span').text(res.content.questionCount);
+                        $('.timeCount span').text(res.content.estimatedSecond < 60 ? "1" : (res.content.estimatedSecond / 60).toFixed(0));
+                        $('.award').text(res.content.awards ? res.content.awards : '');
+
+                        // 开始做题
+                        $('.submitBtn').unbind('click').bind('click', function () {
+                            if (isCanJoin == '4') {
+                                if (isDone) {
+                                    layer.msg("此问卷您已作答");
+                                } else {
+                                    window.location.href = './gov_question_detail.html?activityId=' + activityId + '&accId=' + accId + '&titleName=' + res.content.title + '&accessToken=' + accessToken;
+                                }
+                            } else {
+                                layer.msg('不在活动时间内')
+                            }
+                        })
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+        })
+    </script>
+
+</body>
+
+</html>

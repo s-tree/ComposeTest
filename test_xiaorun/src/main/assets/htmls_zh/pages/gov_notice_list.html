@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>公告通知</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/gov_notice_list.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">公告通知</div>
+        </div>
+    </div>
+    <div class="container_box">
+        <ul class="adjustHeightFixed"></ul>
+    </div>
+
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script id="templateNotice" type="text/html">
+        {{each content as value i}}
+        <li data-messageid="{{value.id}}">
+            <div class="notice_icon">
+                <img src="../images/gov_report_list.png">
+            </div>
+            <div class="notice_info">
+                <div class="notice_info_title">{{value.title}}</div>
+                <div class="notice_info_time">{{value.releaseDate.length > 10 ? value.releaseDate.substr(0,10) : value.releaseDate}}</div>
+            </div>
+            <div class="notice_more">
+                <img src="../images/icons_more.png">
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var pageIndex = 1;
+
+            getNoticeList()
+            function getNoticeList() {
+                $.slAjax({
+                    url: root + 'govServer/messageRest/getMessageList',
+                    type: 'get',
+                    data: {
+                        familyInfoId: familyInfoId,
+                        accId: accId,
+                        pageIndex: pageIndex,
+                        pageSize: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.result) {
+                            if (res.content.length > 0) {
+                                $('.container_box ul').append(template("templateNotice", res));
+
+                                $('.container_box ul li').unbind('click').bind('click', function () {
+                                    var messageId = $(this).data('messageid');
+                                    window.location.href = './gov_notice_detail.html?messageId=' + messageId + '&accId=' + accId + '&accessToken=' + accessToken;
+                                });
+
+                                if (res.content.length == res.totalSize && pageIndex == 1) {
+                                    $(".container_box ul").append('<div class="load-over">没有更多...</div>');
+                                } else {
+                                    $(".container_box ul").append('<div class="loadMore">点击加载更多</div>');
+
+                                    $('.loadMore').unbind('click').bind('click', function () {
+                                        $(".container_box .loadMore").remove();
+                                        pageIndex++;
+                                        getNoticeList();
+                                    })
+                                }
+                            } else {
+                                if (pageIndex == 1) {
+                                    $(".container_box ul").append("<div class='default-none'><div class='no_tip'>暂无通知</div></div>");
+                                } else {
+                                    $(".container_box ul").append('<div class="load-over">没有更多...</div>');
+                                }
+                            }
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    }
+                });
+            }
+
+        })
+    </script>
+
+</body>
+
+</html>

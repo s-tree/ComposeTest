@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>店铺会员权益</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/welfar_vip.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_b.png">
+            </div>
+            <div class="page_header_main_title">店铺会员权益</div>
+        </div>
+    </div>
+    <div class="container_box adjustHeight">
+        <div class="container_box_vip">
+            <div class="container_box_vip_main"></div>
+        </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <!-- 会员权益模板 -->
+    <script type="text/html" id="templateVip">
+        {{each records as value i}}
+        <div class="vip_item" style="background: url('{{value.phoneImage}}') no-repeat;background-size:100% 100%;background-attachment: scroll;">
+            <div class="vip_item_map" 
+            data-shopname="{{value.storeName}}"
+            data-shopaddress="{{value.address}}"
+            data-shoplongitude="{{value.longitude}}"
+            data-shoplatitude="{{value.latitude}}"
+            ><img src="../images/location_w.png"></div>
+            <div class="vip_item_tip1">{{value.storeName}}</div>
+            <div class="vip_item_tip2">享<span>{{value.discount / 10}}</span>折优惠</div>
+            {{if !value.enable}}
+                <div class="vip_item_btn " style="display: inline-block" >已下架</div>
+            {{else if value.isMember}}
+                <div class="vip_item_btn toShop" data-shopmanageid="{{value.shopManageId}}" style="display: inline-block" >进入店铺</div>
+            {{else}}
+                <div class="vip_item_btn takeVip" data-vipid="{{value.vipId}}" data-shopmanageid="{{value.shopManageId}}" style="display: inline-block" >领取权益</div>
+            {{/if}}
+            {{if value.scope == 'OFFLINE'}}
+            <div style="display: inline-block;float: right;height: 0.48rem;line-height: 0.48rem;font-size: 0.18rem;text-align: center;color:white" >仅支持线下</div>
+            {{/if}}
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+            var familyInfoId = getQueryString("familyInfoId") !== null ? getQueryString("familyInfoId") : getCookie("familyInfoId");
+            var accId = getQueryString("accId") !== null ? getQueryString("accId") : getCookie("accId");
+            var pageIndex = 1;
+            var isLoading = true;
+
+            getVipList()
+            // 获取店铺会员权益
+            function getVipList() {
+                $.slAjax({
+                    url: root + 'bus/rest/vip/page',
+                    type: 'get',
+                    data: {
+                        familyId: familyInfoId,
+                        scopeEnum: 'ALL',
+                        current: pageIndex,
+                        size: PAGESIZE
+                    },
+                    success: function (res) {
+                        if (res.code == 0) {
+                            if (res.data && res.data.records && res.data.total > 0) {
+                                for(var i = 0 ; i < res.data.records.length; i++){
+                                    if(res.data.records[i].level == 1){
+                                        res.data.records[i].phoneImage = "../images/vip_card_bg_01.png";
+                                    }
+                                    else if(res.data.records[i].level == 2){
+                                        res.data.records[i].phoneImage = "../images/vip_card_bg_02.png";
+                                    }
+                                    else if(res.data.records[i].level == 3){
+                                        res.data.records[i].phoneImage = "../images/vip_card_bg_03.png";
+                                    }
+                                }
+                                $('.container_box_vip_main').html(template("templateVip", res.data));
+                                vipDo();
+                                showMap();
+
+                                if (res.data.records.length < PAGESIZE) {
+                                    $(".container_box_vip_main").append('<div class="load-over">没有更多...</div>');
+                                } else {
+                                    $('.container_box').scroll(function () {
+                                        var scrollTop = $(this).scrollTop();  // 滚动高度
+                                        var viewHeight = $(this).get(0).offsetHeight; // 元素可视高度
+                                        var docHeight = $(this).get(0).scrollHeight; // 元素可视高度 + 溢出高度（最大滚动高度）
+
+                                        if ((docHeight - scrollTop - viewHeight <= 100) && isLoading) {
+                                            isLoading = false;
+                                            pageIndex++;
+                                            $.slAjax({
+                                                url: root + 'bus/rest/vip/page',
+                                                type: 'get',
+                                                data: {
+                                                    familyId: familyInfoId,
+                                                    current: pageIndex,
+                                                    size: PAGESIZE
+                                                },
+                                                beforeSend: function () {
+                                                    $(".container_box_vip_main").append('<div class="loading_w"><img src="../images/loading.gif"></div>');
+                                                },
+                                                success: function (data) {
+                                                    $(".container_box_vip_main .loading_w").remove();
+                                                    if (res.code == 0) {
+                                                        if (res.data && res.data.records && res.data.records > 0) {
+                                                            $('.container_box_vip_main').append(template("templateVip", data.data));
+                                                            isLoading = true;
+                                                            vipDo();
+                                                            showMap();
+                                                        } else {
+                                                            $(".container_box_vip_main").append('<div class="load-over">没有更多...</div>');
+                                                        }
+                                                    } else {
+                                                        layer.msg(data.msg);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            } else {
+                                $(".container_box_vip_main").html("<div class='default-none'><div class='no_tip'>暂无会员权益</div></div>");
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 领取会员权益、进入店铺
+            function vipDo() {
+                $('.vip_item_btn').unbind('click').bind('click', function () {
+                    var this_ = $(this);
+                    var vipId = this_.data('vipid');
+                    var shopManageId = $(this).data('shopmanageid');
+                    if (this_.hasClass('takeVip')) {
+                        var request = {};
+                        request['familyId'] = familyInfoId;
+                        request['vipId'] = vipId;
+                        $.slAjax({
+                            url: root + 'bus/rest/member/vip',
+                            type: 'post',
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify(request),
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    this_.text('进入店铺')
+                                    this_.addClass('toShop').removeClass('takeVip');
+                                } else {
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        });
+                    } else if (this_.hasClass('toShop')) {
+                        window.location.href = './business_shop_detail.html?shopManageId=' + shopManageId + '&communityId=' + communityId + '&accId=' + accId + '&familyInfoId=' + familyInfoId + '&accessToken=' + accessToken;
+                    }
+                })
+            }
+
+            // 在地图查看店铺地址
+            function showMap() {
+                $(".vip_item_map").unbind('click').bind('click', function () {
+                    var shopName = $(this).data('shopname');
+                    var shopAddress = $(this).data('shopaddress');
+                    var shopLongitude = $(this).data('shoplongitude');
+                    var shopLatitude = $(this).data('shoplatitude');
+
+                    callHandlerBridge('shopAddressNavigation', {
+                        shopName: shopName,
+                        shopAddress: shopAddress,
+                        shopLongitude: shopLongitude,
+                        shopLatitude: shopLatitude
+                    }, function (response) { });
+                })
+            }
+
+        })
+    </script>
+</body>
+
+</html>

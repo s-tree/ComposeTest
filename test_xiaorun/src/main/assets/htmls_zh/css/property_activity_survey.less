@@ -1,0 +1,149 @@
+@charset "utf-8";
+@import "public";
+
+body {
+    width : 100%;
+    height: 100%;
+}
+
+.container_box {
+    width   : 100%;
+    height  : 100%;
+    overflow: auto;
+
+    &_top {
+        width          : 100%;
+        height         : 7.8rem;
+        background     : url('../images/questionnaire_bg.png') no-repeat;
+        background-size: 100% auto;
+        padding        : 2.9rem 0 0 .8rem;
+        color          : #ffffff;
+
+        &_main {
+            .tip {
+                font-size    : .3rem;
+                margin-bottom: .16rem;
+            }
+
+            .questionCount,
+            .timeCount {
+                font-size: .6rem;
+            }
+
+            &>div:first-child {
+                margin-bottom: .3rem;
+            }
+        }
+    }
+
+    &_info {
+        width     : 100%;
+        margin-top: .8rem;
+
+        .tip {
+            width: 100%;
+
+            .basicInfo {
+                width      : 100%;
+                text-align : center;
+                font-size  : .36rem;
+                color      : #323232;
+                font-weight: bold;
+            }
+
+            .score {
+                display   : none;
+                width     : 100%;
+                text-align: center;
+                font-size : .26rem;
+                margin-top: .2rem;
+                color     : #848484;
+            }
+
+            .award {
+                width     : 100%;
+                font-size : .28rem;
+                color     : #323232;
+                margin-top: .2rem;
+                padding   : 0 .36rem;
+                max-height: 2rem;
+                overflow  : auto;
+            }
+        }
+
+        .submitBtn {
+            width        : 6.2rem;
+            height       : .88rem;
+            line-height  : .88rem;
+            background   : linear-gradient(-90deg, #FDA94B 0%, #F79B34 100%);
+            border-radius: .1rem;
+            color        : #ffffff;
+            text-align   : center;
+            margin       : .8rem auto 0;
+            font-size    : .36rem;
+        }
+    }
+
+
+}
+
+// 顶部导航样式
+.page_header {
+    z-index      : 2;
+    width        : 100%;
+    height       : 1.36rem; //客户端传入 状态栏高度+导航栏高度
+    position     : fixed;
+    top          : 0;
+    left         : 0;
+    padding-left : .23rem;
+    padding-right: .23rem;
+    padding-top  : .48rem; //客户端传入 状态栏高度
+    .flex(row, space-between, center);
+
+    &_main {
+        width   : 100%;
+        position: relative;
+
+        &_back {
+            width   : .48rem;
+            height  : .48rem;
+            position: absolute;
+            left    : 0;
+            top     : 0;
+
+            img {
+                width : 100%;
+                height: 100%;
+            }
+        }
+
+        &_title {
+            width        : 100%;
+            padding      : 0 .5rem;
+            font-size    : .34rem;
+            color        : #ffffff;
+            text-align   : center;
+            overflow     : hidden;
+            text-overflow: ellipsis;
+            white-space  : nowrap;
+        }
+
+        &_btns {
+            position: absolute;
+            right   : 0;
+            top     : 0;
+            .flex(row, space-between, center);
+
+            &>div {
+                width : .48rem;
+                height: .48rem;
+
+                img {
+                    width : 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+}

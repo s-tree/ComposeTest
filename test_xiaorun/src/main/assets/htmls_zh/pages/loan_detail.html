@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>租赁商品详情</title>
+    <link rel="stylesheet" href="../css/basic.css">
+    <link rel="stylesheet" href="../css/loan_detail.css">
+    <script src="../js/flexible.js"></script>
+</head>
+
+<body>
+    <div class="page_header">
+        <div class="page_header_main">
+            <div class="page_header_main_back">
+                <img src="../images/hback_w.png">
+            </div>
+            <div class="page_header_main_title" style="visibility: hidden;">租赁商品详情</div>
+        </div>
+    </div>
+    <div class="adjustHeightDetail">
+        <div class="container"> </div>
+    </div>
+    <script src="../js/jquery-1.10.1.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../js/webViewJavascriptBridge.js"></script>
+    <script src="../js/public.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/jquery.housekeeper.sha1ajax.js"></script>
+    <script id="templateOrderDetails" type="text/html">
+        <div class="container_img">
+            <img src="{{getImage(data.photo)}}"  onerror="this.parentNode.removeChild(this)">
+        </div>
+        <div class="container_info">
+            <div class="goods">
+                <div class="name">{{data.title}}</div>
+                <div class="price">
+                    <span>￥<i>{{data.amount}}</i>/小时</span>
+                    {{if data.deposit}}
+                    <span>押金：￥{{data.deposit}}</span>
+                    {{/if}}
+                </div>
+                <div class="other">
+                    <div>{{data.times}}小时起租 {{data.point?'':'不'}}可用积分</div>
+                    {{if data.freeTime}}
+                    <div>{{data.freeTime}}小时内免租</div>
+                    {{/if}}
+                </div>
+            </div>
+            <div>{{data.info}}</div>
+            <div>
+                <div class="tip">租借说明</div>
+                <div>{{data.intro}}</div>
+            </div>
+            <div>
+                <div class="tip">超期归还说明</div>
+                <div>{{data.overIntro}}</div>
+            </div>
+        </div>
+        <div class="container_footer">
+            <div class="loanBtn">立即租借</div>
+            <div class="tip">点击【立即租借】代表同意以上说明内容</div>
+        </div>
+    </script>
+    <script>
+        $(function () {
+            var productId = getQueryString("productId") !== null ? getQueryString("productId") : getCookie("productId");
+            var communityId = getQueryString("communityId") !== null ? getQueryString("communityId") : getCookie("communityId");
+
+            // 获取商品信息
+            $.slAjax({
+                url: root + 'crc/rest/lease/goods/' + productId,
+                type: 'get',
+                data: {
+                    id: productId,
+                    compoundId: communityId
+                },
+                success: function (data) {
+                    console.log(data)
+                    if (data.code == 0) {
+                        $('.container').append(template("templateOrderDetails", data));
+                        // 租借
+                        $('.loanBtn').unbind('click').bind('click', function () {
+                            window.location.href = './loan_check.html?productId=' + productId + '&communityId=' + communityId
+                        })
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            });
+
+        })
+    </script>
+</body>
+
+</html>
