@@ -19,9 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -46,6 +49,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginRegister(navController: NavController) {
     ConstraintLayout(
@@ -55,6 +59,8 @@ fun LoginRegister(navController: NavController) {
             .padding(top = 25.dp, start = 25.dp)
             .background(color = Color.White)
     ) {
+        val focusManager = LocalFocusManager.current
+        val keyboardController = LocalSoftwareKeyboardController.current
 
         val phoneInput = remember {
             mutableStateOf("")
@@ -283,6 +289,9 @@ fun LoginRegister(navController: NavController) {
             state = registerLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
+
+                focusManager.clearFocus(true)
+
                 if(!hasCheckedCode.value){
                     ToastUtil.show("请先获取验证码")
                     return@ProgressButton
