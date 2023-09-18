@@ -241,7 +241,7 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             state = loginLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
-                CoroutineScope(Dispatchers.Default).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     loginLoadingState.value = true
                     val job = async { request() }
                     val result = job.await();
