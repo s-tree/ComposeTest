@@ -217,8 +217,17 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                 it.doAfterTextChanged {
                     passwordInput.value = it.toString()
                 }
+                /**
+                 * 文本过滤
+                 */
                 it.filters = Array(1){LengthFilter(16)}
                 it.background = BaseApplication.instance!!.getDrawable(R.color.white_trans_ba)
+                /**
+                 * 手机号输完后自动获取焦点
+                 */
+                if(phoneInput.value.length == 11){
+                    it.requestFocus()
+                }
             })
 
         Spacer(
