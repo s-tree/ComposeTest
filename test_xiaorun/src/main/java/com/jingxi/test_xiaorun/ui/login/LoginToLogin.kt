@@ -1,5 +1,11 @@
 package com.jingxi.test_xiaorun.ui.login
 
+import android.text.InputFilter.LengthFilter
+import android.text.InputType
+import android.util.Log
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams
+import android.widget.EditText
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,12 +22,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -29,9 +38,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import com.jingxi.library.BaseApplication
 import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.data.request
@@ -182,8 +195,10 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                 start.linkTo(loginTitleRes.start)
             })
 
-        BasicTextField(
-            value = InputFilters.toPassword(passwordInput.value),
+        /**
+         * Compose TextField / BasicTextField 没有 password 模式，使用android View/EditText 来实现
+         */
+        AndroidView(
             modifier = Modifier
                 .padding(top = 34.dp, start = 0.dp, bottom = 34.dp)
                 .background(color = Color.White)
@@ -191,32 +206,20 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                     top.linkTo(passwordTitleRes.bottom, margin = 6.dp)
                     start.linkTo(loginTitleRes.start)
                 },
-            onValueChange = {
-                /**
-                 * 由于将value格式化为 **** 后，会回调onValueChange，所以需要将it 中的*全部除去后拼接到 passWordInput中
-                 */
-                val data = passwordInput.value + it.replace("*","")
-                if(data.isEmpty() || data == passwordInput.value){
-                    return@BasicTextField
+            factory = {context -> EditText(context)},
+            update = {
+                it.layoutParams.width = LayoutParams.MATCH_PARENT
+                it.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+                it.textSize = 34f
+                it.setTextColor(BaseApplication.instance!!.getColor(R.color.color_ff323232))
+                it.hint = "请输入密码"
+                it.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD or InputType.TYPE_CLASS_TEXT
+                it.doAfterTextChanged {
+                    passwordInput.value = it.toString()
                 }
-                var str = InputFilters.lengthFilter(data, 16)
-                str = InputFilters.passwordFilter(str)
-                passwordInput.value = str
-            },
-            textStyle = TextStyle(fontSize = 34.sp, textAlign = TextAlign.Start,color = colorResource(id = R.color.color_ff323232)),
-            singleLine = true, maxLines = 1,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            cursorBrush = SolidColor(colorResource(id = R.color.color_ff999999)),
-            decorationBox = {
-                if(passwordInput.value.isEmpty()){
-                    Text(text = "请输入密码",
-                        textAlign = TextAlign.Start,
-                        fontSize = 34.sp,
-                        color = colorResource(id = R.color.color_ff999999))
-                }
-                it()
-            }
-        )
+                it.filters = Array(1){LengthFilter(16)}
+                it.background = BaseApplication.instance!!.getDrawable(R.color.white_trans_ba)
+            })
 
         Spacer(
             Modifier
@@ -253,7 +256,7 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                     )
                 }
             },
-            enabled = phoneInput.value.length == 11 && passwordInput.value.length > 6,
+            enabled = phoneInput.value.length == 11 && passwordInput.value.length >= 6,
             colors = ButtonDefaults.textButtonColors(
                 containerColor = colorResource(R.color.bg_blue_deep_start),
                 disabledContainerColor = colorResource(id = R.color.bg_blue_light_start)
@@ -286,7 +289,7 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                         LoginPage.REGISTER,
                         NavOptions
                             .Builder()
-                            .setPopUpTo(LoginPage.LOGIN,inclusive = true)
+                            .setPopUpTo(LoginPage.LOGIN, inclusive = true)
                             .setLaunchSingleTop(false)
                             .build()
                     )
