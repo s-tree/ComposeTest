@@ -2,7 +2,6 @@ package com.jingxi.test_xiaorun.ui.login
 
 import android.text.InputFilter.LengthFilter
 import android.text.InputType
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
@@ -22,15 +21,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -41,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.jingxi.library.BaseApplication
@@ -55,6 +53,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginLogin(navController: NavController,activityController: NavController){
 
@@ -65,6 +64,8 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             .padding(top = 25.dp, start = 25.dp)
             .background(color = Color.White)
     ) {
+        val focusManager = LocalFocusManager.current
+        val keyboardController = LocalSoftwareKeyboardController.current
 
         val phoneInput = remember {
             mutableStateOf("")
@@ -250,6 +251,9 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             state = loginLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
+                focusManager.clearFocus(true)
+                keyboardController?.hide()
+
                 CoroutineScope(Dispatchers.Main).launch {
                     loginLoadingState.value = true
                     val job = async { request() }
