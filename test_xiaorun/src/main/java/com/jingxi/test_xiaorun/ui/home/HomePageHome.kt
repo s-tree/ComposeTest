@@ -1,5 +1,6 @@
 package com.jingxi.test_xiaorun.ui.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -12,11 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -27,8 +31,10 @@ import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.jingxi.test_xiaorun.R
+import com.jingxi.test_xiaorun.ui.weiget.PagerCircleIndicator
 import com.jingxi.test_xiaorun.ui.weiget.statusBar
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomePageHome(activityNavController: NavController) {
     statusBar(Color.White, isDarkIcon = true, fitSystemWindow = true)
@@ -40,8 +46,6 @@ fun HomePageHome(activityNavController: NavController) {
             .background(color = Color.White)
     ) {
 
-        Text(text = "Hello")
-        
         ConstraintLayout(
             modifier = Modifier
                 .background(color = Color.White)
@@ -99,7 +103,7 @@ fun HomePageHome(activityNavController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = Color.White)
-                        .padding(start = 27.dp, end = 38.dp, top = 5.dp),
+                        .padding(start = 27.dp, end = 38.dp, top = 5.dp, bottom = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -171,8 +175,39 @@ fun HomePageHome(activityNavController: NavController) {
                         fontSize = 26.sp
                     )
                 }
+            }
+            
+            item{
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.White)
+                        .padding(start = 27.dp, end = 38.dp, bottom = 20.dp)) {
+                    val loginPics = listOf(R.mipmap.login_page_1,R.mipmap.login_page_2,R.mipmap.login_page_3)
+                    val state = rememberPagerState(0);
+                    HorizontalPager(loginPics.size,
+                        state = state,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)){
+                            page ->
+                        Image(painter = painterResource(loginPics[page]),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(5.dp)),
+                            contentScale = ContentScale.Crop)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(27.dp))
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    PagerCircleIndicator(count = loginPics.size, modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            item{
+
             }
         }
     }
