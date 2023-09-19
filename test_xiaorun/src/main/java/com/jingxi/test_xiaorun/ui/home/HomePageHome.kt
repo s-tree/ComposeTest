@@ -40,6 +40,8 @@ fun HomePageHome(activityNavController: NavController) {
             .background(color = Color.White)
     ) {
 
+        Text(text = "Hello")
+        
         ConstraintLayout(
             modifier = Modifier
                 .background(color = Color.White)
@@ -97,7 +99,7 @@ fun HomePageHome(activityNavController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = Color.White)
-                        .padding(start = 27.dp, end = 38.dp,top = 5.dp),
+                        .padding(start = 27.dp, end = 38.dp, top = 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 

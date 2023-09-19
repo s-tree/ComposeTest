@@ -2,7 +2,7 @@ package com.jingxi.test_xiaorun.ui.weiget
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
@@ -11,9 +11,6 @@ import androidx.compose.ui.graphics.Color
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-/**
- * @param fitSystemWindow 不起效果
- */
 @Composable
 fun statusBar(color: Color = Color.Transparent,isDarkIcon: Boolean,fitSystemWindow : Boolean) : Modifier{
     rememberSystemUiController().run {
@@ -51,8 +48,7 @@ fun statusBar2(color: Color = Color.Transparent,isDarkIcon: Boolean,fitSystemWin
         }
         Column(
             Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()) {
+                .fillMaxSize()) {
 
             if(fitSystemWindow){
                 Spacer(modifier = Modifier.statusBarsPadding().fillMaxWidth())
