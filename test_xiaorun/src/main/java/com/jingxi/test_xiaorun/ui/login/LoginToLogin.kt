@@ -48,6 +48,7 @@ import com.jingxi.test_xiaorun.constant.Page
 import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.filter.InputFilters
 import com.jingxi.test_xiaorun.ui.weiget.ProgressButton
+import com.jingxi.test_xiaorun.ui.weiget.statusBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -56,12 +57,13 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginLogin(navController: NavController,activityController: NavController){
+    val modifier = statusBar(Color.White,isDarkIcon = true, fitSystemWindow = true)
 
     ConstraintLayout(
-        Modifier
+        modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .padding(top = 25.dp, start = 25.dp)
+            .padding(start = 25.dp)
             .background(color = Color.White)
     ) {
         val phoneInput = remember {
@@ -85,15 +87,15 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
             contentDescription = "",
             modifier = Modifier
-                .width(30.dp)
-                .height(30.dp)
+                .width(50.dp)
+                .height(50.dp)
                 .clickable(
                     onClick = {
                         navController.popBackStack()
                     }
                 )
                 .constrainAs(backRes) {
-                    top.linkTo(parent.top)
+                    top.linkTo(parent.top,margin = 16.dp)
                     start.linkTo(parent.start)
                 })
 

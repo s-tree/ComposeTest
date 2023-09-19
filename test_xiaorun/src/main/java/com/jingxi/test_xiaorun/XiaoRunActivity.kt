@@ -2,12 +2,15 @@ package com.jingxi.test_xiaorun
 
 import android.content.res.Resources
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,6 +19,7 @@ import com.jingxi.test_xiaorun.ui.home.HomeUIMain
 import com.jingxi.test_xiaorun.ui.login.Login
 import com.jingxi.test_xiaorun.ui.web.WebViewMain
 import com.jingxi.test_xiaorun.ui.web.WebViewParams
+import com.jingxi.test_xiaorun.ui.weiget.statusBar
 import com.jingxi.test_xiaorun.util.HtmlFileUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,12 +27,13 @@ import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 
 class XiaoRunActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = android.graphics.Color.WHITE
+        WindowCompat.setDecorFitsSystemWindows(window,false)
         setContent {
             MaterialTheme {
-                Surface(color = Color(red = 0xff, green = 0xff,blue = 0xff)) {
+                Surface(color = Color.White) {
                     NavHostMain()
                 }
             }

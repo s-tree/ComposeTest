@@ -30,11 +30,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.ui.weiget.PagerCircleIndicator
+import com.jingxi.test_xiaorun.ui.weiget.statusBar
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LoginHome(navController: NavController){
-    ConstraintLayout(modifier = Modifier
+    val modifier = statusBar(Color.White, isDarkIcon = true, fitSystemWindow = true)
+
+    ConstraintLayout(modifier = modifier
         .fillMaxWidth()
         .fillMaxHeight()
         .background(color = Color.White)) {
