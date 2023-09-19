@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -59,22 +60,25 @@ class Login {
             NavHost(navController = loginController, startDestination = LoginPage.HOME){
 
                 composable(LoginPage.HOME){
+                    LocalFocusManager.current.clearFocus(true)
                     currentPage.value = LoginPage.HOME
                     LoginHome(navController = loginController)
                 }
 
                 composable(LoginPage.REGISTER){
+                    LocalFocusManager.current.clearFocus(true)
                     currentPage.value = LoginPage.REGISTER
                     LoginRegister(loginController)
                 }
 
                 composable(LoginPage.LOGIN){
+                    LocalFocusManager.current.clearFocus(true)
                     currentPage.value = LoginPage.LOGIN
                     LoginLogin(loginController,activityController)
                 }
 
                 composable(LoginPage.FORGET){
-
+                    LocalFocusManager.current.clearFocus(true)
                 }
             }
 

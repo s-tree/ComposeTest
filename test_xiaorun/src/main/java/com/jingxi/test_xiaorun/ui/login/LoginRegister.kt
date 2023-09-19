@@ -59,9 +59,6 @@ fun LoginRegister(navController: NavController) {
             .padding(top = 25.dp, start = 25.dp)
             .background(color = Color.White)
     ) {
-        val focusManager = LocalFocusManager.current
-        val keyboardController = LocalSoftwareKeyboardController.current
-
         val phoneInput = remember {
             mutableStateOf("")
         }
@@ -289,9 +286,6 @@ fun LoginRegister(navController: NavController) {
             state = registerLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
-
-                focusManager.clearFocus(true)
-
                 if(!hasCheckedCode.value){
                     ToastUtil.show("请先获取验证码")
                     return@ProgressButton

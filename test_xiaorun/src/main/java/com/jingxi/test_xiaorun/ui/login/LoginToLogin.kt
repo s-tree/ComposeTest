@@ -1,9 +1,11 @@
 package com.jingxi.test_xiaorun.ui.login
 
+import android.content.Context
 import android.text.InputFilter.LengthFilter
 import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -64,15 +66,16 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             .padding(top = 25.dp, start = 25.dp)
             .background(color = Color.White)
     ) {
-        val focusManager = LocalFocusManager.current
-        val keyboardController = LocalSoftwareKeyboardController.current
-
         val phoneInput = remember {
             mutableStateOf("")
         }
 
         val passwordInput = remember {
             mutableStateOf("")
+        }
+
+        val passwordCouldFocus = remember {
+            mutableStateOf(true)
         }
 
         val (backRes, loginTitleRes, phoneTitleRes, phoneLinearRes, checkPhoneRes,phoneLineRes,
@@ -223,12 +226,18 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                  */
                 it.filters = Array(1){LengthFilter(16)}
                 it.background = BaseApplication.instance!!.getDrawable(R.color.white_trans_ba)
-                /**
-                 * 手机号输完后自动获取焦点
-                 */
-                if(phoneInput.value.length == 11){
-                    it.requestFocus()
+
+                if(!passwordCouldFocus.value){
+                    it.clearFocus()
+                    val inputMethod : InputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethod.hideSoftInputFromWindow(it.windowToken,0)
                 }
+//                /**
+//                 * 手机号输完后自动获取焦点
+//                 */
+//                if(passwordCouldFocus.value && phoneInput.value.length == 11){
+//                    it.requestFocus()
+//                }
             })
 
         Spacer(
@@ -251,8 +260,7 @@ fun LoginLogin(navController: NavController,activityController: NavController){
             state = loginLoadingState,
             progressColor = colorResource(R.color.bg_blue_deep_start),
             onClick = {
-                focusManager.clearFocus(true)
-                keyboardController?.hide()
+                passwordCouldFocus.value = false
 
                 CoroutineScope(Dispatchers.Main).launch {
                     loginLoadingState.value = true
