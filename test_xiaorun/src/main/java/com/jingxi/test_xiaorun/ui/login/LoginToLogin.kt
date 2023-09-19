@@ -230,12 +230,12 @@ fun LoginLogin(navController: NavController,activityController: NavController){
                     val inputMethod : InputMethodManager = it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     inputMethod.hideSoftInputFromWindow(it.windowToken,0)
                 }
-//                /**
-//                 * 手机号输完后自动获取焦点
-//                 */
-//                if(passwordCouldFocus.value && phoneInput.value.length == 11){
-//                    it.requestFocus()
-//                }
+                /**
+                 * 手机号输完后自动获取焦点
+                 */
+                if(passwordCouldFocus.value && phoneInput.value.length == 11){
+                    it.requestFocus()
+                }
             })
 
         Spacer(
