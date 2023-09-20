@@ -266,6 +266,11 @@ fun modulesBar(activityNavController: NavController) {
         MainConfBean(R.mipmap.icons_delivery, "模块一"),
         MainConfBean(R.mipmap.icons_health_log, "模块一"),
         MainConfBean(R.mipmap.icons_yuyue_log, "模块一"),
+        MainConfBean(R.mipmap.icon_wait_receive_order, "模块一"),
+        MainConfBean(R.mipmap.icon_wallet, "模块一"),
+        MainConfBean(R.mipmap.icons_delivery, "模块一"),
+        MainConfBean(R.mipmap.icons_health_log, "模块一"),
+        MainConfBean(R.mipmap.icons_yuyue_log, "模块一")
     )
     val rowCount = 5
     val columnCount = 2
@@ -287,6 +292,8 @@ fun modulesBar(activityNavController: NavController) {
         val end = modules.size.coerceAtMost(start + rowCount * columnCount)
         AutoFitGridLayout(
             lineSpaceHeight = 53.dp,
+            colCount = columnCount,
+            rowCount = rowCount,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(), data = modules.subList(start, end)
