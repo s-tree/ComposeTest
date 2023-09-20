@@ -31,6 +31,7 @@ class XiaoRunActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window,false)
+        window.statusBarColor = Color.White.toArgb()
         setContent {
             MaterialTheme {
                 Surface(color = Color.White) {
