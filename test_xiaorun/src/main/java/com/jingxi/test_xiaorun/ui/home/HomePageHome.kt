@@ -286,13 +286,13 @@ fun modulesBar(activityNavController: NavController) {
         val start = page * rowCount * columnCount
         val end = modules.size.coerceAtMost(start + rowCount * columnCount)
         AutoFitGridLayout(
+            lineSpaceHeight = 53.dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(), data = modules.subList(start, end)
         ) { mainConfBean ->
             Column(
                 Modifier
-                    .padding(top = 20.dp, bottom = 20.dp)
                     .fillMaxWidth()
                     .weight(1f),
                 verticalArrangement = Arrangement.Center,
