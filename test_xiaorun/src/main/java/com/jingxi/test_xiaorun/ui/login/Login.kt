@@ -3,6 +3,7 @@ package com.jingxi.test_xiaorun.ui.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -30,7 +31,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.ui.web.WebViewParams
-import com.jingxi.test_xiaorun.ui.weiget.statusBar
 import com.jingxi.test_xiaorun.util.HtmlFileFactory
 
 class Login {
@@ -85,7 +85,10 @@ class Login {
 
             if(currentPage.value == LoginPage.REGISTER
                 || currentPage.value == LoginPage.LOGIN) {
-                Row(Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center) {
 
@@ -95,7 +98,10 @@ class Login {
                         Modifier
                             .width(40.dp)
                             .height(40.dp)
-                            .clickable(onClick = {checkNote.value = !checkNote.value}))
+                            .clickable(
+                                onClick = { checkNote.value = !checkNote.value },
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null))
                     
                     Text(text = "登录注册代表你已同意",
                         fontSize = 22.sp,
@@ -106,10 +112,17 @@ class Login {
                         fontSize = 22.sp,
                         color = colorResource(id = R.color.tv_gray),
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.padding(start = 18.dp)
-                            .clickable ( onClick = {
-                                activityController.navigate(WebViewParams.buildUrl(HtmlFileFactory.buildUrl(HtmlFileFactory.AGREEMENT_USER)))
-                            } ))
+                        modifier = Modifier
+                            .padding(start = 18.dp)
+                            .clickable(onClick = {
+                                activityController.navigate(
+                                    WebViewParams.buildUrl(
+                                        HtmlFileFactory.buildUrl(
+                                            HtmlFileFactory.AGREEMENT_USER
+                                        )
+                                    )
+                                )
+                            }))
 
                     Text(text = "和",
                         fontSize = 22.sp,
@@ -121,9 +134,16 @@ class Login {
                         fontSize = 22.sp,
                         color = colorResource(id = R.color.tv_gray),
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.padding(start = 18.dp)
+                        modifier = Modifier
+                            .padding(start = 18.dp)
                             .clickable {
-                                activityController.navigate(WebViewParams.buildUrl(HtmlFileFactory.buildUrl(HtmlFileFactory.AGREEMENT_PRIVACY)))
+                                activityController.navigate(
+                                    WebViewParams.buildUrl(
+                                        HtmlFileFactory.buildUrl(
+                                            HtmlFileFactory.AGREEMENT_PRIVACY
+                                        )
+                                    )
+                                )
                             })
                 }
             }
