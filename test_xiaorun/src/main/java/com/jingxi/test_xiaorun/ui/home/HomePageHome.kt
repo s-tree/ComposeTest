@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -437,9 +438,10 @@ fun communityWelfare(activityNavController: NavController) {
 
         Text(text = "更多",
             fontSize = 24.sp,
+            textAlign = TextAlign.Center,
             color = colorResource(id = R.color.tv_gray_8591a3),
             modifier = Modifier.constrainAs(welfareMoreTv) {
-                top.linkTo(welfareMoreTv.top)
+                top.linkTo(welfareTitle.top)
                 bottom.linkTo(welfareTitle.bottom)
                 end.linkTo(welfareMoreIcon.start)
             })
