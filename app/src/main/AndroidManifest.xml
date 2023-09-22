@@ -37,6 +37,10 @@
             android:exported="true"/>
         <activity android:name=".activites.NavigationActivity"
             android:exported="true"/>
+        <activity android:name=".activites.TestDrawActivity"
+            android:exported="true"/>
+        <activity android:name=".activites.PullRefreshActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>
