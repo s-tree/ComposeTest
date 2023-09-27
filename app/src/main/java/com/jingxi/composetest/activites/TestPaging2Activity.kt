@@ -82,10 +82,9 @@ public class TestPaging2Activity : ComponentActivity(){
 
 }
 
-public open class TestSource():BasePagingSource<String>(1, loadData = {
-            pageIndex -> loadData(pageIndex)
-    }) {
-    private suspend fun loadData(pageIndex:Int):List<String>{
+open class TestSource :BasePagingSource<String>(1) {
+
+    override suspend fun loadData(pageIndex:Int): List<String> {
         delay(1000)
         val list = mutableListOf<String>()
         val start = pageIndex * 20

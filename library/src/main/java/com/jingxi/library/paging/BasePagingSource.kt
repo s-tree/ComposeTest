@@ -4,9 +4,8 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 
-public open class BasePagingSource<Value : Any>(
-    private val pageStart:Int = 1,
-    val loadData :suspend (pageIndex:Int) -> (List<Value>)) : PagingSource<Int,Value>() {
+public abstract class BasePagingSource<Value : Any>(
+    private val pageStart:Int = 1) : PagingSource<Int,Value>() {
 
     override fun getRefreshKey(state: PagingState<Int, Value>): Int? {
         return null
@@ -27,5 +26,5 @@ public open class BasePagingSource<Value : Any>(
             nextKey = nextPage)
     }
 
-//    abstract fun loadData(pageIndex:Int):List<Value>
+    abstract suspend fun loadData(pageIndex:Int):List<Value>
 }

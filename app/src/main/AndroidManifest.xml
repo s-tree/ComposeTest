@@ -45,6 +45,8 @@
             android:exported="true"/>
         <activity android:name=".activites.TestPagingActivity"
             android:exported="true"/>
+        <activity android:name=".activites.TestPaging2Activity"
+            android:exported="true"/>
     </application>
 
 </manifest>
