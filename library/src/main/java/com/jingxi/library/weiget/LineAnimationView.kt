@@ -23,7 +23,7 @@ import kotlin.math.abs
 @Composable
 fun walkBallsView(pointSize: Dp = 10.dp, ballState: BallState = rememberBallState(),modifier: Modifier = Modifier, colors:List<Color>){
     val animationSpec : InfiniteRepeatableSpec<Float> = infiniteRepeatable(
-        animation = tween(durationMillis = 1000, easing = LinearEasing),
+        animation = tween(durationMillis = 2000, easing = LinearEasing),
         repeatMode = RepeatMode.Restart
     )
 
