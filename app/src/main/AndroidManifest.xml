@@ -43,6 +43,8 @@
             android:exported="true"/>
         <activity android:name=".activites.PullRefreshLayoutActivity"
             android:exported="true"/>
+        <activity android:name=".activites.TestPagingActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>
