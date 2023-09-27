@@ -23,10 +23,10 @@ fun <Value : Any> PagingPager(
 
 @Composable
 fun <Value : Any> pagingStatus(pagingItems: LazyPagingItems<Value>,
-                 onRefresh : @Composable (refreshing : Boolean) -> Unit,
-                 onLoading : @Composable () -> Unit,
-                 onLoadFailed : @Composable () -> Unit,
-                 onNoData : @Composable () -> Unit){
+                 onRefresh : @Composable (refreshing : Boolean) -> Unit = {},
+                 onLoading : @Composable () -> Unit = {},
+                 onLoadFailed : @Composable () -> Unit = {},
+                 onNoData : @Composable () -> Unit = {}){
     when(pagingItems.loadState.refresh){
         is LoadState.Loading -> onRefresh(true)
         is LoadState.Error -> onRefresh(false)

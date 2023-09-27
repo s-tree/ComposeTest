@@ -30,7 +30,7 @@ class PullRefreshLayoutActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                refreshing = refreshingState.value,
+                refreshing = refreshingState,
                 onRefresh = {
                     /**
                      * 保持在加载状态

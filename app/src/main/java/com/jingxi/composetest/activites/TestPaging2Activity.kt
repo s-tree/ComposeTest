@@ -42,8 +42,10 @@ public class TestPaging2Activity : ComponentActivity(){
             mutableStateOf(false)
         }
 
-        PullRefreshAnimLayout(refreshing = refreshState.value, onRefresh = {
+//        SwipeRefreshLayout(loadingState = refreshState, onRefresh = {
+        PullRefreshAnimLayout(refreshing = refreshState, onRefresh = {
             Log.d("TestPaging2Activity","start refresh")
+//            refreshState.value = true
             pageItem.refresh()
         }) {
             LazyColumn(modifier = Modifier
@@ -61,7 +63,6 @@ public class TestPaging2Activity : ComponentActivity(){
                     item{
                         pagingStatus(
                             pagingItems = pageItem,
-                            onRefresh = {refreshing -> run { Log.d("TestPaging2Activity","onRefresh $refreshing") } },
                             onLoading = { Text(text = "正在加载",
                                 Modifier
                                     .fillMaxWidth()
@@ -78,6 +79,13 @@ public class TestPaging2Activity : ComponentActivity(){
                 }
             }
         }
+
+        /**
+         * refresh 事件需要放到外部来监听
+         */
+        pagingStatus(
+            pagingItems = pageItem,
+            onRefresh = {refreshing -> run { refreshState.value = refreshing }})
     }
 
 }

@@ -37,7 +37,7 @@ import kotlin.math.pow
 @Composable
 fun PullRefreshAnimLayout(
     modifier: Modifier = Modifier,
-    refreshing: Boolean,
+    refreshing: State<Boolean>,
     onRefresh: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -52,10 +52,10 @@ fun PullRefreshAnimLayout(
     }
 
     val ballState:BallState = rememberBallState()
-    ballState.enable = refreshing
+    ballState.enable = refreshing.value
 
     val state =
-        rememberPullRefreshLayoutState(refreshing, onRefresh,onRelease = {}, refreshingOffset = refreshPlaceHeight)
+        rememberPullRefreshLayoutState(refreshing.value, onRefresh,onRelease = {}, refreshingOffset = refreshPlaceHeight)
 
 
     Box(
@@ -64,7 +64,8 @@ fun PullRefreshAnimLayout(
             .padding(bottom = state.position.dp)
             .graphicsLayer {
                 translationY = state.position
-            }) {
+            }
+    ) {
 
         content()
 
