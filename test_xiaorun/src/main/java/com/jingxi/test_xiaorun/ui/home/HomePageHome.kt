@@ -23,11 +23,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -40,12 +40,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
+import com.jingxi.library.weiget.PullRefreshAnimLayout
 import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.bean.MainConfBean
 import com.jingxi.test_xiaorun.bean.WelfareBean
+import com.jingxi.test_xiaorun.data.request
 import com.jingxi.test_xiaorun.ui.weiget.AutoFitGridLayout
 import com.jingxi.test_xiaorun.ui.weiget.PagerCircleIndicator
 import com.jingxi.test_xiaorun.ui.weiget.statusBar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,37 +69,58 @@ fun HomePageHome(activityNavController: NavController) {
             .background(color = colorResource(id = R.color.color_fff2f2f2))
     ) {
         titleBar(activityNavController)
+        val refreshingState = remember {
+            mutableStateOf(false)
+        }
 
-
-        Column(
+        PullRefreshAnimLayout(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.White,
-                            colorResource(
-                                id = R.color.bg_white_to_gary_end
-                            ),
+                .fillMaxHeight(),
+            refreshing = refreshingState.value,
+            onRefresh = {
+                /**
+                 * 保持在加载状态
+                 */
+                refreshingState.value = true
+                CoroutineScope(Dispatchers.Default).launch {
+                    val job = async { request() }
+                    val result = job.await()
+                    refreshingState.value = false
+                    if(result == "Success"){}
+                }
+            }
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White,
+                                colorResource(
+                                    id = R.color.bg_white_to_gary_end
+                                ),
+                            )
                         )
                     )
-                )
-                .zIndex(2f)
-                .verticalScroll(state = scrollState)
-        ) {
+                    .zIndex(2f)
+                    .verticalScroll(state = scrollState)
+            ) {
 
-            weatherBar(activityNavController = activityNavController)
+                weatherBar(activityNavController = activityNavController)
 
-            adBar(activityNavController)
+                adBar(activityNavController)
 
-            modulesBar(activityNavController)
+                modulesBar(activityNavController)
 
-            noticeBar(activityNavController)
+                noticeBar(activityNavController)
 
-            communityWelfare(activityNavController)
-            
-            Spacer(modifier = Modifier.height(20.dp))
+                communityWelfare(activityNavController)
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
     }
 }
