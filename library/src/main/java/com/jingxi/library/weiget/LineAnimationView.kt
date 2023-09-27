@@ -1,6 +1,5 @@
 package com.jingxi.library.weiget
 
-import android.util.Log
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -39,7 +38,6 @@ fun walkBallsView(pointSize: Dp = 10.dp, ballState: BallState = rememberBallStat
         val ballCount = colors.size
         val radius = pointSize.toPx()
         val nowValue = animateValue.value + ballState.offset
-        Log.d("walkBallsView: ","nowValue = $nowValue")
         for(i in 0 until 3.coerceAtLeast(ballCount)){
             var progress = nowValue
             if(i == 1){
@@ -56,9 +54,6 @@ fun walkBallsView(pointSize: Dp = 10.dp, ballState: BallState = rememberBallStat
                 y = radius + (size.height - radius * 2 ) * ((abs(progress - 50f)) / 50f)
             }
             val current = radius + (size.width - radius * 2) / 100 * progress
-            if(i == 0){
-                Log.d("walkBallsView: ","currentX = $current + maxX = ${size.width}")
-            }
             drawCircle(colors[i],pointSize.toPx(),center = Offset(current,y))
         }
     })
