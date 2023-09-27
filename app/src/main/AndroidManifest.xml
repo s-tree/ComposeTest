@@ -41,6 +41,8 @@
             android:exported="true"/>
         <activity android:name=".activites.PullRefreshActivity"
             android:exported="true"/>
+        <activity android:name=".activites.PullRefreshLayoutActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>
