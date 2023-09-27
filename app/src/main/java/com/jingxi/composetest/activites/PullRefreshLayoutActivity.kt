@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,13 +25,9 @@ class PullRefreshLayoutActivity : ComponentActivity() {
             val refreshingState = remember {
                 mutableStateOf(false)
             }
-            val data = MutableList(31) { 0 }
-            for (i in 0..30) {
-                data[i] = i
-            }
 
             PullRefreshAnimLayout(
-                Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
                 refreshing = refreshingState.value,
@@ -39,17 +36,25 @@ class PullRefreshLayoutActivity : ComponentActivity() {
                      * 保持在加载状态
                      */
                     refreshingState.value = true
-                },
-                items = data
-            ) { index, item ->
-                Text(
-                    text = "$item",
-                    fontSize = 26.sp,
-                    modifier = Modifier
+                }
+            ) {
+                LazyColumn(
+                    Modifier
                         .fillMaxWidth()
-                        .height(80.dp),
-                    textAlign = TextAlign.Center
-                )
+                        .fillMaxHeight()
+                ) {
+                    items(count = 30) {
+                        Text(
+                            text = "$it",
+                            fontSize = 26.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                }
             }
         }
     }

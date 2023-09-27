@@ -1,14 +1,11 @@
 package com.jingxi.library.weiget
 
 import androidx.compose.animation.core.animate
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshDefaults
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -38,49 +35,54 @@ import kotlin.math.pow
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun <T> PullRefreshAnimLayout(
+fun PullRefreshAnimLayout(
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     refreshing: Boolean,
     onRefresh: () -> Unit,
-    items: List<T>,
-    itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    content: @Composable BoxScope.() -> Unit
 ) {
     val refreshPlaceHeight = 88.dp
+    val placeOffset : Float
     val animationViewSize = 40.dp
     val animationPadding: Float
     with(LocalDensity.current) {
+        placeOffset = refreshPlaceHeight.toPx()
         animationPadding =
-            (refreshPlaceHeight.toPx() - animationViewSize.toPx()) / 2 + animationViewSize.toPx()
+            (placeOffset - animationViewSize.toPx()) / 2 + animationViewSize.toPx()
     }
 
-    val state =
-        rememberPullRefreshLayoutState(refreshing, onRefresh, refreshingOffset = refreshPlaceHeight)
+    val ballState:BallState = rememberBallState()
+    ballState.enable = refreshing
 
-    Box(Modifier.pullRefreshLayout(state)) {
-        LazyColumn(
-            //让列表跟随手指滑动
-            modifier = modifier.graphicsLayer {
+    val state =
+        rememberPullRefreshLayoutState(refreshing, onRefresh,onRelease = {}, refreshingOffset = refreshPlaceHeight)
+
+
+    Box(
+        modifier
+            .pullRefreshLayout(state)
+            .padding(bottom = state.position.dp)
+            .graphicsLayer {
                 translationY = state.position
-            },
-            contentPadding = contentPadding,
-            verticalArrangement = verticalArrangement,
-        ) {
-            itemsIndexed(items) { index, item ->
-                itemContent(index, item)
-            }
-        }
+            }) {
+
+        content()
 
         walkBallsView(
             pointSize = 5.dp,
+            ballState = ballState,
             modifier = Modifier
                 .width(40.dp)
                 .height(40.dp)
                 .align(Alignment.TopCenter)
                 //让指示器跟随手指滑动
                 .graphicsLayer {
-                    translationY = state.position - animationPadding
+                    translationY = -animationPadding
+                    if(state.position < animationPadding){
+                        ballState.offset = 0f
+                    }else{
+                        ballState.offset = animationPadding.coerceAtMost(0f.coerceAtLeast(state.position - animationPadding)) / animationPadding * 100
+                    }
                 },
             colors = listOf(
                 Color.Green,
@@ -97,6 +99,7 @@ fun <T> PullRefreshAnimLayout(
 fun rememberPullRefreshLayoutState(
     refreshing: Boolean,
     onRefresh: () -> Unit,
+    onRelease: (Float) -> Unit,
     refreshThreshold: Dp = PullRefreshDefaults.RefreshThreshold,
     refreshingOffset: Dp = PullRefreshDefaults.RefreshingOffset,
 ): PullRefreshLayoutState {
@@ -104,6 +107,7 @@ fun rememberPullRefreshLayoutState(
 
     val scope = rememberCoroutineScope()
     val onRefreshState = rememberUpdatedState(onRefresh)
+    val onReleaseState = rememberUpdatedState(onRelease)
     val thresholdPx: Float
     val refreshingOffsetPx: Float
 
@@ -113,7 +117,7 @@ fun rememberPullRefreshLayoutState(
     }
 
     val state = remember(scope) {
-        PullRefreshLayoutState(scope, onRefreshState, refreshingOffsetPx, thresholdPx)
+        PullRefreshLayoutState(scope, onRefreshState,onReleaseState, refreshingOffsetPx, thresholdPx)
     }
 
     SideEffect {
@@ -140,6 +144,7 @@ fun Modifier.pullRefreshLayout(
 class PullRefreshLayoutState internal constructor(
     private val animationScope: CoroutineScope,
     private val onRefreshState: State<() -> Unit>,
+    private val onReleaseState: State<(Float) -> Unit>,
     private val refreshingOffset: Float,
     internal val threshold: Float
 ) {
@@ -174,6 +179,7 @@ class PullRefreshLayoutState internal constructor(
             } else {
                 animateIndicatorTo(0f)
             }
+            onReleaseState.value(adjustedDistancePulled)
         }
         distancePulled = 0f
         return 0f
