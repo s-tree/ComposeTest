@@ -67,15 +67,18 @@ fun HomeUIMain(activityController: NavController){
                      * 去除水波纹
                      * indication = null
                      */
-                    .clickable(interactionSource = remember { MutableInteractionSource() },indication = null, onClick = {
-                        homeNavController.navigate(page.route) {
-                            popUpTo(homeNavController.graph.findStartDestination().id) {
-                                saveState = true
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {
+                            homeNavController.navigate(page.route) {
+                                popUpTo(homeNavController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }),
+                        }),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center) {
                     Image(painter = painterResource(id = if(isSelected){page.selectIcon}else{page.unSelectIcon}), contentDescription = null,
