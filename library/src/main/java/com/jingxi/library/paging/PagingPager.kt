@@ -19,7 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
-@Composable
 fun <Value : Any> PagingPager(
     pageSize: Int = 10, pagerSource: PagingSource<Int, Value>
 ): Flow<PagingData<Value>> {
