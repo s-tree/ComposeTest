@@ -14,8 +14,8 @@ fun HomePageMine(activityNavController: NavController){
     Box(modifier = Modifier
         .fillMaxWidth()
         .fillMaxHeight(),
-            contentAlignment = Alignment.Center){
-        
+        contentAlignment = Alignment.Center){
+
         Text(text = "这个是我的页面")
     }
 }

@@ -1,6 +1,5 @@
 package com.jingxi.library.paging
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 
@@ -18,12 +17,15 @@ public abstract class BasePagingSource<Value : Any>(
         }catch (exception:Exception){
             return LoadResult.Error(exception)
         }
-        val nextPage = if(response.isEmpty()) {pageIndex} else {pageIndex + 1}
-        Log.d("TestPagingActivity","pageIndex = $pageIndex nextPage = $nextPage")
+
+        if(response.isEmpty()){
+            return LoadResult.Error<Int, Value>(NoMoreException("没有更多"))
+        }
+
         return LoadResult.Page(
             response,
-            prevKey = if(pageIndex - 1 < pageStart) null else pageIndex - 1,
-            nextKey = nextPage)
+            null,
+            nextKey = pageIndex + 1)
     }
 
     abstract suspend fun loadData(pageIndex:Int):List<Value>

@@ -67,7 +67,8 @@ public class TestPaging2Activity : ComponentActivity(){
                                 Modifier
                                     .fillMaxWidth()
                                     .height(88.dp), textAlign = TextAlign.Center) },
-                            onLoadFailed = { Text(text = "加载失败",
+                            onLoadFailed = {
+                                Text(text = it ?: "加载失败",
                                 Modifier
                                     .fillMaxWidth()
                                     .height(88.dp), textAlign = TextAlign.Center)},
@@ -95,10 +96,12 @@ open class TestSource :BasePagingSource<String>(1) {
     override suspend fun loadData(pageIndex:Int): List<String> {
         delay(1000)
         val list = mutableListOf<String>()
-        val start = pageIndex * 20
-        val end = start + 20
-        for (i in start until end){
-            list.add(i.toString())
+        if(pageIndex == 1){
+            val start = pageIndex * 20
+            val end = start + 20
+            for (i in start until end){
+                list.add(i.toString())
+            }
         }
         return list
     }

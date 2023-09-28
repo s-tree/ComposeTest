@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.lang.Math.abs
@@ -76,6 +77,7 @@ fun PullRefreshAnimLayout(
                 .width(40.dp)
                 .height(40.dp)
                 .align(Alignment.TopCenter)
+                .zIndex(-1f)
                 //让指示器跟随手指滑动
                 .graphicsLayer {
                     translationY = -animationPadding
