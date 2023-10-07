@@ -36,6 +36,7 @@ import com.jingxi.library.paging.pagingStatus
 import com.jingxi.library.weiget.PullRefreshAnimLayout
 import com.jingxi.test_xiaorun.R
 import com.jingxi.test_xiaorun.ui.weiget.statusBar
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomePageRecent(activityNavController: NavController){
@@ -191,6 +192,7 @@ fun recentItem(recentBean: RecentBean){
 }
 open class RecentSource : BasePagingSource<RecentBean>(1){
     override suspend fun loadData(pageIndex: Int): List<RecentBean> {
+        delay(3000)
         val data = mutableListOf<RecentBean>()
         if(pageIndex == 1){
             for (i in 0..8){
