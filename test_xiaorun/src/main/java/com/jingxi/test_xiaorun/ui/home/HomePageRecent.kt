@@ -26,22 +26,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.jingxi.library.paging.BasePagingSource
-import com.jingxi.library.paging.PagingPager
 import com.jingxi.library.paging.defaultLoadMoreViews
 import com.jingxi.library.paging.pagingStatus
 import com.jingxi.library.weiget.PullRefreshAnimLayout
 import com.jingxi.test_xiaorun.R
+import com.jingxi.test_xiaorun.ui.home.viewmodel.RecentViewModel
 import com.jingxi.test_xiaorun.ui.weiget.statusBar
 import kotlinx.coroutines.delay
 
 @Composable
 fun HomePageRecent(activityNavController: NavController){
     statusBar(color = colorResource(id = R.color.bg_color_gary_f3f2f5), isDarkIcon = true, fitSystemWindow = true)
-    val pageItem = PagingPager(pageSize = 10, pagerSource = RecentSource()).collectAsLazyPagingItems()
+    val recentViewModel = viewModel(modelClass = RecentViewModel::class.java)
+    val pageItem : LazyPagingItems<RecentBean> = recentViewModel.pageItemFlow.collectAsLazyPagingItems();
 
     Column(
         Modifier
@@ -61,7 +64,7 @@ fun HomePageRecent(activityNavController: NavController){
                 .fillMaxHeight(),
             refreshing = refreshingState,
             onRefresh = {
-                pageItem.refresh()
+                recentViewModel.refresh(pageItem)
             }
         ){
             LazyColumn(
@@ -81,6 +84,7 @@ fun HomePageRecent(activityNavController: NavController){
                 }
             }
         }
+
 
         /**
          * refresh 事件需要放到外部来监听

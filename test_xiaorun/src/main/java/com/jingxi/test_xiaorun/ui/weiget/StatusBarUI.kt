@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,7 +27,7 @@ fun statusBar(color: Color = Color.Transparent,isDarkIcon: Boolean,fitSystemWind
     }
 
     return if(fitSystemWindow){
-        Modifier.statusBarsPadding()
+        Modifier.statusBarsPadding().navigationBarsPadding()
     }else{
         Modifier
     }
