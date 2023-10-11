@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
@@ -36,9 +37,13 @@ import com.jingxi.library.paging.defaultLoadMoreViews
 import com.jingxi.library.paging.pagingStatus
 import com.jingxi.library.weiget.PullRefreshAnimLayout
 import com.jingxi.test_xiaorun.R
+import com.jingxi.test_xiaorun.ui.home.viewmodel.RecentBean
 import com.jingxi.test_xiaorun.ui.home.viewmodel.RecentViewModel
 import com.jingxi.test_xiaorun.ui.weiget.statusBar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun HomePageRecent(activityNavController: NavController){
@@ -64,7 +69,12 @@ fun HomePageRecent(activityNavController: NavController){
                 .fillMaxHeight(),
             refreshing = refreshingState,
             onRefresh = {
-                recentViewModel.refresh(pageItem)
+                recentViewModel.viewModelScope.launch {
+                    withContext(Dispatchers.IO){
+                        delay(2000)
+                    }
+                    pageItem.refresh()
+                }
             }
         ){
             LazyColumn(
@@ -194,17 +204,3 @@ fun recentItem(recentBean: RecentBean){
     
     Spacer(modifier = Modifier.height(20.dp))
 }
-open class RecentSource : BasePagingSource<RecentBean>(1){
-    override suspend fun loadData(pageIndex: Int): List<RecentBean> {
-        delay(3000)
-        val data = mutableListOf<RecentBean>()
-        if(pageIndex == 1){
-            for (i in 0..8){
-                data.add(RecentBean(R.mipmap.icon_xitong,"系统消息$i","祝贺您加入到社区测试小区","2023-09-28 14:30"))
-            }
-        }
-        return data
-    }
-}
-
-data class RecentBean(val iconResource: Int,val title:String,val subTitle:String,val time:String)

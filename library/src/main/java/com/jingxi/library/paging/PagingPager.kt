@@ -19,13 +19,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 fun <Value : Any> PagingPager(
-    pageSize: Int = 10, pagerSource: BasePagingSource<Value>
+    pageSize: Int = 10, pagerSource: BasePagingSource<Value>,
+    scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ): Flow<PagingData<Value>> {
     val pagingConfig = PagingConfig(pageSize = pageSize, initialLoadSize = 2)
     val pager = Pager(config = pagingConfig) {
         pagerSource.newObject()
     }
-        .flow.cachedIn(CoroutineScope(Dispatchers.Default))
+        .flow.cachedIn(scope)
     return pager
 }
 
