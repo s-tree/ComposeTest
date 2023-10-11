@@ -12,7 +12,6 @@ import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.compose.LazyPagingItems
 import kotlinx.coroutines.CoroutineScope
@@ -20,10 +19,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 fun <Value : Any> PagingPager(
-    pageSize: Int = 10, pagerSource: PagingSource<Int, Value>
+    pageSize: Int = 10, pagerSource: BasePagingSource<Value>
 ): Flow<PagingData<Value>> {
     val pagingConfig = PagingConfig(pageSize = pageSize, initialLoadSize = 2)
-    val pager = Pager(config = pagingConfig) { pagerSource.javaClass.newInstance() }
+    val pager = Pager(config = pagingConfig) {
+        pagerSource.newObject()
+    }
         .flow.cachedIn(CoroutineScope(Dispatchers.Default))
     return pager
 }

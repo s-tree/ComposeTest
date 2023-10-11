@@ -29,4 +29,8 @@ public abstract class BasePagingSource<Value : Any>(
     }
 
     abstract suspend fun loadData(pageIndex:Int):List<Value>
+
+    open fun newObject() : BasePagingSource<Value>{
+        return this.javaClass.newInstance()
+    }
 }
