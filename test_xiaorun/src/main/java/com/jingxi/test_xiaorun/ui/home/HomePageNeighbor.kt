@@ -89,6 +89,7 @@ fun HomePageNeighbor(activityNavController: NavController) {
                 .fillMaxWidth()
                 .height(70.dp)
                 .background(Color.White),
+            edgePadding = 10.dp,
             contentColor = Color.Transparent,
             containerColor = Color.Transparent,
             indicator = {tabPositions ->
@@ -126,12 +127,6 @@ fun HomePageNeighbor(activityNavController: NavController) {
             mutableStateOf(false)
         }
 
-        Spacer(
-            modifier = Modifier
-                .height(27.dp)
-                .background(colorResource(id = R.color.bg_color_gary_f3f2f5))
-        )
-
         HorizontalPager(
             state = pageState, pageCount = tabs.size, modifier = Modifier
                 .fillMaxWidth()
@@ -151,12 +146,16 @@ fun HomePageNeighbor(activityNavController: NavController) {
                 ) {
                     pageItem.apply {
                         items(items = pageItem) { item ->
-                            item?.let { NeighborItem(it) }
-                            Spacer(
-                                modifier = Modifier
-                                    .height(27.dp)
-                                    .background(colorResource(id = R.color.bg_color_gary_f3f2f5))
-                            )
+
+                            Column(Modifier.fillMaxWidth()) {
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(27.dp)
+                                        .background(colorResource(id = R.color.bg_color_gary_f3f2f5))
+                                )
+                                item?.let { NeighborItem(it) }
+                            }
                         }
 
                         item {
@@ -219,7 +218,7 @@ fun NeighborItem(neighborBean: NeighborBean) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(top = 34.dp, start = 29.dp, end = 29.dp)
+            .padding(top = 34.dp, start = 29.dp, end = 29.dp, bottom = 27.dp)
     ) {
         val (headRes, nameRes, timeRes, moreRes, contentRes, picRes, bodyRes) = createRefs()
 
