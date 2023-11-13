@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 open class RecentViewModel : ViewModel() {
 
     val pageItemFlow = PagingPager(pageSize = 10, pagerSource = RecentSource(), scope = viewModelScope)
+    var pageData : LazyPagingItems<RecentBean> ?= null
 
     fun refresh(pageItem : LazyPagingItems<RecentBean>){
         viewModelScope.launch {

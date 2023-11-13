@@ -49,7 +49,13 @@ import kotlinx.coroutines.withContext
 fun HomePageRecent(activityNavController: NavController){
     statusBar(color = colorResource(id = R.color.bg_color_gary_f3f2f5), isDarkIcon = true, fitSystemWindow = true)
     val recentViewModel = viewModel(modelClass = RecentViewModel::class.java)
-    val pageItem : LazyPagingItems<RecentBean> = recentViewModel.pageItemFlow.collectAsLazyPagingItems();
+    var pageI : LazyPagingItems<RecentBean> ?= recentViewModel.pageData
+    if(pageI == null){
+        pageI = recentViewModel.pageItemFlow.collectAsLazyPagingItems()
+        recentViewModel.pageData = pageI
+    }
+
+    val pageItem : LazyPagingItems<RecentBean> = recentViewModel.pageItemFlow.collectAsLazyPagingItems()
 
     Column(
         Modifier
@@ -69,12 +75,12 @@ fun HomePageRecent(activityNavController: NavController){
                 .fillMaxHeight(),
             refreshing = refreshingState,
             onRefresh = {
-                recentViewModel.viewModelScope.launch {
-                    withContext(Dispatchers.IO){
-                        delay(2000)
-                    }
-                    pageItem.refresh()
-                }
+//                recentViewModel.viewModelScope.launch {
+//                    withContext(Dispatchers.IO){
+//                        delay(2000)
+//                    }
+                    pageI.refresh()
+//                }
             }
         ){
             LazyColumn(
@@ -82,14 +88,14 @@ fun HomePageRecent(activityNavController: NavController){
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
-                pageItem.apply {
-                    items(items = pageItem){
+                pageI.apply {
+                    items(items = pageI){
                         value ->
                         value?.let { recentItem(recentBean = it) }
                     }
 
                     item{
-                        defaultLoadMoreViews(pageItem)
+                        defaultLoadMoreViews(pageI)
                     }
                 }
             }
@@ -100,7 +106,7 @@ fun HomePageRecent(activityNavController: NavController){
          * refresh 事件需要放到外部来监听
          */
         pagingStatus(
-            pagingItems = pageItem,
+            pagingItems = pageI,
             onRefresh = {refreshing -> run { refreshingState.value = refreshing }})
     }
 }
