@@ -55,8 +55,8 @@ class XiaoRunActivity : ComponentActivity() {
 //        }
 //        navControl.setLifecycleOwner(this)
 //        navControl.setOnBackPressedDispatcher(onBackPressedDispatcher)
-//        NavHost(navController = navControl, startDestination = Page.LOGIN){
-        NavHost(navController = navControl, startDestination = Page.HOME){
+        NavHost(navController = navControl, startDestination = Page.LOGIN){
+//        NavHost(navController = navControl, startDestination = Page.HOME){
 
             composable(Page.LOGIN){
                 Login().Main(navControl)
