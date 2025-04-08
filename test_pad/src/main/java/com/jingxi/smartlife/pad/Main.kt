@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.jingxi.library.foundation.noInterClick
 import com.jingxi.smartlife.pad.compose.R
 import com.jingxi.smartlife.pad.util.BatteryUtil
 import com.jingxi.smartlife.pad.util.CardListUtil
@@ -397,7 +398,7 @@ fun qrDialog(state: MutableState<Boolean>){
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xA0000000))
-            .clickable (
+            .clickable(
                 remember { MutableInteractionSource() },
                 indication = null,
                 onClick = { state.value = false }
@@ -411,7 +412,9 @@ fun qrDialog(state: MutableState<Boolean>){
             Image(
                 painter = painterResource(id = R.mipmap.bg_family_code),
                 contentDescription = null,
-                Modifier.fillMaxSize())
+                Modifier
+                    .fillMaxSize()
+                    .noInterClick {})
 
             val (nameLinear,qrTipLayout,familyLogo) = createRefs()
 
