@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +32,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,7 +54,7 @@ import com.jingxi.smartlife.pad.util.TimeUtil
 import com.jingxi.smartlife.pad.util.WeatherUtil
 import com.jingxi.smartlife.pad.util.WifiUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import java.lang.Integer.min
 
 class Main {
@@ -344,7 +342,9 @@ class Main {
                         start.linkTo(qrText.start)
                         end.linkTo(qrText.end)
                     }
-                    .clickable { qrState.value = true }
+                    .noInterClick {
+                        qrState.value = true
+                    }
             )
 
             Text(
@@ -353,7 +353,7 @@ class Main {
                 color = colorResource(id = R.color.color_ff323232),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .constrainAs(qrText){
+                    .constrainAs(qrText) {
                         top.linkTo(qrcode.bottom, 10.dp)
                         end.linkTo(parent.end, 25.dp)
                     }
@@ -520,12 +520,24 @@ fun qrDialog(state: MutableState<Boolean>){
                     }
             )
 
-            LaunchedEffect(LocalContext.current){
-                qrBitmapState.value = withContext(Dispatchers.IO) {
-                    BitmapUtil.createQR("{\"familyId\": \"1234567890\"}", 214, 0)
+            val scope = rememberCoroutineScope()
+
+            DisposableEffect(Unit){
+                val job = scope.launch(Dispatchers.IO){
+                    qrBitmapState.value = try {
+                        BitmapUtil.createQR("{\"familyId\": \"1234567890\"}", 214, 0)
+                    }catch (e: Exception){
+                        e.printStackTrace()
+                        null
+                    }
+                }
+
+                onDispose {
+                    job.cancel()
+                    qrBitmapState.value?.recycle()
+                    qrBitmapState.value = null
                 }
             }
-
         }
     }
 }
