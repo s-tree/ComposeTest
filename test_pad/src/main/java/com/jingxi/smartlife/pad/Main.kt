@@ -1,5 +1,6 @@
 package com.jingxi.smartlife.pad
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.jingxi.library.foundation.noInterClick
+import com.jingxi.library.util.BitmapUtil
 import com.jingxi.smartlife.pad.compose.R
 import com.jingxi.smartlife.pad.util.BatteryUtil
 import com.jingxi.smartlife.pad.util.CardListUtil
@@ -47,6 +55,8 @@ import com.jingxi.smartlife.pad.util.EthUtil
 import com.jingxi.smartlife.pad.util.TimeUtil
 import com.jingxi.smartlife.pad.util.WeatherUtil
 import com.jingxi.smartlife.pad.util.WifiUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.lang.Integer.min
 
 class Main {
@@ -480,6 +490,41 @@ fun qrDialog(state: MutableState<Boolean>){
                     }
             )
 
+            val qrBitmapState: MutableState<Bitmap?> = remember {
+                mutableStateOf(null)
+            }
+
+            Image(
+                painter = if(qrBitmapState.value == null) ColorPainter(Color.White) else BitmapPainter(qrBitmapState.value!!.asImageBitmap()),
+                contentDescription = null,
+                Modifier
+                    .width(214.dp)
+                    .height(214.dp)
+                    .background(Color.White)
+                    .constrainAs(qrRightIcon) {
+                        top.linkTo(qrRightBg.top, 53.dp)
+                        start.linkTo(qrRightBg.start)
+                        end.linkTo(qrRightBg.end)
+                    }
+            )
+
+            Text(
+                text = "小程序端扫一扫",
+                fontSize = 20.sp,
+                color = colorResource(id = R.color.black_1d2129),
+                modifier = Modifier
+                    .constrainAs(qrRightTip) {
+                        start.linkTo(qrRightBg.start)
+                        end.linkTo(qrRightBg.end)
+                        bottom.linkTo(qrRightBg.bottom, 27.dp)
+                    }
+            )
+
+            LaunchedEffect(LocalContext.current){
+                qrBitmapState.value = withContext(Dispatchers.IO) {
+                    BitmapUtil.createQR("{\"familyId\": \"1234567890\"}", 214, 0)
+                }
+            }
 
         }
     }
