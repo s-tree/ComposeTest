@@ -19,3 +19,4 @@ rootProject.name = "ComposeTest"
 include ':app'
 include ':test_xiaorun'
 include ':library'
+include ':test_pad'
